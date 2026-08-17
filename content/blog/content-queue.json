@@ -1,0 +1,32 @@
+{
+  "queue": [
+    { "id": 1,  "slugVi": "mot-gio-doi-ban-gia-bao-nhieu",         "week": 1, "day": 1,  "type": "pillar",      "status": "pending" },
+    { "id": 2,  "slugVi": "luong-30-trieu-115-nghin-mot-gio",      "week": 1, "day": 2,  "type": "longtail",    "status": "pending" },
+    { "id": 3,  "slugVi": "may-tinh-ty-gia-doi",                   "week": 1, "day": 3,  "type": "tool",        "status": "pending" },
+    { "id": 4,  "slugVi": "gio-ket-xe-co-phai-gio-lam-viec",       "week": 1, "day": 4,  "type": "story",       "status": "pending" },
+    { "id": 5,  "slugVi": "ba-loai-gio-khong-ai-tra-tien",         "week": 1, "day": 5,  "type": "counterpoint","status": "pending" },
+    { "id": 6,  "slugVi": "thu-tinh-gia-mot-gio-5-nghe",           "week": 1, "day": 6,  "type": "social",      "status": "pending" },
+    { "id": 7,  "slugVi": "thu-cn-tuan-nay-toi-ban",               "week": 1, "day": 7,  "type": "letter",      "status": "pending" },
+    { "id": 8,  "slugVi": "giau-la-song-duoc-bao-lau",             "week": 2, "day": 8,  "type": "pillar",      "status": "pending" },
+    { "id": 9,  "slugVi": "quy-tac-4-phan-tram",                   "week": 2, "day": 9,  "type": "longtail",    "status": "pending" },
+    { "id": 10, "slugVi": "may-tinh-von-tu-do",                    "week": 2, "day": 10, "type": "tool",        "status": "pending" },
+    { "id": 11, "slugVi": "vi-sao-toi-khong-tinh-nha-dang-o",      "week": 2, "day": 11, "type": "story",       "status": "pending" },
+    { "id": 12, "slugVi": "tiet-kiem-10-25-50-phan-tram",          "week": 2, "day": 12, "type": "counterpoint","status": "pending" },
+    { "id": 13, "slugVi": "fire-viet-nam-4-5-ty",                  "week": 2, "day": 13, "type": "social",      "status": "pending" },
+    { "id": 14, "slugVi": "thu-cn-mua-them-ngay-tu-do",            "week": 2, "day": 14, "type": "letter",      "status": "pending" },
+    { "id": 15, "slugVi": "moi-mon-do-co-hai-gia",                 "week": 3, "day": 15, "type": "pillar",      "status": "pending" },
+    { "id": 16, "slugVi": "iphone-217-gio-doi",                    "week": 3, "day": 16, "type": "longtail",    "status": "pending" },
+    { "id": 17, "slugVi": "may-quy-doi-chi-tieu",                  "week": 3, "day": 17, "type": "tool",        "status": "pending" },
+    { "id": 18, "slugVi": "ca-phe-50-nghin-9-ngay",                "week": 3, "day": 18, "type": "story",       "status": "pending" },
+    { "id": 19, "slugVi": "ba-khoan-chi-dat-nhat-tinh-bang-gio",   "week": 3, "day": 19, "type": "counterpoint","status": "pending" },
+    { "id": 20, "slugVi": "mua-xe-tra-gop-gia-that",               "week": 3, "day": 20, "type": "social",      "status": "pending" },
+    { "id": 21, "slugVi": "thu-cn-tuan-nay-tieu-may-gio",          "week": 3, "day": 21, "type": "letter",      "status": "pending" },
+    { "id": 22, "slugVi": "con-10-tuoi-con-2500-gio",              "week": 4, "day": 22, "type": "pillar",      "status": "pending" },
+    { "id": 23, "slugVi": "con-bao-nhieu-gio-voi-con",             "week": 4, "day": 23, "type": "tool",        "status": "pending" },
+    { "id": 24, "slugVi": "chat-luong-hon-so-luong-sai",           "week": 4, "day": 24, "type": "counterpoint","status": "pending" },
+    { "id": 25, "slugVi": "30-phut-moi-toi-8-nam",                 "week": 4, "day": 25, "type": "longtail",    "status": "pending" },
+    { "id": 26, "slugVi": "cha-me-lam-ca-kip",                     "week": 4, "day": 26, "type": "story",       "status": "pending" },
+    { "id": 27, "slugVi": "dua-con-di-hoc-co-tinh-khong",          "week": 4, "day": 27, "type": "social",      "status": "pending" },
+    { "id": 28, "slugVi": "thu-cn-con-noi-chuyen-may-lan",         "week": 4, "day": 28, "type": "letter",      "status": "pending" }
+  ]
+}
