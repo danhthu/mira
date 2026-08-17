@@ -1,5 +1,5 @@
-﻿---
-title: "Giá» káº¹t xe cÃ³ pháº£i lÃ  giá» lÃ m viá»‡c khÃ´ng?"
+---
+title: "Giờ kẹt xe có phải là giờ làm việc không?"
 slug: "gio-ket-xe-co-phai-gio-lam-viec"
 altSlug: null
 locale: "vi"
@@ -7,37 +7,37 @@ date: "2026-08-20"
 type: "story"
 week: 1
 day: 4
-description: "Má»™t buá»•i chiá»u káº¹t xe trÃªn cáº§u, vÃ  cÃ¢u há»i tÃ´i tá»± há»i mÃ¬nh láº§n Ä‘áº§u: giá» nÃ y thuá»™c vá» ai?"
+description: "Một buổi chiều kẹt xe trên cầu, và câu hỏi tôi tự hỏi mình lần đầu: giờ này thuộc về ai?"
 tags: ["ty-gia-doi", "cau-chuyen"]
 image: "/blog/images/04-ket-xe.jpg"
 image_prompt: "Wide shot of a motorbike traffic jam on a bridge in a Vietnamese city at golden hour, warm orange and teal color grade, cinematic, slightly hazy air, one rider glancing at their phone's clock, documentary photography style, no legible text or logos"
 cta: null
 ---
 
-TÃ´i káº¹t trÃªn cáº§u SÃ i GÃ²n 42 phÃºt hÃ´m Ä‘Ã³. Biáº¿t chÃ­nh xÃ¡c vÃ¬ tÃ´i má»Ÿ Ä‘iá»‡n thoáº¡i xem giá» ba láº§n, vÃ  láº§n cuá»‘i cÃ¹ng thÃ¬ báº¯t Ä‘áº§u Ä‘áº¿m ngÆ°á»£c tá»« lÃºc báº¯t Ä‘áº§u nhÃ­ch bÃ¡nh.
+Tôi kẹt trên cầu Sài Gòn 42 phút hôm đó. Biết chính xác vì tôi mở điện thoại xem giờ ba lần, và lần cuối cùng thì bắt đầu đếm ngược từ lúc bắt đầu nhích bánh.
 
-42 phÃºt khÃ´ng lÃ m Ä‘Æ°á»£c gÃ¬. KhÃ´ng gá»i Ä‘iá»‡n, tay báº­n giá»¯ ga. KhÃ´ng nghe podcast trá»n váº¹n vÃ¬ tiáº¿ng cÃ²i xe. KhÃ´ng nghá»‰ ngÆ¡i, vÃ¬ pháº£i cÄƒng máº¯t nhÃ¬n ngÆ°á»i phÃ­a trÆ°á»›c cÃ³ phanh gáº¥p khÃ´ng.
+42 phút không làm được gì. Không gọi điện, tay bận giữ ga. Không nghe podcast trọn vẹn vì tiếng còi xe. Không nghỉ ngơi, vì phải căng mắt nhìn người phía trước có phanh gấp không.
 
-CÃ¢u há»i báº­t ra trong Ä‘áº§u tÃ´i lÃºc Ä‘Ã³, hÆ¡i buá»“n cÆ°á»i vÃ¬ nÃ³ khÃ´ng giá»‘ng cÃ¢u há»i ngÆ°á»i ta hay tá»± há»i khi káº¹t xe: 42 phÃºt nÃ y thuá»™c vá» ai?
+Câu hỏi bật ra trong đầu tôi lúc đó, hơi buồn cười vì nó không giống câu hỏi người ta hay tự hỏi khi kẹt xe: 42 phút này thuộc về ai?
 
-## KhÃ´ng pháº£i giá» lÃ m, cÅ©ng khÃ´ng pháº£i giá» cá»§a tÃ´i
+## Không phải giờ làm, cũng không phải giờ của tôi
 
-NÃ³ khÃ´ng pháº£i giá» lÃ m viá»‡c â€” khÃ´ng cÃ´ng ty nÃ o tráº£ lÆ°Æ¡ng cho Ä‘oáº¡n Ä‘Æ°á»ng vá» nhÃ . NhÆ°ng nÃ³ cÅ©ng khÃ´ng pháº£i giá» cá»§a tÃ´i theo nghÄ©a tÃ´i chá»n dÃ¹ng nÃ³ Ä‘á»ƒ lÃ m gÃ¬ Ä‘Ã³ tÃ´i muá»‘n.
+Nó không phải giờ làm việc — không công ty nào trả lương cho đoạn đường về nhà. Nhưng nó cũng không phải giờ của tôi theo nghĩa tôi chọn dùng nó để làm gì đó tôi muốn.
 
-TÃ´i khÃ´ng chá»n Ä‘i lÃ m cÃ¡ch nhÃ  11km. TÃ´i khÃ´ng chá»n giá» tan táº§m trÃ¹ng vá»›i ná»­a thÃ nh phá»‘. CÃ¢y cáº§u Ä‘Ã³, Ä‘oáº¡n káº¹t Ä‘Ã³, tá»“n táº¡i vÃ¬ tÃ´i cÃ³ má»™t cÃ´ng viá»‡c cáº§n Ä‘áº¿n, vÃ  cÃ´ng viá»‡c Ä‘Ã³ khÃ´ng náº±m á»Ÿ gáº§n nhÃ .
+Tôi không chọn đi làm cách nhà 11km. Tôi không chọn giờ tan tầm trùng với nửa thành phố. Cây cầu đó, đoạn kẹt đó, tồn tại vì tôi có một công việc cần đến, và công việc đó không nằm ở gần nhà.
 
-NÃ³i cÃ¡ch khÃ¡c: 42 phÃºt Ä‘Ã³ lÃ  cÃ¡i giÃ¡ cá»§a cÃ´ng viá»‡c, chá»‰ lÃ  khÃ´ng ai Ä‘Æ°a nÃ³ vÃ o báº£ng lÆ°Æ¡ng.
+Nói cách khác: 42 phút đó là cái giá của công việc, chỉ là không ai đưa nó vào bảng lương.
 
-## Con sá»‘ cá»™ng dá»“n
+## Con số cộng dồn
 
-TÃ´i thá»­ cá»™ng láº¡i. 42 phÃºt má»™t chiá»u, khÃ´ng pháº£i ngÃ y nÃ o cÅ©ng váº­y nhÆ°ng láº¥y trung bÃ¬nh khoáº£ng 35 phÃºt má»—i chiá»u, 6 ngÃ y má»™t tuáº§n. Ra hÆ¡n 3,5 tiáº¿ng má»™t tuáº§n chá»‰ riÃªng chiá»u vá».
+Tôi thử cộng lại. 42 phút một chiều, không phải ngày nào cũng vậy nhưng lấy trung bình khoảng 35 phút mỗi chiều, 6 ngày một tuần. Ra hơn 3,5 tiếng một tuần chỉ riêng chiều về.
 
-Cá»™ng cáº£ chiá»u Ä‘i, con sá»‘ tÄƒng gáº§n gáº¥p Ä‘Ã´i. Má»™t thÃ¡ng, tÃ´i máº¥t khoáº£ng 28 tiáº¿ng trÃªn Ä‘Æ°á»ng â€” gáº§n báº±ng 4 ngÃ y lÃ m viá»‡c trá»n váº¹n, chá»‰ Ä‘á»ƒ di chuyá»ƒn giá»¯a nhÃ  vÃ  vÄƒn phÃ²ng.
+Cộng cả chiều đi, con số tăng gần gấp đôi. Một tháng, tôi mất khoảng 28 tiếng trên đường — gần bằng 4 ngày làm việc trọn vẹn, chỉ để di chuyển giữa nhà và văn phòng.
 
-28 tiáº¿ng Ä‘Ã³ khÃ´ng xuáº¥t hiá»‡n á»Ÿ Ä‘Ã¢u trong cÃ¡ch tÃ´i váº«n ká»ƒ vá» thá»i gian cá»§a mÃ¬nh. TÃ´i váº«n nÃ³i "tÃ´i lÃ m 8 tiáº¿ng má»™t ngÃ y" nhÆ° thá»ƒ pháº§n cÃ²n láº¡i lÃ  cá»§a riÃªng tÃ´i.
+28 tiếng đó không xuất hiện ở đâu trong cách tôi vẫn kể về thời gian của mình. Tôi vẫn nói "tôi làm 8 tiếng một ngày" như thể phần còn lại là của riêng tôi.
 
-## Äiá»u tÃ´i khÃ´ng lÃ m sau hÃ´m Ä‘Ã³
+## Điều tôi không làm sau hôm đó
 
-TÃ´i khÃ´ng Ä‘á»•i viá»‡c. KhÃ´ng chuyá»ƒn nhÃ  gáº§n hÆ¡n â€” chÆ°a Ä‘á»§ Ä‘iá»u kiá»‡n Ä‘á»ƒ lÃ m ngay lÃºc Ä‘Ã³. Äiá»u duy nháº¥t tÃ´i lÃ m lÃ  báº¯t Ä‘áº§u tÃ­nh 35 phÃºt má»—i chiá»u vÃ o tá»•ng giá» cÃ´ng viá»‡c láº¥y Ä‘i cá»§a mÃ¬nh, thay vÃ¬ coi nÃ³ lÃ  khoáº£ng trá»‘ng khÃ´ng thuá»™c vá» ai.
+Tôi không đổi việc. Không chuyển nhà gần hơn — chưa đủ điều kiện để làm ngay lúc đó. Điều duy nhất tôi làm là bắt đầu tính 35 phút mỗi chiều vào tổng giờ công việc lấy đi của mình, thay vì coi nó là khoảng trống không thuộc về ai.
 
-Chá»‰ váº­y thÃ´i. NhÆ°ng láº§n sau cÃ³ ai há»i tÃ´i lÃ m viá»‡c máº¥y tiáº¿ng má»™t ngÃ y, tÃ´i tráº£ lá»i khÃ¡c. KhÃ´ng pháº£i 8. Gáº§n 10, náº¿u tÃ­nh luÃ´n Ä‘oáº¡n Ä‘Æ°á»ng mÃ  khÃ´ng cÃ´ng ty nÃ o ghi vÃ o há»£p Ä‘á»“ng.
+Chỉ vậy thôi. Nhưng lần sau có ai hỏi tôi làm việc mấy tiếng một ngày, tôi trả lời khác. Không phải 8. Gần 10, nếu tính luôn đoạn đường mà không công ty nào ghi vào hợp đồng.

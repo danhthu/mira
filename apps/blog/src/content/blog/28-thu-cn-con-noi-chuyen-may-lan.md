@@ -1,5 +1,5 @@
-﻿---
-title: "[ThÆ° CN] Tuáº§n nÃ y con tÃ´i nÃ³i chuyá»‡n vá»›i tÃ´i máº¥y láº§n?"
+---
+title: "[Thư CN] Tuần này con tôi nói chuyện với tôi mấy lần?"
 slug: "thu-cn-con-noi-chuyen-may-lan"
 altSlug: null
 locale: "vi"
@@ -7,29 +7,29 @@ date: "2026-09-13"
 type: "letter"
 week: 4
 day: 28
-description: "LÃ¡ thÆ° Chá»§ nháº­t tuáº§n 4, khÃ©p láº¡i thÃ¡ng Ä‘áº§u tiÃªn. Má»™t cÃ¢u há»i khÃ³ tráº£ lá»i hÆ¡n tÃ´i tÆ°á»Ÿng, vÃ  lÃ½ do tÃ´i váº«n há»i nÃ³ má»—i tuáº§n."
+description: "Lá thư Chủ nhật tuần 4, khép lại tháng đầu tiên. Một câu hỏi khó trả lời hơn tôi tưởng, và lý do tôi vẫn hỏi nó mỗi tuần."
 tags: ["thu-chu-nhat"]
 image: null
 cta: "newsletter-signup"
 newsletter: true
 ---
 
-ChÃ o,
+Chào,
 
-Tuáº§n nÃ y khÃ©p láº¡i thÃ¡ng Ä‘áº§u tiÃªn cá»§a nhá»¯ng lÃ¡ thÆ° nÃ y â€” tá»« tá»· giÃ¡ Ä‘á»i, sang vá»‘n tá»± do, sang quy Ä‘á»•i tiá»n-giá», vÃ  tuáº§n nÃ y lÃ  con cÃ¡i. CÃ¢u há»i tÃ´i tá»± há»i mÃ¬nh tá»‘i nay khÃ´ng dá»… tráº£ lá»i nhÆ° ba cÃ¢u trÆ°á»›c.
+Tuần này khép lại tháng đầu tiên của những lá thư này — từ tỷ giá đời, sang vốn tự do, sang quy đổi tiền-giờ, và tuần này là con cái. Câu hỏi tôi tự hỏi mình tối nay không dễ trả lời như ba câu trước.
 
-Tuáº§n nÃ y con tÃ´i nÃ³i chuyá»‡n tháº­t vá»›i tÃ´i máº¥y láº§n?
+Tuần này con tôi nói chuyện thật với tôi mấy lần?
 
-KhÃ´ng tÃ­nh nhá»¯ng cÃ¢u nhÆ° "con Äƒn cÆ¡m chÆ°a", "Ä‘i táº¯m Ä‘i". TÃ­nh nhá»¯ng láº§n con chá»§ Ä‘á»™ng ká»ƒ Ä‘iá»u gÃ¬ Ä‘Ã³ â€” chuyá»‡n á»Ÿ lá»›p, chuyá»‡n vá»›i báº¡n, má»™t Ä‘iá»u con nghÄ© ra khÃ´ng liÃªn quan gÃ¬ tá»›i viá»‡c nhÃ .
+Không tính những câu như "con ăn cơm chưa", "đi tắm đi". Tính những lần con chủ động kể điều gì đó — chuyện ở lớp, chuyện với bạn, một điều con nghĩ ra không liên quan gì tới việc nhà.
 
-TÃ´i Ä‘áº¿m láº¡i Ä‘Æ°á»£c ba láº§n. Cáº£ tuáº§n. Con sá»‘ Ä‘Ã³ lÃ m tÃ´i khá»±ng láº¡i má»™t chÃºt, nhiá»u hÆ¡n cáº£ nhá»¯ng con sá»‘ vá» tiá»n hay giá» lÃ m viá»‡c tÃ´i tá»«ng tÃ­nh trong ba tuáº§n trÆ°á»›c.
+Tôi đếm lại được ba lần. Cả tuần. Con số đó làm tôi khựng lại một chút, nhiều hơn cả những con số về tiền hay giờ làm việc tôi từng tính trong ba tuần trước.
 
-TÃ´i khÃ´ng viáº¿t thÆ° nÃ y Ä‘á»ƒ nÃ³i báº¡n nÃªn Ä‘áº¿m giá»‘ng tÃ´i, hay Ä‘á»ƒ so sÃ¡nh con sá»‘ cá»§a báº¡n vá»›i ba. Chá»‰ lÃ  muá»‘n nÃ³i: cÃ¢u há»i nÃ y khÃ³ hÆ¡n nhá»¯ng cÃ¢u há»i vá» tiá»n, vÃ¬ nÃ³ khÃ´ng cÃ³ cÃ´ng thá»©c rÃµ rÃ ng, khÃ´ng cÃ³ con sá»‘ "nÃªn lÃ  bao nhiÃªu". Chá»‰ cÃ³ viá»‡c Ä‘á»ƒ Ã½, vÃ  nháº­n ra khi con sá»‘ tháº¥p hÆ¡n mÃ¬nh tÆ°á»Ÿng.
+Tôi không viết thư này để nói bạn nên đếm giống tôi, hay để so sánh con số của bạn với ba. Chỉ là muốn nói: câu hỏi này khó hơn những câu hỏi về tiền, vì nó không có công thức rõ ràng, không có con số "nên là bao nhiêu". Chỉ có việc để ý, và nhận ra khi con số thấp hơn mình tưởng.
 
-Äiá»u tÃ´i lÃ m sau khi Ä‘áº¿m ra ba láº§n khÃ´ng pháº£i má»™t káº¿ hoáº¡ch lá»›n. TÃ´i chá»‰ Ä‘á»•i má»™t viá»‡c nhá»: táº¯t Ä‘iá»‡n thoáº¡i 30 phÃºt sau bá»¯a tá»‘i, ngá»“i láº¡i thÃªm má»™t chÃºt thay vÃ¬ dá»n dáº¹p ngay. ChÆ°a biáº¿t tuáº§n sau con sá»‘ sáº½ lÃ  bao nhiÃªu. NhÆ°ng tÃ´i sáº½ Ä‘áº¿m láº¡i.
+Điều tôi làm sau khi đếm ra ba lần không phải một kế hoạch lớn. Tôi chỉ đổi một việc nhỏ: tắt điện thoại 30 phút sau bữa tối, ngồi lại thêm một chút thay vì dọn dẹp ngay. Chưa biết tuần sau con số sẽ là bao nhiêu. Nhưng tôi sẽ đếm lại.
 
-Náº¿u tuáº§n nÃ y báº¡n muá»‘n thá»­, khÃ´ng cáº§n cÃ´ng cá»¥ gÃ¬ â€” chá»‰ cáº§n Ä‘á»ƒ Ã½, vÃ  cuá»‘i tuáº§n tá»± há»i cÃ¢u tÆ°Æ¡ng tá»± cho mÃ¬nh.
+Nếu tuần này bạn muốn thử, không cần công cụ gì — chỉ cần để ý, và cuối tuần tự hỏi câu tương tự cho mình.
 
-Cáº£m Æ¡n báº¡n Ä‘Ã£ Ä‘á»c háº¿t thÃ¡ng Ä‘áº§u tiÃªn. ThÃ¡ng sau, blog sáº½ má»Ÿ rá»™ng sang má»™t cá»¥m chá»§ Ä‘á» khÃ¡c â€” thá»i gian vá»›i bá»‘ máº¹, má»™t chá»§ Ä‘á» tÃ´i biáº¿t trÆ°á»›c sáº½ khÃ³ viáº¿t hÆ¡n tuáº§n nÃ y.
+Cảm ơn bạn đã đọc hết tháng đầu tiên. Tháng sau, blog sẽ mở rộng sang một cụm chủ đề khác — thời gian với bố mẹ, một chủ đề tôi biết trước sẽ khó viết hơn tuần này.
 
-Háº¹n Chá»§ nháº­t sau.
+Hẹn Chủ nhật sau.

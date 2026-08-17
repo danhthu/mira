@@ -1,5 +1,5 @@
-﻿---
-title: "LÆ°Æ¡ng 30 triá»‡u nhÆ°ng báº¡n chá»‰ kiáº¿m 115 nghÃ¬n má»™t giá» â€” vÃ¬ sao?"
+---
+title: "Lương 30 triệu nhưng bạn chỉ kiếm 115 nghìn một giờ — vì sao?"
 slug: "luong-30-trieu-115-nghin-mot-gio"
 altSlug: null
 locale: "vi"
@@ -7,47 +7,47 @@ date: "2026-08-18"
 type: "longtail"
 week: 1
 day: 2
-description: "CÃ¡ch tÃ­nh lÆ°Æ¡ng chia 8 tiáº¿ng bá» sÃ³t ba loáº¡i giá». ÄÃ¢y lÃ  bÃ i toÃ¡n chi tiáº¿t cho má»™t má»©c lÆ°Æ¡ng cá»¥ thá»ƒ."
+description: "Cách tính lương chia 8 tiếng bỏ sót ba loại giờ. Đây là bài toán chi tiết cho một mức lương cụ thể."
 tags: ["ty-gia-doi", "longtail"]
 image: "/blog/images/02-luong-30-trieu.jpg"
-image_prompt: "Flat-lay photo of a Vietnamese payslip and a calculator on a wooden desk, soft morning light from a window, a half-finished cup of cÃ  phÃª sá»¯a Ä‘Ã¡ beside it, warm minimal color palette, no visible faces, no text legible on the payslip"
+image_prompt: "Flat-lay photo of a Vietnamese payslip and a calculator on a wooden desk, soft morning light from a window, a half-finished cup of cà phê sữa đá beside it, warm minimal color palette, no visible faces, no text legible on the payslip"
 cta: "life-rate-calculator"
 ---
 
-30 triá»‡u má»™t thÃ¡ng váº«n lÃ  má»©c lÆ°Æ¡ng nhiá»u ngÆ°á»i ao Æ°á»›c. Chia cho 26 ngÃ y cÃ´ng, 8 tiáº¿ng má»—i ngÃ y, ra khoáº£ng 144 nghÃ¬n má»™t giá». KhÃ´ng tá»‡.
+30 triệu một tháng vẫn là mức lương nhiều người ao ước. Chia cho 26 ngày công, 8 tiếng mỗi ngày, ra khoảng 144 nghìn một giờ. Không tệ.
 
-NhÆ°ng náº¿u ngÆ°á»i nháº­n lÆ°Æ¡ng Ä‘Ã³ Ä‘i lÃ m á»Ÿ má»™t cÃ´ng ty cÃ¡ch nhÃ  12km, giá» cao Ä‘iá»ƒm máº¥t 45 phÃºt má»—i chiá»u, thÃ³i quen buá»•i tá»‘i lÃ  má»Ÿ laptop kiá»ƒm tra mail lÃºc 9 giá» vÃ¬ sáº¿p hay nháº¯n muá»™n, thÃ¬ con sá»‘ 144 nghÃ¬n chÆ°a bao giá» lÃ  con sá»‘ tháº­t.
+Nhưng nếu người nhận lương đó đi làm ở một công ty cách nhà 12km, giờ cao điểm mất 45 phút mỗi chiều, thói quen buổi tối là mở laptop kiểm tra mail lúc 9 giờ vì sếp hay nhắn muộn, thì con số 144 nghìn chưa bao giờ là con số thật.
 
-## BÃ³c tÃ¡ch má»™t tuáº§n cá»¥ thá»ƒ
+## Bóc tách một tuần cụ thể
 
-Giáº£ sá»­ tuáº§n lÃ m viá»‡c cá»§a ngÆ°á»i nÃ y trÃ´ng nhÆ° sau:
+Giả sử tuần làm việc của người này trông như sau:
 
-| Khoáº£n | Giá»/tuáº§n |
+| Khoản | Giờ/tuần |
 |---|---|
-| Giá» lÃ m trÃªn há»£p Ä‘á»“ng (8h Ã— 6 ngÃ y) | 48 |
-| Di chuyá»ƒn (1,5h Ã— 6 ngÃ y) | 9 |
-| Chuáº©n bá»‹ buá»•i sÃ¡ng, há»p sá»›m | 2 |
-| Há»“i sá»©c buá»•i tá»‘i, khÃ´ng lÃ m Ä‘Æ°á»£c gÃ¬ khÃ¡c | 5 |
-| **Tá»•ng giá» lÃ m tháº­t** | **60** |
+| Giờ làm trên hợp đồng (8h × 6 ngày) | 48 |
+| Di chuyển (1,5h × 6 ngày) | 9 |
+| Chuẩn bị buổi sáng, họp sớm | 2 |
+| Hồi sức buổi tối, không làm được gì khác | 5 |
+| **Tổng giờ làm thật** | **60** |
 
-Ãp cÃ´ng thá»©c tá»· giÃ¡ Ä‘á»i â€” thu nháº­p rÃ²ng chia cho (giá» tháº­t má»—i tuáº§n nhÃ¢n 52 chia 12) â€” con sá»‘ ra gáº§n **115 nghÃ¬n má»™t giá»**. KhÃ´ng pháº£i 144 nghÃ¬n.
+Áp công thức tỷ giá đời — thu nhập ròng chia cho (giờ thật mỗi tuần nhân 52 chia 12) — con số ra gần **115 nghìn một giờ**. Không phải 144 nghìn.
 
-Khoáº£ng cÃ¡ch giá»¯a hai con sá»‘, 29 nghÃ¬n má»™t giá», chÃ­nh lÃ  pháº§n cÃ´ng viá»‡c láº¥y Ä‘i mÃ  báº£ng lÆ°Æ¡ng chÆ°a bao giá» nháº¯c tá»›i.
+Khoảng cách giữa hai con số, 29 nghìn một giờ, chính là phần công việc lấy đi mà bảng lương chưa bao giờ nhắc tới.
 
-## VÃ¬ sao khoáº£ng cÃ¡ch nÃ y thÆ°á»ng bá»‹ bá» qua
+## Vì sao khoảng cách này thường bị bỏ qua
 
-Ba lÃ½ do, theo thá»© tá»± phá»• biáº¿n:
+Ba lý do, theo thứ tự phổ biến:
 
-Thá»© nháº¥t, má»i thá»© ngoÃ i "giá» lÃ m chÃ­nh thá»©c" Ä‘á»u bá»‹ coi lÃ  chuyá»‡n riÃªng cá»§a má»—i ngÆ°á»i â€” káº¹t xe do báº¡n chá»n á»Ÿ xa cÃ´ng ty, má»‡t do báº¡n khÃ´ng biáº¿t nghá»‰ ngÆ¡i. KhÃ´ng sai hoÃ n toÃ n, nhÆ°ng cÃ¡ch nghÄ© nÃ y giáº¥u Ä‘i má»™t sá»± tháº­t: náº¿u cÃ´ng viá»‡c khÃ´ng tá»“n táº¡i, nhá»¯ng giá» Ä‘Ã³ sáº½ khÃ´ng máº¥t.
+Thứ nhất, mọi thứ ngoài "giờ làm chính thức" đều bị coi là chuyện riêng của mỗi người — kẹt xe do bạn chọn ở xa công ty, mệt do bạn không biết nghỉ ngơi. Không sai hoàn toàn, nhưng cách nghĩ này giấu đi một sự thật: nếu công việc không tồn tại, những giờ đó sẽ không mất.
 
-Thá»© hai, cÃ¡c khoáº£n nÃ y ráº£i rÃ¡c, khÃ´ng gá»™p láº¡i bao giá» nÃªn khÃ´ng ai nhÃ¬n tháº¥y tá»•ng. 45 phÃºt má»™t chiá»u tháº¥y nhá». 45 phÃºt nhÃ¢n 6 ngÃ y nhÃ¢n 4 tuáº§n lÃ  18 tiáº¿ng má»™t thÃ¡ng â€” hÆ¡n hai ngÃ y lÃ m viá»‡c trá»n váº¹n.
+Thứ hai, các khoản này rải rác, không gộp lại bao giờ nên không ai nhìn thấy tổng. 45 phút một chiều thấy nhỏ. 45 phút nhân 6 ngày nhân 4 tuần là 18 tiếng một tháng — hơn hai ngày làm việc trọn vẹn.
 
-Thá»© ba â€” vÃ  Ä‘Ã¢y lÃ  pháº§n Ã­t ai thá»«a nháº­n â€” biáº¿t con sá»‘ tháº¥p hÆ¡n khÃ´ng dá»… chá»‹u. Dá»… hÆ¡n nhiá»u náº¿u cá»© tin mÃ¬nh kiáº¿m 144 nghÃ¬n má»™t giá».
+Thứ ba — và đây là phần ít ai thừa nhận — biết con số thấp hơn không dễ chịu. Dễ hơn nhiều nếu cứ tin mình kiếm 144 nghìn một giờ.
 
-## Con sá»‘ nÃ y Ä‘á»ƒ lÃ m gÃ¬
+## Con số này để làm gì
 
-KhÃ´ng pháº£i Ä‘á»ƒ Ä‘i máº·c cáº£ lÆ°Æ¡ng cao hÆ¡n, dÃ¹ cÅ©ng cÃ³ thá»ƒ dÃ¹ng vÃ o viá»‡c Ä‘Ã³. Tá»· giÃ¡ Ä‘á»i tháº­t há»¯u Ã­ch nháº¥t khi báº¡n Ä‘á»©ng trÆ°á»›c má»™t quyáº¿t Ä‘á»‹nh nhá»: cÃ³ Ä‘Ã¡ng nháº­n thÃªm viá»‡c Ä‘á»ƒ kiáº¿m thÃªm 2 triá»‡u má»™t thÃ¡ng, náº¿u viá»‡c Ä‘Ã³ ngá»‘n thÃªm 10 tiáº¿ng giá» há»“i sá»©c má»—i tuáº§n?
+Không phải để đi mặc cả lương cao hơn, dù cũng có thể dùng vào việc đó. Tỷ giá đời thật hữu ích nhất khi bạn đứng trước một quyết định nhỏ: có đáng nhận thêm việc để kiếm thêm 2 triệu một tháng, nếu việc đó ngốn thêm 10 tiếng giờ hồi sức mỗi tuần?
 
-á»ž má»©c 115 nghÃ¬n má»™t giá», 10 tiáº¿ng Ä‘Ã³ tÆ°Æ¡ng Ä‘Æ°Æ¡ng hÆ¡n 1,1 triá»‡u quy ra giá». Cá»™ng thÃªm 2 triá»‡u kiáº¿m thÃªm, tá»· giÃ¡ Ä‘á»i má»›i sáº½ tá»¥t xuá»‘ng dÆ°á»›i cáº£ má»©c hiá»‡n táº¡i â€” vÃ¬ cÃ ng lÃ m nhiá»u, giá» há»“i sá»©c thÆ°á»ng tÄƒng nhanh hÆ¡n giá» lÃ m viá»‡c tháº­t.
+Ở mức 115 nghìn một giờ, 10 tiếng đó tương đương hơn 1,1 triệu quy ra giờ. Cộng thêm 2 triệu kiếm thêm, tỷ giá đời mới sẽ tụt xuống dưới cả mức hiện tại — vì càng làm nhiều, giờ hồi sức thường tăng nhanh hơn giờ làm việc thật.
 
-ÄÃ¢y lÃ  phÃ©p tÃ­nh hiáº¿m khi Ä‘Æ°á»£c lÃ m trÆ°á»›c khi nháº­n thÃªm viá»‡c. Pháº§n lá»›n chá»‰ nhÃ¬n con sá»‘ thu nháº­p tÄƒng, khÃ´ng nhÃ¬n tá»· giÃ¡ Ä‘á»i giáº£m.
+Đây là phép tính hiếm khi được làm trước khi nhận thêm việc. Phần lớn chỉ nhìn con số thu nhập tăng, không nhìn tỷ giá đời giảm.
