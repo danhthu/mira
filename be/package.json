@@ -1,0 +1,19 @@
+{
+  "name": "mira-be",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "migrate": "ts-node src/database/migrations/runner.ts"
+  },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.0"
+  }
+}
