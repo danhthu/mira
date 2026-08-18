@@ -29,12 +29,23 @@ Migration sẽ in `[skip]` cho file đã chạy và `[done]` cho file mới. N�
 4. **Connection pooling config**: pool hiện dùng giá trị mặc định của `pg` (10 connections). Chưa expose `max`, `idleTimeoutMillis`, `connectionTimeoutMillis` qua env.
 5. **SSL**: chưa hỗ trợ `DB_SSL` env var — cần thêm nếu deploy lên cloud (Supabase, RDS).
 
+## Domain model (be/src/entities/ + be/src/shared/)
+
+Đã implement song song với scaffold:
+
+- **`src/entities/shared.ts`** — `TimeBucket` type dùng chung giữa TimeEntry, Expense, Moment (tránh import vòng)
+- **`src/entities/*.ts`** — 13 interface thuần TypeScript, `readonly`, union types thay vì enum, không deps
+- **`src/shared/dtos/`** — Create/Update DTOs cho Person, TimeEntry, Moment
+- **`src/shared/types/rows.ts`** — 13 raw SQL row types (snake_case, khớp cột PostgreSQL)
+
+Quyết định: `TimeBucket` nằm trong `shared.ts`; `TimeEntry.ts` re-export để DTOs có thể import từ đường dẫn quen.
+
 ## Bước tiếp theo
 
-Implement repositories để sử dụng queries:
-
-- `src/database/repositories/PersonRepository.ts` — inject `IDatabase`, dùng `PERSON_QUERIES`, map row → entity.
-- `src/database/repositories/TimeEntryRepository.ts` — tương tự với `TIME_ENTRY_QUERIES`.
-- `src/database/repositories/MomentRepository.ts` — tương tự với `MOMENT_QUERIES`.
-
-Mỗi repository nên nhận `IDatabase` qua constructor (dependency injection) để dễ test với mock adapter.
+1. **Mapper functions** (`Row → Entity`): parse JSON strings (person_ids, member_ids), convert snake_case → camelCase
+2. **Repositories** (DI pattern với `IDatabase`):
+   - `src/database/repositories/PersonRepository.ts` — inject `IDatabase`, dùng `PERSON_QUERIES`, map row → entity
+   - `src/database/repositories/TimeEntryRepository.ts`
+   - `src/database/repositories/MomentRepository.ts`
+3. **UUID v7**: chọn thư viện (ví dụ `uuidv7`) để sinh ID trong repositories
+4. **API layer**: REST endpoints hoặc tRPC khi V1 FE cần sync
