@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "migrate": "ts-node src/database/migrations/runner.ts"
+    "migrate": "ts-node src/database/migrations/runner.ts",
+    "seed": "ts-node src/database/seeds/runner.ts"
   },
   "dependencies": {
     "pg": "^8.13.0",
