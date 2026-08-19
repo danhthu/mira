@@ -45,15 +45,56 @@ File nằm ở `content/blog/vi/01-*.md` đến `28-*.md`. Hàng đợi publish 
 5. **Vẫn cần con người đọc lại bằng giọng thật trước khi publish** — các quy tắc trên giảm rủi
    ro bị nhận diện là AI, không loại bỏ hoàn toàn. Đừng bỏ qua bước này.
 
+## Đã làm thêm ngày 2026-08-19 — tuần 5-13 (ngày 29-91)
+
+Viết xong Giai đoạn 2 và 3 theo đúng tiêu đề và loại bài trong `docs/07-blog-120-days.md`.
+Ngày tiếp nối liền mạch từ ngày 28: ngày 29 = 2026-09-14, ngày 91 = 2026-11-15, giữ đúng
+nhịp Thư Chủ nhật rơi vào Chủ nhật.
+
+| Tuần | Ngày | Chủ đề | Công cụ đi kèm |
+|---|---|---|---|
+| 5 | 29-35 | Thời gian với bố mẹ | `parent-meetings-calculator` |
+| 6 | 36-42 | Chi phí ẩn của công việc | `real-work-hours-calculator` |
+| 7 | 43-49 | Ngân sách 168 giờ | `hours-168-budget` |
+| 8 | 50-56 | Nói không | `meeting-cost-calculator` |
+| 9 | 57-63 | Đường tới tự do | `four-day-week-calculator` |
+| 10 | 64-70 | Câu chuyện & phản biện | — |
+| 11 | 71-77 | Sống chậm | — |
+| 12 | 78-84 | Thu gom hạnh phúc | `moment-log` |
+| 13 | 85-91 | Mục tiêu & buông bỏ | `goal-cost-calculator` |
+
+**Trạng thái file**: bản site (`apps/blog/src/content/blog/`) có ngày 29-88. Ngày 89-91 mới chỉ
+có bản draft trong `content/blog/vi/`, chưa đưa sang site. `content-queue.json` đã có đủ 91 dòng,
+tất cả `status: "pending"`.
+
+**Sáu công cụ mới** ở bảng trên chưa được build — bài đã mô tả ô nhập và công thức, nhưng widget
+thật thì chưa có. Bài `type: "tool"` có key `widget` trong frontmatter trỏ tới tên công cụ.
+
+**Số liệu giữ nhất quán** với 28 bài đầu: 30 triệu / 60 giờ thật = 115 nghìn/giờ. Tuần 9 dùng một
+bộ số riêng xuyên suốt: thu nhập ròng 25 triệu, chi phí sống 18 triệu, để dành 7 triệu/tháng.
+
+**Bốn bài nhạy cảm, đã xử lý theo cảnh báo của chính lịch nội dung** — đọc lại kỹ hai bài đầu
+trước khi publish:
+- Ngày 29 (đếm ngược số lần gặp bố mẹ) và ngày 31 (tự phản biện chính bài 29). Bài 31 có cam kết
+  app sẽ không gửi thông báo đẩy đếm ngược — nếu sau này làm ngược lại thì phải sửa bài.
+- Ngày 39: không chia tiền tăng ca cho giờ với con, đúng luật giờ vàng không có giá.
+- Ngày 65 ghi rõ ba chân dung là gộp, không phải phóng sự thật. Ngày 70 không bịa email độc giả.
+
 ## Chưa làm — cần làm tiếp nếu muốn hết 120 ngày
 
-- **Tuần 5-9** (Giai đoạn 2, ngày 29-63): bố mẹ, chi phí ẩn công việc, ngân sách 168 giờ, nói
-  không, đường tới tự do. Toàn bộ tiêu đề đã có sẵn trong `docs/07-blog-120-days.md`.
-- **Tuần 10-13** (Giai đoạn 3, ngày 64-91): câu chuyện/phản biện, sống chậm, thu gom hạnh phúc,
-  mục tiêu & buông bỏ.
 - **Tuần 14-17** (Giai đoạn 4, ngày 92-120): quan hệ, so sánh & công cụ, ra mắt beta, tổng kết.
-- **Cảnh báo đặc biệt cho tuần 5**: bài ngày 29 và 70 trong lịch được đặt sẵn để xử lý phản ứng
-  tiêu cực về cụm bố mẹ — đừng bỏ hai bài đó khi viết tới.
+- **Ngày 89-91**: đưa bản draft sang `apps/blog/src/content/blog/` để khép trọn tuần 13.
+
+## Cảnh báo quy trình — rút ra từ đợt viết tuần 5-13
+
+Đợt này chạy nhiều tiến trình viết song song vào cùng một thư mục và đã xảy ra hai chuyện:
+một số bài bị ghi đè tại chỗ (mất bản tốt hơn), và nhiều ngày có hai file cùng số nhưng khác slug.
+
+Nếu lần sau còn chạy song song, giữ hai thứ này:
+- Chốt trước bảng `ngày | slug | type | date | tags | cta` và bắt mọi bài khớp đúng bảng.
+  File nào không khớp thì loại, đừng đoán bài nào tốt hơn.
+- Chạy `check-posts` (đối chiếu frontmatter với bảng, khung số từ, có phép tính, kết bằng câu hỏi,
+  danh sách từ cấm) trước khi mirror sang `content/blog/vi` và trước khi build.
 
 ## Hình ảnh — vẫn CHƯA làm, cần bạn
 
