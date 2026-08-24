@@ -36,5 +36,5 @@ GEMINI_API_KEY=xxx npm start
 
 ## File output
 
-- Ảnh lưu tại: `content/blog/vi/images/<slug>.png`
+- Ảnh lưu tại: `growth/content/vi/images/<slug>.png`
 - Trạng thái approve: `tools/admin/approved.json`

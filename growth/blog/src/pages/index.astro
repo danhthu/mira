@@ -1,0 +1,300 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const recentPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <style>
+      /* ── Hero ── */
+      .hero {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem 4rem;
+        text-align: center;
+      }
+
+      .hero-eyebrow {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        background: #EBF2EB;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--color-text);
+        margin: 0 0 1.25rem;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-subtitle {
+        font-size: 1.1rem;
+        color: var(--color-muted);
+        line-height: 1.75;
+        max-width: 540px;
+        margin: 0 auto 2.5rem;
+      }
+
+      .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--color-accent);
+        color: #fff;
+        padding: 0.75rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: background 0.15s, transform 0.15s;
+      }
+
+      .hero-cta:hover {
+        background: var(--color-accent-light);
+        text-decoration: none;
+        transform: translateY(-1px);
+      }
+
+      /* ── Metrics ── */
+      .metrics {
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+        padding: 3.5rem 1.5rem;
+      }
+
+      .metrics-inner {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      .metrics-label {
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+        margin-bottom: 2.5rem;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .metric-card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.75rem 1.5rem;
+        text-align: center;
+      }
+
+      .metric-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+        display: block;
+      }
+
+      .metric-name {
+        font-family: var(--font-serif);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0 0 0.5rem;
+      }
+
+      .metric-desc {
+        font-size: 0.875rem;
+        color: var(--color-muted);
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* ── Recent Posts ── */
+      .recent {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 0;
+      }
+
+      .section-title {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .section-title a {
+        font-family: var(--font-sans);
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-accent);
+      }
+
+      .recent-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .recent-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid var(--color-border);
+        transition: background 0.15s;
+      }
+
+      .recent-item:last-child {
+        border-bottom: none;
+      }
+
+      .recent-item:hover {
+        background: var(--color-surface);
+        text-decoration: none;
+      }
+
+      .recent-meta {
+        font-size: 0.78rem;
+        color: var(--color-muted);
+        white-space: nowrap;
+        padding-top: 0.2rem;
+        flex-shrink: 0;
+        min-width: 100px;
+      }
+
+      .recent-title {
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--color-text);
+        margin: 0 0 0.25rem;
+      }
+
+      .recent-item:hover .recent-title {
+        color: var(--color-accent);
+      }
+
+      .recent-desc {
+        font-size: 0.82rem;
+        color: var(--color-muted);
+        line-height: 1.5;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      @media (max-width: 640px) {
+        .hero {
+          padding: 3rem 1rem 2.5rem;
+          text-align: left;
+        }
+        .hero-eyebrow { margin-bottom: 1rem; }
+        .hero-subtitle { margin-left: 0; max-width: 100%; }
+        .metrics { padding: 2.5rem 1rem; }
+        .metrics-grid { grid-template-columns: 1fr; gap: 1rem; }
+        .recent { padding: 3rem 1rem 0; }
+        .recent-item { flex-direction: column; gap: 0.25rem; }
+        .recent-meta { min-width: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+
+    <!-- Hero -->
+    <section class="hero">
+      <span class="hero-eyebrow">Ứng dụng về thời gian & tiền bạc</span>
+      <h1 class="hero-title">Bạn còn bao nhiêu giờ<br />thật sự?</h1>
+      <p class="hero-subtitle">
+        Mira giúp bạn nhìn rõ hai thứ: bạn đang tiêu thời gian cho ai — và bạn đã mua được bao nhiêu tự do.
+      </p>
+      <a href="/blog" class="hero-cta">Đọc blog →</a>
+    </section>
+
+    <!-- 3 Metric Cards -->
+    <section class="metrics">
+      <div class="metrics-inner">
+        <p class="metrics-label">Ba chỉ số lõi</p>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-icon">⏳</span>
+            <h3 class="metric-name">Giờ vàng</h3>
+            <p class="metric-desc">Số giờ thật sự bên người quan trọng — không phải giờ ngồi cùng nhau nhưng mỗi người một màn hình.</p>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">💱</span>
+            <h3 class="metric-name">Tỷ giá đời</h3>
+            <p class="metric-desc">Thu nhập ròng theo giờ thật — sau khi trừ kẹt xe, tăng ca, chi phí đi làm. Con số thường thấp hơn bạn nghĩ.</p>
+          </div>
+          <div class="metric-card">
+            <span class="metric-icon">🌿</span>
+            <h3 class="metric-name">Vốn tự do</h3>
+            <p class="metric-desc">Tài sản ÷ chi tiêu tháng = số tháng bạn có thể sống mà không cần đi làm. Đây là thước đo tự do thật.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Posts -->
+    <section class="recent">
+      <h2 class="section-title">
+        Bài viết mới nhất
+        <a href="/blog">Xem tất cả →</a>
+      </h2>
+      <div class="recent-list">
+        {recentPosts.map((post) => (
+          <a href={`/blog/${post.id}/`} class="recent-item">
+            <span class="recent-meta"><FormattedDate date={post.data.date} /></span>
+            <div>
+              <h3 class="recent-title">{post.data.title}</h3>
+              {post.data.description && (
+                <p class="recent-desc">{post.data.description}</p>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <Footer />
+  </body>
+</html>

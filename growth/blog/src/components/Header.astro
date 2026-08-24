@@ -1,0 +1,77 @@
+---
+import HeaderLink from './HeaderLink.astro';
+---
+
+<header>
+  <nav>
+    <a href="/" class="logo">
+      <span class="logo-name">Mira</span>
+      <span class="logo-tagline">Thời gian & Tự do tài chính</span>
+    </a>
+    <div class="nav-links">
+      <HeaderLink href="/">Trang chủ</HeaderLink>
+      <HeaderLink href="/blog">Blog</HeaderLink>
+      <HeaderLink href="/about">Về Mira</HeaderLink>
+    </div>
+  </nav>
+</header>
+
+<style>
+  header {
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  nav {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  .logo:hover {
+    text-decoration: none;
+  }
+
+  .logo-name {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-tagline {
+    font-size: 0.7rem;
+    color: var(--color-muted);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  @media (max-width: 480px) {
+    .logo-tagline {
+      display: none;
+    }
+  }
+</style>

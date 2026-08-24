@@ -9,7 +9,7 @@ const app = express();
 const PORT = 4000;
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
-const CONTENT_DIR = path.join(REPO_ROOT, 'content', 'blog', 'vi');
+const CONTENT_DIR = path.join(REPO_ROOT, 'growth', 'content', 'vi');
 const IMAGES_DIR = path.join(CONTENT_DIR, 'images');
 const APPROVED_JSON = path.join(__dirname, 'approved.json');
 
@@ -98,7 +98,7 @@ app.post('/api/generate-image', async (req, res) => {
     fs.writeFileSync(imgFile, buffer);
 
     res.json({
-      imagePath: `content/blog/vi/images/${slug}.png`,
+      imagePath: `growth/content/vi/images/${slug}.png`,
       dataUrl: `data:image/png;base64,${imageBytes}`,
     });
   } catch (err) {
@@ -136,6 +136,23 @@ app.get('/images-proxy/:slug', (req, res) => {
   const imgFile = path.join(IMAGES_DIR, `${req.params.slug}.png`);
   if (!fs.existsSync(imgFile)) return res.status(404).send('Not found');
   res.sendFile(imgFile);
+});
+
+// POST /api/save-image-data — save base64 PNG captured from external source
+app.post('/api/save-image-data', (req, res) => {
+  const { slug, dataUrl } = req.body;
+  if (!slug || !dataUrl) return res.status(400).json({ error: 'slug and dataUrl required' });
+
+  try {
+    const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64, 'base64');
+    if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+    const imgFile = path.join(IMAGES_DIR, `${slug}.png`);
+    fs.writeFileSync(imgFile, buffer);
+    res.json({ ok: true, imagePath: `growth/content/vi/images/${slug}.png` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // POST /api/unapprove
