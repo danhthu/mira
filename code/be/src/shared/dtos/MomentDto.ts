@@ -1,5 +1,4 @@
-import type { MediaType } from '../../entities/Moment';
-import type { TimeBucket } from '../../entities/TimeEntry';
+import type { MediaType, TimeBucket } from '../types/enums';
 
 export interface CreateMomentDto {
   occurredAt: string;

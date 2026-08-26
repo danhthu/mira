@@ -1,4 +1,4 @@
-import type { PersonRole, DunbarRing } from '../../entities/Person';
+import type { PersonRole, DunbarRing } from '../types/enums';
 
 export interface CreatePersonDto {
   name: string;

@@ -1,6 +1,6 @@
-import type { TimeBucket } from './shared';
+import type { TimeBucket, MediaType } from '../shared/types/enums';
 
-export type MediaType = 'photo' | 'audio';
+export type { MediaType };
 
 export interface Moment {
   readonly id: string;

@@ -1,7 +1,6 @@
-import type { TimeBucket } from './shared';
+import type { TimeBucket, TimeEntrySource } from '../shared/types/enums';
 
-export type { TimeBucket };
-export type TimeEntrySource = 'manual' | 'calendar' | 'widget';
+export type { TimeBucket, TimeEntrySource };
 
 export interface TimeEntry {
   readonly id: string;

@@ -1,5 +1,5 @@
-export type PersonRole = 'child' | 'parent' | 'partner' | 'friend' | 'self' | 'other';
-export type DunbarRing = 5 | 15 | 50;
+export type { PersonRole, DunbarRing } from '../shared/types/enums';
+import type { PersonRole, DunbarRing } from '../shared/types/enums';
 
 export interface Person {
   readonly id: string;

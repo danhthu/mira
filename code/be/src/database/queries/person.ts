@@ -25,9 +25,12 @@ export const PERSON_QUERIES = {
     SET
       name              = $2,
       role              = $3,
-      desired_cadence   = $4,
-      hourglass_enabled = $5,
-      updated_at        = $6
+      birth_year        = $4,
+      distance_km       = $5,
+      dunbar_ring       = $6,
+      desired_cadence   = $7,
+      hourglass_enabled = $8,
+      updated_at        = $9
     WHERE id = $1 AND deleted_at IS NULL
     RETURNING *
   `,

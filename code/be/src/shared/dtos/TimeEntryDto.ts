@@ -1,4 +1,4 @@
-import type { TimeBucket, TimeEntrySource } from '../../entities/TimeEntry';
+import type { TimeBucket, TimeEntrySource } from '../types/enums';
 
 export interface CreateTimeEntryDto {
   date: string;

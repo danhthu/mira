@@ -4,17 +4,20 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
     "migrate": "ts-node src/database/migrations/runner.ts",
     "seed": "ts-node src/database/seeds/runner.ts"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "pg": "^8.13.0",
-    "dotenv": "^16.4.5"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.11"
   }
 }
