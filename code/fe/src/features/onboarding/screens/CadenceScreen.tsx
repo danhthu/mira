@@ -12,14 +12,20 @@ import type { RouteProp } from '@react-navigation/native';
 import { vi } from '@/i18n/vi';
 import Button from '@/shared/components/Button';
 import Avatar from '@/shared/components/Avatar';
+import StepSlider from '@/shared/components/StepSlider';
 import { colors, fontSize } from '@/shared/theme/tokens';
-import { DEFAULT_CADENCE } from '@/core/constants';
+import { CADENCE_STEPS, DAYS_IN_MONTH, DEFAULT_CADENCE } from '@/core/constants';
 import type { OnboardingStackParamList } from '@/shared/types';
 import { createPerson } from '@/db/repositories/personRepository';
 import { useSettingsStore } from '@/store/settingsStore';
 
 type NavProp = NativeStackNavigationProp<OnboardingStackParamList, 'Cadence'>;
 type RouteType = RouteProp<OnboardingStackParamList, 'Cadence'>;
+
+/** Nấc cuối của thang là mỗi ngày một lần, đọc "30 lần/tháng" thì không ai hiểu ngay. */
+function formatCadence(times: number): string {
+  return times >= DAYS_IN_MONTH ? vi.onboarding.cadenceDaily : vi.onboarding.cadenceLabel(times);
+}
 
 export function CadenceScreen() {
   const navigation = useNavigation<NavProp>();
@@ -37,11 +43,8 @@ export function CadenceScreen() {
   );
   const [isSaving, setIsSaving] = useState(false);
 
-  function adjustCadence(name: string, delta: number): void {
-    setCadences((prev) => ({
-      ...prev,
-      [name]: Math.max(1, (prev[name] ?? 1) + delta),
-    }));
+  function setCadence(name: string, value: number): void {
+    setCadences((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleDone(): Promise<void> {
@@ -79,40 +82,26 @@ export function CadenceScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        {persons.map((p) => {
-          const cadence = cadences[p.name] ?? DEFAULT_CADENCE[p.role];
-          const label =
-            cadence >= 28
-              ? vi.onboarding.cadenceDaily
-              : `${cadence} ${vi.onboarding.cadenceUnit}`;
-
-          return (
-            <View key={p.name} style={styles.card}>
+        {persons.map((p) => (
+          <View key={p.name} style={styles.card}>
+            <View style={styles.cardHeader}>
               <Avatar name={p.name} size={44} />
               <View style={styles.cardContent}>
                 <Text style={styles.personName}>{p.name}</Text>
-                <Text style={styles.question}>
-                  {vi.onboarding.cadenceQuestion(p.name)}
-                </Text>
-              </View>
-              <View style={styles.stepper}>
-                <Button
-                  label="−"
-                  onPress={() => adjustCadence(p.name, -1)}
-                  variant="ghost"
-                  style={styles.stepBtn}
-                />
-                <Text style={styles.cadenceValue}>{label}</Text>
-                <Button
-                  label="+"
-                  onPress={() => adjustCadence(p.name, 1)}
-                  variant="ghost"
-                  style={styles.stepBtn}
-                />
+                <Text style={styles.question}>{vi.onboarding.cadenceQuestion(p.name)}</Text>
               </View>
             </View>
-          );
-        })}
+
+            <StepSlider
+              steps={CADENCE_STEPS}
+              value={cadences[p.name] ?? DEFAULT_CADENCE[p.role]}
+              onChange={(value) => setCadence(p.name, value)}
+              formatLabel={formatCadence}
+              accessibilityLabel={vi.onboarding.cadenceSliderLabel(p.name)}
+              style={styles.slider}
+            />
+          </View>
+        ))}
 
         <View style={styles.footer}>
           <Button
@@ -154,14 +143,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: colors.background,
     borderRadius: 14,
     padding: 16,
     gap: 12,
   },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   cardContent: { flex: 1 },
+  slider: { marginTop: 4 },
   personName: {
     fontSize: fontSize.bodyLarge,
     fontWeight: '700',
@@ -171,24 +164,6 @@ const styles = StyleSheet.create({
     fontSize: fontSize.meta,
     color: colors.textSecondary,
     marginTop: 2,
-  },
-  stepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  stepBtn: {
-    width: 36,
-    height: 36,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
-  cadenceValue: {
-    fontSize: fontSize.small,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    minWidth: 70,
-    textAlign: 'center',
   },
   footer: {
     flexDirection: 'row',

@@ -27,3 +27,8 @@ export const DEFAULT_CADENCE: Record<PersonRole, number> = {
   self: 30,
   other: 4,
 };
+
+// Các nấc nhịp gặp bày ra trên thanh trượt (lần/tháng). Thưa dần về cuối vì
+// khoảng cách giữa 1 và 2 lần một tháng là thật, còn giữa 21 và 22 thì không —
+// và nhờ thế đi từ "mỗi tháng một lần" tới "hằng ngày" gọn trong một lần kéo.
+export const CADENCE_STEPS = [1, 2, 3, 4, 6, 8, 12, 16, 20, DAYS_IN_MONTH] as const;

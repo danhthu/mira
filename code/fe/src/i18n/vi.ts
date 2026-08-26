@@ -112,8 +112,9 @@ export const vi = {
     namePlaceholder: (role: string) => `Tên ${role}`,
     cadenceQuestion: (name: string) =>
       `Bạn muốn gặp ${name} bao nhiêu lần một tháng?`,
-    cadenceUnit: 'lần/tháng',
+    cadenceLabel: (times: number) => `${times} lần/tháng`,
     cadenceDaily: 'Hằng ngày',
+    cadenceSliderLabel: (name: string) => `Nhịp gặp ${name}`,
     done: 'Bắt đầu',
     skip: 'Bỏ qua',
     next: 'Tiếp',
