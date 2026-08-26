@@ -1,13 +1,46 @@
 {
   "expo": {
-    "name": "Mira",
-    "slug": "mira",
+    "name": "DailyOps",
+    "slug": "DailyOps",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "automatic",
-    "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.mira.app" },
-    "android": { "package": "com.mira.app" },
-    "web": { "bundler": "metro", "output": "single" }
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wai.dailyops",
+      "buildNumber": "20241216",
+      "jsEngine": "jsc",
+      "hermesEnabled": false
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "hermesEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "44d730ea-9ac8-4870-95a6-4abc87182db2"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/44d730ea-9ac8-4870-95a6-4abc87182db2"
+    }
   }
 }

@@ -1,108 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Text, StyleSheet, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import RootNavigator from '@/navigation/RootNavigator';
-import WelcomeScreen from '@/features/onboarding/screens/WelcomeScreen';
-import AddPeopleScreen from '@/features/onboarding/screens/AddPeopleScreen';
-import CadenceScreen from '@/features/onboarding/screens/CadenceScreen';
-import { useDatabase } from '@/shared/hooks/useDatabase';
-import { useSettingsStore } from '@/store/settingsStore';
-import { countPersons } from '@/db/repositories/personRepository';
-import { vi } from '@/i18n/vi';
-import type { OnboardingStackParamList, RootStackParamList } from '@/shared/types';
+import React from 'react'
+import './polyfills'
 
-const Root = createNativeStackNavigator<RootStackParamList>();
-const Onboarding = createNativeStackNavigator<OnboardingStackParamList>();
+import { MainScreen } from './src/Main'
 
-function OnboardingNavigator() {
-  return (
-    <Onboarding.Navigator screenOptions={{ headerShown: false }}>
-      <Onboarding.Screen name="Welcome" component={WelcomeScreen} />
-      <Onboarding.Screen name="AddPeople" component={AddPeopleScreen} />
-      <Onboarding.Screen name="Cadence" component={CadenceScreen} />
-    </Onboarding.Navigator>
-  );
+import { ActionSheetProvider } from '@expo/react-native-action-sheet'
+
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Sentry from '@sentry/react-native'
+import { LogBox, Platform, Text, UIManager, View } from 'react-native'
+import { clean as app_clean } from './AppSetup/clean'
+import { initialize as app_initialize } from './AppSetup/initialize'
+import { sample as app_sample } from './AppSetup/sample'
+import { useAsyncAction, useSettings } from './src/Common/Hooks'
+
+if (typeof global !== 'undefined') {
+  global.AsyncStorage = AsyncStorage
 }
 
-export default function App() {
-  const { isReady, error } = useDatabase();
-  const { onboardingComplete, setOnboardingComplete } = useSettingsStore();
-  const [checkingPersons, setCheckingPersons] = useState(true);
-
-  useEffect(() => {
-    if (!isReady) return;
-
-    // Web không có SQLite — skip DB check và vào thẳng main UI
-    if (Platform.OS === 'web') {
-      setOnboardingComplete(true);
-      setCheckingPersons(false);
-      return;
+// Kích hoạt LayoutAnimation trên Android (bắt buộc)
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true)
+}
+export const App = App2 //Sentry.wrap(App2);
+/*
+Sentry.init({
+  dsn: 'https://c1b4335a27b852eebb9296fd2b953561@o4507444762771456.ingest.us.sentry.io/4507444816379904',
+  debug: false,
+  tracesSampleRate: 0.0,  // Adjust this value as needed
+  _experiments: {
+    profilesSampleRate: 0.0,  // Enable profiling
+  },
+  beforeSend(event) {
+    // Kiểm tra nếu event là performance event
+    if (event.type === 'transaction') {
+      // Lấy thời gian thực hiện của transaction
+      const duration = parseFloat(event.contexts.trace.op);
+      // Nếu thời gian thực hiện dưới 500ms, không gửi event này
+      if (duration < 0.5) {
+        return null;
+      }
     }
-
-    let cancelled = false;
-    countPersons()
-      .then((count) => {
-        if (!cancelled && count > 0) {
-          setOnboardingComplete(true);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setCheckingPersons(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isReady, setOnboardingComplete]);
-
-  if (!isReady || checkingPersons) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3B5BDB" />
-        <Text style={styles.loadingText}>{vi.common.loading}</Text>
-      </View>
-    );
+    return event;
   }
 
-  if (error != null) {
+});
+*/
+Sentry.init({
+  dsn:
+    'https://844c6244861ad88bed702620c058708b@o4507438821015552.ingest.us.sentry.io/4507804381282304',
+  // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+  // We recommend adjusting this value in production.
+  tracesSampleRate: 1.0,
+  _experiments: {
+    // profilesSampleRate is relative to tracesSampleRate.
+    // Here, we'll capture profiles for 100% of transactions.
+    profilesSampleRate: 1.0,
+  },
+})
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+  "It looks like you might be using shared value's .value (.*)",
+])
+
+function App2() {
+  //Sentry.useProfiler("App root")
+  const [settings, setSettings] = useSettings()
+  const install = useAsyncAction(
+    async () => {
+      if (!settings.is_first_init) {
+        setSettings({ is_first_init: true })
+      }
+      return true
+    },
+    [],
+    false,
+  )
+
+  const setup = useAsyncAction(
+    async () => {
+      await app_clean()
+      await app_initialize()
+      await app_sample()
+      return true
+    },
+    [],
+    false,
+  )
+
+  if (!install || !setup)
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.errorText}>{vi.common.error}</Text>
+      <View>
+        <Text>App initialize, please wait a minut...</Text>
       </View>
-    );
-  }
+    )
 
   return (
-    <NavigationContainer>
-      <Root.Navigator screenOptions={{ headerShown: false }}>
-        {onboardingComplete ? (
-          <Root.Screen name="Main" component={RootNavigator} />
-        ) : (
-          <Root.Screen name="Onboarding" component={OnboardingNavigator} />
-        )}
-      </Root.Navigator>
-    </NavigationContainer>
-  );
+    <ActionSheetProvider>
+      <MainScreen></MainScreen>
+    </ActionSheetProvider>
+  )
 }
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    gap: 12,
-  },
-  loadingText: {
-    fontSize: 15,
-    color: '#6B7280',
-  },
-  errorText: {
-    fontSize: 15,
-    color: '#6B7280',
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-});

@@ -1,0 +1,46 @@
+const fs = require('fs');
+const path = require('path');
+
+// Thư mục bạn muốn quét
+const folderToScan = './';
+
+// Hàm đệ quy để quét thư mục và tạo từ điển yêu cầu
+function scanFolder(folderPath, resultDict = {}) {
+    const files = fs.readdirSync(folderPath);
+
+    files.forEach(file => {
+        const filePath = path.join(folderPath, file);
+        const stats = fs.statSync(filePath);
+
+        if (stats.isDirectory()) {
+            // Nếu là thư mục, tiếp tục quét và thêm vào từ điển
+            scanFolder(filePath, resultDict);
+        } else {
+            // Nếu là tệp, thêm đường dẫn và yêu cầu vào từ điển
+            const relativePath = path.relative(folderToScan, filePath);
+            // Lưu yêu cầu theo đường dẫn tương ứng
+            resultDict[relativePath] = `require('./${relativePath.replace(/\\/g, '/')}')`;
+        }
+    });
+
+    return resultDict;
+}
+
+// Hàm chính để tạo tệp index.ts
+function createIndexFile() {
+    // Tạo từ điển chứa các yêu cầu của các tệp quét được
+    const requireDict = scanFolder(folderToScan);
+
+    // Chuẩn bị nội dung cho tệp index.ts
+    let content = 'export const assets = {\n';
+    for (const [key, value] of Object.entries(requireDict)) {
+        content += `  '${key}': ${value},\n`;
+    }
+    content += '};\n';
+
+    // Ghi nội dung vào tệp index.ts
+    fs.writeFileSync('index.ts', content);
+}
+
+// Gọi hàm để tạo tệp index.ts
+createIndexFile();

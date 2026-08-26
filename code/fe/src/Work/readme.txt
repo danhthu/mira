@@ -1,0 +1,3 @@
+--add, edit, detail work
+--assign date start
+--get deadline

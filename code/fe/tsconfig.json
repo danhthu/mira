@@ -1,31 +1,11 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "allowImportingTsExtensions": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "jsx": "react-native",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "target": "ESNext",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    "types": [
+      "jest",
+      "node"
+    ], // Thêm "jest" vào đây},
+    "experimentalDecorators": true, // Kích hoạt decorators
+    "emitDecoratorMetadata": true // Kích hoạt metadata cho decorators
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js"
-  ],
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base",
 }
