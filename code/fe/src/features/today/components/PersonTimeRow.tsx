@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Avatar from '@/shared/components/Avatar';
+import { colors, fontSize } from '@/shared/theme/tokens';
 import { formatMinutes } from '@/shared/utils/format';
 import type { Person } from '@/db/schema';
 
@@ -33,13 +34,13 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   name: {
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
   },
   time: {
-    fontSize: 14,
-    color: '#6B7280',
+    fontSize: fontSize.small,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 });

@@ -4,10 +4,11 @@ import { timeEntry } from '../schema';
 import type { TimeEntry } from '../schema';
 import type { CreateTimeEntryDto } from '@/shared/types';
 import { getCurrentISOString } from '@/shared/utils/date';
+import { generateId } from '@/shared/utils/id';
 import { vi } from '@/i18n/vi';
 
-function generateId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+export async function findAllTimeEntries(): Promise<TimeEntry[]> {
+  return db.select().from(timeEntry).where(isNull(timeEntry.deletedAt));
 }
 
 export async function findTimeEntriesByDate(date: string): Promise<TimeEntry[]> {

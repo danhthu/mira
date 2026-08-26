@@ -4,11 +4,8 @@ import { person } from '../schema';
 import type { Person } from '../schema';
 import type { CreatePersonDto } from '@/shared/types';
 import { getCurrentISOString } from '@/shared/utils/date';
+import { generateId } from '@/shared/utils/id';
 import { vi } from '@/i18n/vi';
-
-function generateId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-}
 
 export async function findAllPersons(): Promise<Person[]> {
   return db.select().from(person).where(isNull(person.deletedAt));
@@ -65,6 +62,16 @@ export async function updatePersonHourglass(
   await db
     .update(person)
     .set({ hourglassEnabled: enabled, updatedAt: getCurrentISOString() })
+    .where(eq(person.id, id));
+}
+
+export async function updatePersonBirthYear(
+  id: string,
+  birthYear: number,
+): Promise<void> {
+  await db
+    .update(person)
+    .set({ birthYear, updatedAt: getCurrentISOString() })
     .where(eq(person.id, id));
 }
 

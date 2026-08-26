@@ -3,12 +3,15 @@ import { useTodayStore } from '../store/todayStore';
 import { findAllPersons } from '@/db/repositories/personRepository';
 import {
   findTimeEntriesByDate,
-  findGoldenHoursEntries,
+  findTimeEntriesByDateRange,
 } from '@/db/repositories/timeEntryRepository';
-import { todayYMD } from '@/shared/utils/date';
+import { todayYMD, dateMinusDays } from '@/shared/utils/date';
+import { calculateGoldenHours } from '@/core/goldenHours';
+import { MIN_DAYS_FOR_GOLDEN_HOURS } from '@/core/constants';
 
 export function useTodayData(): void {
-  const { setPersonsWithTime, setLoading, setGoldenMinutes } = useTodayStore();
+  const { setPersonsWithTime, setAllPersons, setLoading, setGoldenHours } =
+    useTodayStore();
 
   useEffect(() => {
     let cancelled = false;
@@ -17,10 +20,14 @@ export function useTodayData(): void {
       setLoading(true);
       try {
         const today = todayYMD();
-        const [persons, todayEntries, goldenEntries] = await Promise.all([
+        // R-026: cửa sổ 7 ngày, không phải chỉ hôm nay — lấy đủ dữ liệu cho
+        // calculateGoldenHours tự quyết định empty/insufficient/ok theo đúng biên.
+        const windowStart = dateMinusDays(today, MIN_DAYS_FOR_GOLDEN_HOURS - 1);
+
+        const [persons, todayEntries, windowEntries] = await Promise.all([
           findAllPersons(),
           findTimeEntriesByDate(today),
-          findGoldenHoursEntries(today, today),
+          findTimeEntriesByDateRange(windowStart, today),
         ]);
 
         if (cancelled) return;
@@ -40,13 +47,18 @@ export function useTodayData(): void {
             minutesToday: minutesByPersonId.get(p.id) ?? 0,
           }));
 
-        const totalGoldenMinutes = goldenEntries.reduce(
-          (sum, e) => sum + e.minutes,
-          0,
+        const goldenHours = calculateGoldenHours(
+          windowEntries.map((e) => ({
+            date: e.date,
+            minutes: e.minutes,
+            bucket: e.bucket,
+          })),
+          today,
         );
 
         setPersonsWithTime(personsWithTime);
-        setGoldenMinutes(totalGoldenMinutes);
+        setAllPersons(persons);
+        setGoldenHours(goldenHours);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -58,5 +70,5 @@ export function useTodayData(): void {
     return () => {
       cancelled = true;
     };
-  }, [setPersonsWithTime, setLoading, setGoldenMinutes]);
+  }, [setPersonsWithTime, setAllPersons, setLoading, setGoldenHours]);
 }

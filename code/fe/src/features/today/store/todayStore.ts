@@ -1,37 +1,45 @@
 import { create } from 'zustand';
 import type { Person } from '@/db/schema';
+import type { GoldenHoursResult } from '@/core/goldenHours';
 
 export interface PersonWithTime {
   person: Person;
   minutesToday: number;
 }
 
-interface ActiveSession {
+export interface ActiveSession {
   personId: string;
-  startedAt: Date;
+  personName: string;
+  startedAt: string; // ISO — chuỗi, không phải Date, để sống sót qua reload/HMR
 }
 
 interface TodayState {
   personsWithTime: PersonWithTime[];
+  allPersons: Person[];
   activeSession: ActiveSession | null;
   isLoading: boolean;
-  goldenMinutesToday: number;
-  startSession: (personId: string) => void;
+  goldenHours: GoldenHoursResult;
+  startSession: (personId: string, personName: string) => void;
   stopSession: () => void;
   setPersonsWithTime: (data: PersonWithTime[]) => void;
+  setAllPersons: (data: Person[]) => void;
   setLoading: (value: boolean) => void;
-  setGoldenMinutes: (minutes: number) => void;
+  setGoldenHours: (result: GoldenHoursResult) => void;
 }
 
 export const useTodayStore = create<TodayState>()((set) => ({
   personsWithTime: [],
+  allPersons: [],
   activeSession: null,
   isLoading: false,
-  goldenMinutesToday: 0,
-  startSession: (personId) =>
-    set({ activeSession: { personId, startedAt: new Date() } }),
+  goldenHours: { status: 'empty' },
+  startSession: (personId, personName) =>
+    set({
+      activeSession: { personId, personName, startedAt: new Date().toISOString() },
+    }),
   stopSession: () => set({ activeSession: null }),
   setPersonsWithTime: (data) => set({ personsWithTime: data }),
+  setAllPersons: (data) => set({ allPersons: data }),
   setLoading: (value) => set({ isLoading: value }),
-  setGoldenMinutes: (minutes) => set({ goldenMinutesToday: minutes }),
+  setGoldenHours: (result) => set({ goldenHours: result }),
 }));

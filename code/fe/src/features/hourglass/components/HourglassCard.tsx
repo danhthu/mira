@@ -4,24 +4,31 @@ import Card from '@/shared/components/Card';
 import Button from '@/shared/components/Button';
 import Avatar from '@/shared/components/Avatar';
 import { vi } from '@/i18n/vi';
+import { colors, fontSize } from '@/shared/theme/tokens';
 import type { Person } from '@/db/schema';
+import type { HourglassResult } from '@/core/hourglass';
 
 interface HourglassCardProps {
   person: Person;
-  estimatedVisitsRemaining: number;
+  result: HourglassResult;
   onScheduleCall: () => void;
   onHide: () => void;
 }
 
 export function HourglassCard({
   person,
-  estimatedVisitsRemaining,
+  result,
   onScheduleCall,
   onHide,
 }: HourglassCardProps) {
   const cadencePerYear = person.desiredCadence != null
     ? person.desiredCadence * 12
     : 0;
+
+  const headline =
+    result.type === 'child'
+      ? vi.hourglass.hoursLeft(result.hoursLeft)
+      : vi.hourglass.visitsLeft(result.visitsLeft);
 
   return (
     <Card style={styles.card}>
@@ -37,9 +44,7 @@ export function HourglassCard({
         </View>
       </View>
 
-      <Text style={styles.visitsLeft}>
-        {vi.hourglass.visitsLeft(estimatedVisitsRemaining)}
-      </Text>
+      <Text style={styles.visitsLeft}>{headline}</Text>
 
       <Text style={styles.disclaimer}>{vi.hourglass.disclaimer}</Text>
 
@@ -71,22 +76,22 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
   },
   cadence: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: fontSize.meta,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   visitsLeft: {
-    fontSize: 20,
+    fontSize: fontSize.heading,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   disclaimer: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: fontSize.caption,
+    color: colors.textMuted,
     lineHeight: 18,
     marginBottom: 16,
   },

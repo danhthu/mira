@@ -7,6 +7,7 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
+import { colors, fontSize, radius } from '@/shared/theme/tokens';
 
 interface ButtonProps {
   label: string;
@@ -34,7 +35,7 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'primary' ? '#FFFFFF' : '#3B5BDB'}
+          color={variant === 'primary' ? colors.textOnAccent : colors.accent}
           size="small"
         />
       ) : (
@@ -46,19 +47,19 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,
+    borderRadius: radius.md,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primary: {
-    backgroundColor: '#3B5BDB',
+    backgroundColor: colors.accent,
   },
   secondary: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#3B5BDB',
+    borderColor: colors.accent,
   },
   ghost: {
     backgroundColor: 'transparent',
@@ -67,17 +68,17 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   label: {
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     fontWeight: '600',
   },
   primaryLabel: {
-    color: '#FFFFFF',
+    color: colors.textOnAccent,
   },
   secondaryLabel: {
-    color: '#3B5BDB',
+    color: colors.accent,
   },
   ghostLabel: {
-    color: '#3B5BDB',
+    color: colors.accent,
   },
 });
 

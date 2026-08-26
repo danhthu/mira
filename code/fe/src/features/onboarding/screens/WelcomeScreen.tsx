@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { vi } from '@/i18n/vi';
 import Button from '@/shared/components/Button';
+import { colors, fontSize } from '@/shared/theme/tokens';
 import type { OnboardingStackParamList, PersonRole } from '@/shared/types';
 
 type NavProp = NativeStackNavigationProp<OnboardingStackParamList, 'Welcome'>;
@@ -85,22 +86,22 @@ export function WelcomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: { flex: 1, backgroundColor: colors.surface },
   container: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 48,
   },
   title: {
-    fontSize: 26,
+    fontSize: fontSize.display,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     lineHeight: 34,
     marginBottom: 10,
   },
   subtitle: {
-    fontSize: 15,
-    color: '#6B7280',
+    fontSize: fontSize.body,
+    color: colors.textSecondary,
     marginBottom: 32,
   },
   chips: {
@@ -113,20 +114,20 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
+    borderColor: colors.border,
+    backgroundColor: colors.background,
   },
   chipSelected: {
-    borderColor: '#3B5BDB',
-    backgroundColor: '#EEF2FF',
+    borderColor: colors.accent,
+    backgroundColor: colors.accentSurface,
   },
   chipText: {
-    fontSize: 16,
-    color: '#374151',
+    fontSize: fontSize.bodyLarge,
+    color: colors.textLabel,
     fontWeight: '500',
   },
   chipTextSelected: {
-    color: '#3B5BDB',
+    color: colors.accent,
     fontWeight: '700',
   },
   footer: {

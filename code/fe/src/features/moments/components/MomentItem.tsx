@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Avatar from '@/shared/components/Avatar';
+import { colors, fontSize, radius } from '@/shared/theme/tokens';
 import { formatPersonIds } from '@/shared/utils/format';
 import type { Moment, Person } from '@/db/schema';
 
@@ -53,22 +54,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: colors.borderSubtle,
   },
   time: {
-    fontSize: 12,
-    color: '#9CA3AF',
+    fontSize: fontSize.caption,
+    color: colors.textMuted,
     marginBottom: 6,
   },
   text: {
-    fontSize: 15,
-    color: '#1A1A2E',
+    fontSize: fontSize.body,
+    color: colors.textPrimary,
     lineHeight: 22,
   },
   image: {
     width: '100%',
     height: 200,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     marginTop: 8,
   },
   personsRow: {
@@ -81,14 +82,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.accentSurface,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 12,
+    borderRadius: radius.md,
   },
   personTagName: {
-    fontSize: 12,
-    color: '#3B5BDB',
+    fontSize: fontSize.caption,
+    color: colors.accent,
   },
 });
 

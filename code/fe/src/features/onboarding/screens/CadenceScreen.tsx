@@ -7,25 +7,19 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp, RouteProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import { vi } from '@/i18n/vi';
 import Button from '@/shared/components/Button';
 import Avatar from '@/shared/components/Avatar';
-import type { OnboardingStackParamList, PersonRole } from '@/shared/types';
+import { colors, fontSize } from '@/shared/theme/tokens';
+import { DEFAULT_CADENCE } from '@/core/constants';
+import type { OnboardingStackParamList } from '@/shared/types';
 import { createPerson } from '@/db/repositories/personRepository';
 import { useSettingsStore } from '@/store/settingsStore';
 
 type NavProp = NativeStackNavigationProp<OnboardingStackParamList, 'Cadence'>;
 type RouteType = RouteProp<OnboardingStackParamList, 'Cadence'>;
-
-const DEFAULT_CADENCE: Record<PersonRole, number> = {
-  child: 30,
-  parent: 2,
-  partner: 30,
-  friend: 2,
-  self: 30,
-  other: 4,
-};
 
 export function CadenceScreen() {
   const navigation = useNavigation<NavProp>();
@@ -140,7 +134,7 @@ export function CadenceScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: { flex: 1, backgroundColor: colors.surface },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -154,28 +148,28 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: fontSize.headline,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     marginBottom: 8,
   },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.background,
     borderRadius: 14,
     padding: 16,
     gap: 12,
   },
   cardContent: { flex: 1 },
   personName: {
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
   },
   question: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: fontSize.meta,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   stepper: {
@@ -190,9 +184,9 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   cadenceValue: {
-    fontSize: 14,
+    fontSize: fontSize.small,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     minWidth: 70,
     textAlign: 'center',
   },

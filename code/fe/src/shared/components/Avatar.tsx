@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '@/shared/theme/tokens';
 
 interface AvatarProps {
   name: string;
@@ -34,12 +35,12 @@ export function Avatar({ name, size = 40 }: AvatarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#E8F0FE',
+    backgroundColor: colors.avatarSurface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   initials: {
-    color: '#3B5BDB',
+    color: colors.accent,
     fontWeight: '600',
   },
 });

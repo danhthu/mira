@@ -1,15 +1,12 @@
-import { eq, isNull, and, gte, lte, desc } from 'drizzle-orm';
+import { eq, isNull, and, or, gte, lte, desc } from 'drizzle-orm';
 import { db } from '../client';
 import { moment } from '../schema';
 import type { Moment } from '../schema';
-import type { CreateMomentDto } from '@/shared/types';
+import type { CreateMomentDto, MomentKind } from '@/shared/types';
 import { getCurrentISOString } from '@/shared/utils/date';
 import { serializeStringArray } from '@/shared/utils/format';
+import { generateId } from '@/shared/utils/id';
 import { vi } from '@/i18n/vi';
-
-function generateId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-}
 
 export async function findAllMoments(): Promise<Moment[]> {
   return db
@@ -36,6 +33,24 @@ export async function findMomentsByDateRange(
     .orderBy(desc(moment.occurredAt));
 }
 
+/**
+ * Lát cắt theo module sở hữu. Luật "NULL đọc như 'moment'" chỉ viết ở đây để
+ * không màn hình nào phải tự nhớ, và để không ai lọc hộp di sản bằng `personIds`
+ * nữa — gắn tên con vào một khoảnh khắc không có nghĩa là bỏ nó vào hộp.
+ */
+export async function findMomentsByKind(kind: MomentKind): Promise<Moment[]> {
+  const matchesKind =
+    kind === 'moment'
+      ? or(isNull(moment.kind), eq(moment.kind, 'moment'))
+      : eq(moment.kind, kind);
+
+  return db
+    .select()
+    .from(moment)
+    .where(and(isNull(moment.deletedAt), matchesKind))
+    .orderBy(desc(moment.occurredAt));
+}
+
 export async function findMomentsByPerson(personId: string): Promise<Moment[]> {
   const all = await findAllMoments();
   return all.filter((m) => {
@@ -58,6 +73,7 @@ export async function createMoment(dto: CreateMomentDto): Promise<Moment> {
     mediaType: dto.mediaType ?? null,
     personIds: serializeStringArray(dto.personIds ?? []),
     bucket: dto.bucket ?? null,
+    kind: dto.kind,
     createdAt: now,
     updatedAt: now,
     deletedAt: null,

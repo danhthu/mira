@@ -103,6 +103,11 @@ export const moment = sqliteTable('moment', {
   bucket: text('bucket', {
     enum: ['work', 'health', 'people', 'learn', 'rest', 'self'],
   }),
+  // Ba module cùng ghi vào bảng này: Khoảnh khắc, Học hỏi, Hộp để lại cho con.
+  // Không có cột này thì không phân biệt được, và mọi khoảnh khắc có gắn tên con
+  // sẽ tự lọt vào hộp di sản dù người dùng không hề chọn. `bucket` là khoang thời
+  // gian, không dùng thay được. NULL = bản ghi có trước cột này, đọc như 'moment'.
+  kind: text('kind', { enum: ['moment', 'learn', 'legacy'] }),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
   deletedAt: text('deleted_at'),
@@ -168,6 +173,9 @@ export const letter = sqliteTable('letter', {
   id: text('id').primaryKey(),
   weekStart: text('week_start').notNull(),
   body: text('body').notNull(),
+  // `userReaction` được thiết kế cho Lá thư Chủ nhật (M12). Thư gửi mình và điếu
+  // văn của M9 dùng chung bảng, nên cần cột này để ba loại không lẫn vào nhau.
+  kind: text('kind', { enum: ['yearLetter', 'eulogy', 'sunday'] }),
   userReaction: text('user_reaction', { enum: ['helpful', 'neutral', 'off'] }),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),

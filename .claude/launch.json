@@ -4,7 +4,7 @@
     {
       "name": "Mira App (web)",
       "runtimeExecutable": "powershell",
-      "runtimeArgs": ["-Command", "Set-Location 'F:\\Danh Thu\\github\\mira\\app'; & './node_modules/.bin/expo.cmd' start --web --port 8081"],
+      "runtimeArgs": ["-Command", "Set-Location 'D:\\Danh Thu\\github\\trady360\\mira\\code\\fe'; & './node_modules/.bin/expo.cmd' start --web --port 8081"],
       "port": 8081
     }
   ]

@@ -10,9 +10,11 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NativeStackNavigationProp, RouteProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import { vi } from '@/i18n/vi';
 import Button from '@/shared/components/Button';
+import { colors, fontSize, radius } from '@/shared/theme/tokens';
 import type { OnboardingStackParamList, PersonRole } from '@/shared/types';
 
 type NavProp = NativeStackNavigationProp<OnboardingStackParamList, 'AddPeople'>;
@@ -96,7 +98,7 @@ export function AddPeopleScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFFFF' },
+  safe: { flex: 1, backgroundColor: colors.surface },
   flex: { flex: 1 },
   scroll: {
     paddingHorizontal: 24,
@@ -104,27 +106,27 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   title: {
-    fontSize: 26,
+    fontSize: fontSize.display,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     marginBottom: 28,
   },
   inputGroup: { marginBottom: 20 },
   label: {
-    fontSize: 14,
+    fontSize: fontSize.small,
     fontWeight: '600',
-    color: '#374151',
+    color: colors.textLabel,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 10,
+    backgroundColor: colors.background,
+    borderRadius: radius.sm,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    color: '#1A1A2E',
+    borderColor: colors.border,
+    color: colors.textPrimary,
   },
   footer: {
     flexDirection: 'row',

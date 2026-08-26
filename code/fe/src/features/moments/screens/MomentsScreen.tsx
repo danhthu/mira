@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  Image,
   SectionList,
   StyleSheet,
   TouchableOpacity,
@@ -11,11 +12,17 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import MomentItem from '../components/MomentItem';
 import Button from '@/shared/components/Button';
+import DataState from '@/shared/components/DataState';
 import { vi } from '@/i18n/vi';
-import { findAllMoments, createMoment } from '@/db/repositories/momentRepository';
+import {
+  findMomentsByKind,
+  createMoment,
+} from '@/db/repositories/momentRepository';
 import { findAllPersons } from '@/db/repositories/personRepository';
+import { colors, fontSize, radius } from '@/shared/theme/tokens';
 import { getCurrentISOString, formatDisplayMonth } from '@/shared/utils/date';
 import type { Moment, Person } from '@/db/schema';
 
@@ -49,10 +56,11 @@ export function MomentsScreen() {
   const [persons, setPersons] = useState<Person[]>([]);
   const [addVisible, setAddVisible] = useState(false);
   const [newText, setNewText] = useState('');
+  const [newPhotoUri, setNewPhotoUri] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([findAllMoments(), findAllPersons()])
+    Promise.all([findMomentsByKind('moment'), findAllPersons()])
       .then(([m, p]) => {
         if (!cancelled) {
           setMoments(m);
@@ -65,15 +73,31 @@ export function MomentsScreen() {
     };
   }, []);
 
+  async function handlePickPhoto(): Promise<void> {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setNewPhotoUri(result.assets[0].uri);
+    }
+  }
+
   async function handleSave(): Promise<void> {
     const text = newText.trim();
-    if (!text) return;
+    if (!text && !newPhotoUri) return;
     const created = await createMoment({
       occurredAt: getCurrentISOString(),
-      text,
+      text: text || undefined,
+      mediaUri: newPhotoUri ?? undefined,
+      mediaType: newPhotoUri ? 'photo' : undefined,
+      kind: 'moment',
     });
     setMoments((prev) => [created, ...prev]);
     setNewText('');
+    setNewPhotoUri(null);
     setAddVisible(false);
   }
 
@@ -99,7 +123,13 @@ export function MomentsScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>{vi.moments.emptyState}</Text>
+          <DataState
+            message={vi.moments.emptyState}
+            action={{
+              label: vi.moments.addButton,
+              onPress: () => setAddVisible(true),
+            }}
+          />
         }
         contentContainerStyle={styles.list}
       />
@@ -132,6 +162,16 @@ export function MomentsScreen() {
               multiline
               autoFocus
             />
+            {newPhotoUri ? (
+              <Image source={{ uri: newPhotoUri }} style={styles.previewImage} />
+            ) : (
+              <Button
+                label={vi.moments.addPhoto}
+                onPress={() => void handlePickPhoto()}
+                variant="ghost"
+                style={styles.addPhotoButton}
+              />
+            )}
             <View style={styles.modalActions}>
               <Button
                 label={vi.moments.cancel}
@@ -142,7 +182,7 @@ export function MomentsScreen() {
               <Button
                 label={vi.moments.save}
                 onPress={() => void handleSave()}
-                disabled={!newText.trim()}
+                disabled={!newText.trim() && !newPhotoUri}
                 style={styles.modalActionButton}
               />
             </View>
@@ -154,28 +194,28 @@ export function MomentsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F9FAFB' },
+  safe: { flex: 1, backgroundColor: colors.background },
   list: { paddingBottom: 80 },
   sectionHeader: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: colors.border,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
   },
   sectionCount: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: fontSize.meta,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   emptyText: {
-    color: '#9CA3AF',
-    fontSize: 15,
+    color: colors.textMuted,
+    fontSize: fontSize.body,
     textAlign: 'center',
     marginTop: 60,
     paddingHorizontal: 32,
@@ -187,44 +227,51 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#3B5BDB',
+    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
   },
-  fabIcon: { color: '#FFFFFF', fontSize: 28, lineHeight: 32 },
+  fabIcon: { color: colors.textOnAccent, fontSize: 28, lineHeight: 32 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: colors.overlay,
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.lg,
+    borderTopRightRadius: radius.lg,
     padding: 24,
     paddingBottom: 40,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: fontSize.title,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
     marginBottom: 16,
   },
   textInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 10,
+    backgroundColor: colors.background,
+    borderRadius: radius.sm,
     padding: 14,
-    fontSize: 15,
+    fontSize: fontSize.body,
     minHeight: 100,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
+  previewImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: radius.sm,
+    marginTop: 12,
+  },
+  addPhotoButton: { marginTop: 12 },
   modalActions: {
     flexDirection: 'row',
     gap: 10,

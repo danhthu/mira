@@ -21,6 +21,11 @@ export function formatDisplayMonth(dateStr: string): string {
   return `Tháng ${parseInt(month, 10)}/${year}`;
 }
 
+export function dateMinusDays(dateStr: string, days: number): string {
+  const ms = new Date(dateStr + 'T00:00:00Z').getTime() - days * 86_400_000;
+  return new Date(ms).toISOString().slice(0, 10);
+}
+
 export function addWeeks(date: Date, weeks: number): Date {
   const result = new Date(date);
   result.setDate(result.getDate() + weeks * 7);

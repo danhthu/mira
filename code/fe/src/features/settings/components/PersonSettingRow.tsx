@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Switch, StyleSheet } from 'react-native';
 import Avatar from '@/shared/components/Avatar';
 import { vi } from '@/i18n/vi';
+import { colors, fontSize } from '@/shared/theme/tokens';
 import type { Person } from '@/db/schema';
 
 interface PersonSettingRowProps {
@@ -29,8 +30,8 @@ export function PersonSettingRow({
         <Switch
           value={person.hourglassEnabled}
           onValueChange={onToggleHourglass}
-          trackColor={{ true: '#3B5BDB', false: '#D1D5DB' }}
-          thumbColor="#FFFFFF"
+          trackColor={{ true: colors.accent, false: colors.controlTrackOff }}
+          thumbColor={colors.surface}
         />
       </View>
     </View>
@@ -44,20 +45,20 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: colors.borderSubtle,
   },
   info: {
     flex: 1,
     marginLeft: 12,
   },
   name: {
-    fontSize: 16,
+    fontSize: fontSize.bodyLarge,
     fontWeight: '600',
-    color: '#1A1A2E',
+    color: colors.textPrimary,
   },
   role: {
-    fontSize: 13,
-    color: '#6B7280',
+    fontSize: fontSize.meta,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   toggle: {
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
   },
   toggleLabel: {
     fontSize: 11,
-    color: '#9CA3AF',
+    color: colors.textMuted,
   },
 });
 
