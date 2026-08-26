@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 // Tên token đặt theo vai trò, không theo màu: đổi bảng màu sau này chỉ sửa file này.
 export const colors = {
   background: '#F9FAFB',
@@ -21,6 +23,7 @@ export const colors = {
 } as const;
 
 export const fontSize = {
+  micro: 10,
   caption: 12,
   meta: 13,
   small: 14,
@@ -36,4 +39,22 @@ export const radius = {
   sm: 10,
   md: 12,
   lg: 20,
+} as const;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+} as const;
+
+/**
+ * App chưa nhúng font riêng, nên mono lấy font sẵn có của hệ điều hành. Khai báo
+ * ở đây để ngày nào nhúng font thật thì chỉ sửa một chỗ — và để không ai viết
+ * `fontFamily: 'IBMPlexMono'` rồi tưởng là đã có mono trong khi nó rơi về font
+ * mặc định không ai thấy.
+ */
+export const fontFamily = {
+  mono: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
 } as const;
