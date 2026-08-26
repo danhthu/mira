@@ -1,0 +1,93 @@
+# PROJECT.yaml — tạo bởi skill du-an-dieu-phoi, G0, 2026-08-25
+# Nguồn suy ra: package.json (code/fe, code/be), cây thư mục thật trên đĩa,
+# docs/00-vision.md → docs/08-three-pillars.md, code/CLAUDE.md, HANDOFF.md từng feature.
+
+du_an:
+  ma: mira
+  ten: Mira
+  khach_hang: noi-bo
+  loai: monorepo               # mobile (code/fe) + backend (code/be), không có web frontend riêng
+  co_nghiem_thu_hinh_thuc: false   # dự án cá nhân, không hợp đồng/biên bản — suy từ ngữ cảnh, chưa hỏi trực tiếp
+  han_giao:                    # chưa có deadline cứng
+
+ky_thuat:
+  backend:
+    khung: khong-co             # raw Node.js + pg, không dùng framework HTTP (Express/Fastify/NestJS) — chưa có route/server nào
+    ngon_ngu: TypeScript
+    lenh_build: "npm run build"      # = tsc, xác nhận từ code/be/package.json
+    lenh_test: "npm test"            # = vitest run (thêm 2026-08-25 cùng tầng repository)
+    thu_muc: code/be
+  mobile:
+    khung: "React Native + Expo SDK 54"   # nâng từ 53 lên 54 ngày 2026-08-25 để khớp Expo Go trên iOS
+    lenh_build:                      # CHƯA CÓ — package.json chỉ có "start/android/ios/web", không có build script thật (Expo dùng EAS, chưa cấu hình)
+    lenh_test: "npm test"            # = vitest run, glob src/**/*.test.ts (sửa 2026-08-25, glob cũ chặn test ngoài core/)
+    thu_muc: code/fe
+  csdl:
+    he: PostgreSQL
+    phien_ban:                       # chưa xác nhận version cụ thể
+    mo_rong: []
+    co_du_lieu_khong_gian: false
+  ha_tang:
+    container: khong-co
+    dieu_phoi: khong-co
+    ci: khong-co                     # không thấy .github/workflows hay CI config nào
+
+quy_uoc:
+  thu_muc_shared:
+    fe: code/fe/src/shared
+    be: code/be/src/shared
+  sql_tap_trung_tai: code/be/src/database/queries
+  ngon_ngu_giao_dien: [vi]
+  gioi_han_dong_moi_lan_sua: 100
+
+nguon_yeu_cau:
+  - duong_dan: docs/00-vision.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1
+  - duong_dan: docs/01-modules.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1
+  - duong_dan: docs/02-data-model.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1
+  - duong_dan: docs/03-formulas.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1
+  - duong_dan: docs/04-roadmap.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1
+  - duong_dan: docs/05-v1-spec.md
+    loai: quyet-dinh
+    hang_tham_quyen: 1    # cao nhất cho phạm vi V1 — mọi tài liệu khác thua file này khi mâu thuẫn về scope
+
+bao_mat:
+  muc: co-ban                        # mặc định cho dự án cá nhân giai đoạn V1, chưa hỏi lại — xác nhận trước G5
+
+nhan_dien:
+  co_bo_nhan_dien: false             # app chưa có brand token riêng (growth/brand/ mới có placeholder, dùng cho blog không phải app)
+  duong_dan:
+
+van_hanh:
+  moi_truong: [local]
+  cam_tu_dong:
+    - commit
+    - push
+    - cham-csdl-that
+    - nap-du-lieu-mau-len-that
+    - xoa-du-lieu
+    - gui-cho-khach
+
+# --- Quyết định đã chốt với người dùng ngày 2026-08-25 (không phải trường chuẩn của schema, ghi lại để không hỏi lại) ---
+ghi_chu_quyet_dinh:
+  - "code/fe/src/core/{lifeRate,freedomCapital,expenseConversion}.ts thuộc phạm vi V2 (tài chính), V1 spec ghi rõ 'không tài chính' — GIỮ NGUYÊN, không xóa, không phát triển thêm trong vòng lặp V1."
+  - "code/be (Postgres backend, hạ tầng sync) ngoài phạm vi V1 ('chưa làm sync ở V1' theo CLAUDE.md gốc) — người dùng chọn VẪN TIẾP TỤC xây song song, không chặn lại."
+  - "docs/00-vision.md → 08-three-pillars.md coi là đặc tả đã chốt (tương đương đầu ra phan-tich-yeu-cau) — nhưng người dùng vẫn muốn chạy đủ G1–G3 để sinh bộ docs/dac-ta/* + PLAN.md chuẩn theo khuôn skill, chấp nhận có thể trùng lặp một phần với docs/00-08."
+
+tien_do:
+  G0: xong
+  G1: xong        # 3 câu mức Chặn đã được người dùng xác nhận 2026-08-25, xem docs/dac-ta/cau-hoi.md
+  G2: xong        # đã sửa 4 vi phạm (tạo shared/types/enums.ts làm nguồn union type chung), scripts/soi-cau-truc.sh sạch, tsc --noEmit sạch
+  G3: xong        # 2026-08-25: PLAN.md + plans/mira-v1-{a..f}.md — 6 phase, 27 step, mọi step có nguồn R/UC và nghiệm thu kiểm được
+  G4: dang-lam   # 2026-08-25: fix pass sau phản biện 2 agent — xem changelog cùng ngày
+  G5: chua
+  G6: chua

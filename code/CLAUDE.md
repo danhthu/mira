@@ -55,6 +55,12 @@ be/src/database/    ← PostgreSQL adapter + raw SQL queries
 - `entities/` → không import từ `database/` hoặc `shared/`
 - `database/` → chỉ import từ `shared/`
 
+**Hai ngoại lệ hẹp, chỉ cho `import type`** (chốt 2026-08-25). Luật trên nhắm vào phụ thuộc lúc chạy; `import type` bị xoá khi biên dịch nên không tạo phụ thuộc nào:
+- `entities/` được `import type` từ `shared/types/enums.ts` — và chỉ file đó. Các union type (`PersonRole`, `TimeBucket`…) cần dùng chung giữa entity và DTO, để mỗi bên tự khai thì hai bản sẽ lệch nhau.
+- `database/` được `import type` từ `entities/`. Mapper có việc là biến row thành entity, nên buộc phải gọi tên kiểu entity ở đầu ra; không có chỗ hợp lệ nào khác đặt nó.
+
+Ngoài hai chỗ này, mọi `import` khác (kể cả type) vẫn theo đúng luật trên. `scripts/soi-cau-truc.sh` kiểm tự động.
+
 **IDatabase interface** sống trong `be/src/shared/interfaces/IDatabase.ts`. Mọi code dùng DB phải đi qua interface này, không gọi trực tiếp `pg`.
 
 ---
