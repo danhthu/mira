@@ -10,7 +10,22 @@ import { fileURLToPath } from 'node:url';
 const INDEX = join(fileURLToPath(new URL('.', import.meta.url)), '..', 'dist', 'index.html');
 const MARKER = 'rel="manifest"';
 
-const TAGS = `    <link rel="manifest" href="/manifest.webmanifest" />
+const TAGS = `    <style id="scroll-fix">
+      /*
+        Khối #expo-reset ở trên đặt body { overflow: hidden } vì React Native
+        cho rằng màn hình tự cuộn bằng ScrollView. Ở app này 71 trên 103 màn
+        không có ScrollView, nên phần nội dung vượt quá chiều cao màn hình là
+        không tài nào chạm tới được — trên điện thoại càng rõ, vì thanh địa chỉ
+        ăn mất một khoảng chiều cao mà bản thiết kế không tính tới.
+
+        dvh chứ không phải vh: vh trên di động tính theo lúc thanh địa chỉ đang
+        ẩn, nên vẫn thừa ra một dải khuất khi nó hiện lên.
+      */
+      html, body { height: auto; min-height: 100%; overflow-y: auto; }
+      body { overflow-x: hidden; }
+      #root { height: auto; min-height: 100vh; min-height: 100dvh; }
+    </style>
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
