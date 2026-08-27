@@ -1,5 +1,8 @@
 import Color from 'color';
-const global = {
+// Đổi tên từ `global`: Metro bọc mỗi module trong `function (global, ...)`, nên
+// khai một biến cùng tên ở đây là khai trùng tham số — bundle web chết ngay khi
+// phân tích cú pháp, màn hình trắng không thông báo gì.
+const baseStyle = {
   FONTSIZE: {
     small: 12,
     normal: 15,
@@ -280,7 +283,7 @@ const gray = '#808080';
 const colorLink = '#0E65FF';
 
 export const AppStyle = {
-  ...global,
+  ...baseStyle,
   ...colorHelper,
   ...lightColorScheme,
   ...lightColorSchemeV2,

@@ -38,3 +38,5 @@ yarn-error.*
 /output/
 dist/
 /dist/
+# ban xuat web tinh
+/dist/

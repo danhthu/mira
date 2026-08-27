@@ -7,6 +7,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "web:icons": "node scripts/make-pwa-icons.mjs",
+    "web:build": "expo export --platform web && node scripts/patch-pwa.mjs",
+    "web:serve": "node scripts/serve-web.mjs",
     "ts:check": "tsc",
     "test": "jest"
   },
@@ -101,7 +104,8 @@
     "ts-generic-collections-linq": "^1.0.7",
     "typescript": "~5.3.3",
     "uuid": "^9.0.1",
-    "webpack-config": "^7.0.0"
+    "webpack-config": "^7.0.0",
+    "@expo/metro-runtime": "~3.2.3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
