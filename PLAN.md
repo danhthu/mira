@@ -47,7 +47,7 @@ Trạng thái: ⬜ chưa làm · 🟨 đang làm · ✅ xong.
 | Mã | Việc | Trạng thái |
 |---|---|---|
 | E1 | Chạy `tsc`/`jest`/build web lần cuối, cập nhật `code/CLAUDE.md` mục nợ kỹ thuật | ✅ |
-| E2 | Viết tài liệu giới thiệu tổng kết cho chủ dự án xem lại | 🟨 |
+| E2 | Viết tài liệu giới thiệu tổng kết cho chủ dự án xem lại | ✅ |
 
 ## Câu hỏi còn mở (không chặn V1, ghi lại để quyết sau)
 
