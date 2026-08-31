@@ -24,8 +24,10 @@ export interface BImageIConSetProps {
   onChanged?: (arg: string) => void
 }
 
+// `catagory` giữ nguyên 1 nhóm duy nhất, đúng hành vi hiện tại (assets.ts không có metadata
+// phân nhóm thật; IconSelectionModal.tsx cần field này để build danh sách nhóm).
 export const ImageIconSets = Object.keys(imageSets).map((key) => {
-  return { name: key, src: imageSets[key] }
+  return { name: key, src: imageSets[key], catagory: 'default' }
 })
 
 export const BImageIConSet = (props: BImageIConSetProps) => {

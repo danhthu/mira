@@ -67,7 +67,7 @@ export const Home = ({ navigation, route }) => {
         justifyContent: 'center', // Căn giữa button theo chiều ngang
         alignItems: 'center',
       }}>
-        <ButtonV2 variant='secondary' text={text.add_my_own || 'Add my own'} onPress={() => {
+        <ButtonV2 type='secondary' text={text.add_my_own || 'Add my own'} onPress={() => {
           Router.Open(navigation, 'HabitAppModal', { screen: 'AddModal' });
         }} />
       </View>

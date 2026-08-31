@@ -59,7 +59,7 @@ export const WorkItem = (props: {
           onPress={onOpenDetail}
         >
           <Text style={[style.title, { textDecorationLine: item.status ? 'line-through' : 'none' }]}>{item.name || 'New Habit'}</Text>
-          {!item.planOption ? null : (
+          {!item.timeStart ? null : (
             <View style={{ flexDirection: 'row' }}>
               <View style={{ justifyContent: 'center', height: 16 }}>
                 <FontICon
@@ -71,27 +71,14 @@ export const WorkItem = (props: {
 
               <Text style={[style.desc, { textDecorationLine: item.status ? 'line-through' : 'none' }]}>
                 {' '}
-                At {item.planOption.hour}:{item.planOption.minut}
+                At {item.timeStart.hour}:{item.timeStart.minute}
               </Text>
             </View>
           )}
         </TouchableOpacity>
       </View>
       <View style={[style.rightContainer]}>
-        {item.goalOption && !item.status ? (
-          <TouchableOpacity onPress={onOpenDetail} >
-            {item.goalOption.unit == 'Time' ? (
-              <FontICon
-                name="clockcircleo"
-                style={style.right_icon_undone}
-                size={FONTSIZE.SMALL}
-              />
-            ) : (
-              <Text style={style.righ_text_title}>{item.goalOption.unit}</Text>
-            )}
-
-          </TouchableOpacity>
-        ) : canTouch(props.day, allow_previous) ? (
+        {canTouch(props.day, allow_previous) ? (
           <TouchableOpacity style={style.rightContainer} onPress={onCompleted}>
             {item.status ? (
               <FontICon

@@ -110,9 +110,8 @@ export const MoodTrackerView = (props: {
       />
       <ButtonV2
         text={text.done || 'Done'}
-        width={100}
-        variant="link"
-        style={{ alignSelf: 'center' }}
+        type="link"
+        customStyles={{ width: 100, alignSelf: 'center' }}
         onPress={async () => {
           await emotionTrackerRepository.addOrUpdate({
             ...new emotionCheck(),

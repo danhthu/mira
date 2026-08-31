@@ -1,6 +1,6 @@
 import {
     DbProvider
-} from '../../src/Common/Repositories/Repo';
+} from '../../src/Common/Repositories/DbProvider';
 export class JsProvider implements DbProvider {
     private data: { [key: string]: any } = {};
     getItem(key: string): Promise<string> {

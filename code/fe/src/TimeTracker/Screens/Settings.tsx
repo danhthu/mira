@@ -53,7 +53,7 @@ const Body = ({ route, navigation }) => {
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => {
           navigation.navigate('SettingsCat');
         }}>
-          <B.ICon name="catalog" />
+          <B.ICon name="view-list" />
           <Text>{text.settings_group_label_cat || 'Danh mục thời gian'}</Text>
           <B.ICon name="right" />
         </TouchableOpacity>

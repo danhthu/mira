@@ -77,12 +77,13 @@ declare type FontAwesomeNames =
   | 'music'
   | 'person'
   | 'business-time'
+  | 'list-alt'
 
 // Khai báo kiểu MaterialIconNames
 declare type MaterialIconNames =
   | 'self-improvement'
   | 'business-center'
-  | '@'
+  | 'alternate-email'
   | 'event-repeat'
   | 'timeline'
   | 'priority-high'
@@ -97,13 +98,20 @@ declare type MaterialCommunityIconNames =
   | 'calendar-clock-outline'
   | 'format-quote-open'
   | 'format-quote-close'
-  | 'dashboard'
   | 'clock-start'
   | 'clock-end'
   | 'calendar-start'
   | 'calendar-end'
   | 'stairs-up'
   | 'target'
+  | 'calendar-blank'
+  | 'calendar'
+  | 'calendar-today'
+  | 'calendar-arrow-right'
+  | 'calendar-week'
+  | 'arrow-right'
+  | 'arrow-left'
+  | 'view-list'
 
 // Khai báo kiểu AntDesignNames
 declare type AntDesignNames =
@@ -136,7 +144,7 @@ declare type AntDesignNames =
   | 'check'
   | 'arrowup'
   | 'arrowdown'
-  | 'bell'
+  | 'bells' // AntDesign không có glyph 'bell', đúng tên là 'bells'
   | 'minuscircle'
   | 'hourglass'
 
@@ -200,6 +208,7 @@ function isFontAwesomeName(name: string): name is FontAwesomeNames {
     'music',
     'person',
     'business-time',
+    'list-alt',
   ].includes(name)
 }
 // Hàm kiểm tra xem chuỗi có thuộc MaterialIconNames hay không
@@ -207,7 +216,7 @@ function isMaterialIconName(name: string): name is MaterialIconNames {
   return [
     'self-improvement',
     'business-center',
-    '@',
+    'alternate-email',
     'event-repeat',
     'timeline',
     'priority-high',
@@ -227,13 +236,20 @@ function isMaterialCommunityIcon(
     'calendar-clock-outline',
     'format-quote-open',
     'format-quote-close',
-    'dashboard',
     'clock-start',
     'clock-end',
     'calendar-start',
     'calendar-end',
     'stairs-up',
     'target',
+    'calendar-blank',
+    'calendar',
+    'arrow-right',
+    'arrow-left',
+    'view-list',
+    'calendar-today',
+    'calendar-arrow-right',
+    'calendar-week',
   ].includes(name)
 }
 
@@ -270,6 +286,7 @@ function isAntDesignName(name: string): name is AntDesignNames {
     'arrowup',
     'arrowdown',
     'hourglass',
+    'bells',
   ].includes(name)
 }
 
@@ -284,7 +301,7 @@ function isIconifyIcon(icon: string): icon is iconify_icon {
     icon,
   )
 }
-function isFontistoIcon(icon: string): icon is iconify_icon {
+function isFontistoIcon(icon: string): icon is fontisto_icon {
   return ['checkbox-active', 'checkbox-passive'].includes(icon)
 }
 export const BICon = (props: {

@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { tagOption } from '../../common/interface'
 import { Button, Divider, Surface, Switch } from 'react-native-paper'
 import { FONTSIZE, ICONSIZE, PADDING } from '../../src/Common'
 import { useTheme } from '../../theme'
@@ -19,10 +18,14 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import { BCard, CaptionRow } from './Card'
 import { debugStyle } from './debugStyle'
 
+// Không dùng `tagOption` (= string[]) của Common/Interfaces: component này thao tác
+// trên danh sách { text, selected }, khác hẳn shape của tagOption dùng ở HabitTracker.
+type BLinkToGoalItem = { text: string; selected?: boolean }
+type BLinkToGoalData = { data: BLinkToGoalItem[] }
 
 export interface BLinkToGoalProp {
-  data?: any;
-  dispatch?: (newData: tagOption) => void
+  data?: BLinkToGoalData;
+  dispatch?: (newData: BLinkToGoalData) => void
   style?: StyleProp<ViewStyle>
 }
 

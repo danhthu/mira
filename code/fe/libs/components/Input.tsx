@@ -120,7 +120,7 @@ const InputText = (props: InputTextProp) => {
             </View>
         </View>
     }
-    return <View style={[style.inputContainer, { flexDirection: 'row', borderWidth: 1, borderColor: style.inputContainer.borderBottomColor }, props.viewStyle]}>
+    return <View style={[style.inputContainer, { flexDirection: 'row', borderWidth: 1, borderColor: colors.outline }, props.viewStyle]}>
         {props.showLabel && <Text>{props.label}</Text>}
         <TextInput
             placeholder={props.label}

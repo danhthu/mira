@@ -8,15 +8,12 @@ import { Col, Grid } from 'react-native-easy-grid';
 import { FlatList } from 'react-native-gesture-handler';
 import { sortBy } from 'sort-by-typescript';
 import { useText } from '../../../lang';
-import { getSegmentsFor } from '../../../libs';
 import { BText as Text } from '../../../libs/components';
 import { getCurrentDay } from '../../../libs/dateUtils';
 import { BORDER_ROUND, FONT_SIZE, FONT_WEIGHT, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
 import { getLogger } from '../../Common';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
-import { dateEqual } from '../../Common/Utils/common';
 import { Habit, habitRepository, habitTrackerRepository } from '../Entities';
-const dayToMiliseconds = 24 * 60 * 60 * 1000;
 const logger = getLogger('DataRecord');
 export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean, month?: number, year?: number }) => {
   const nav = useNavigation();
@@ -33,20 +30,7 @@ export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean
     records.sort(sortBy('day'));
     const firstDayMonth = new Date(getCurrentDay().getFullYear(), month, 1);
     const endDayMonth = moment(new Date(getCurrentDay().getFullYear(), month + 1, 1)).add(-1, 'day');
-    //best
-    let best = 0;
-    let current = 0;
     const dayList = [...new Set(records.map(h => h.day))];
-
-    for (let i = 0; i < dayList.length - 1; i++) {
-
-      if (dayList[i + 1] - dayList[i] == dayToMiliseconds) {
-        current++;
-        best = best < current ? current : best;
-      } else {
-        current = 0;
-      }
-    }
     const dayInSecond = 24 * 3600 * 1000;
     const totalDays = (dayList[dayList.length - 1] - dayList[0]) / ((dayInSecond));
 
@@ -56,14 +40,11 @@ export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean
         const habitInDay = (await habitRepository.getListByDate(new Date(d))).map(h => h.id).sort();
         return { filter: JSON.stringify(doneDay) === JSON.stringify(habitInDay), day: d };
       }))).filter(d => d.filter);
-      const bestStreak = perfect.length == 0 ? 0 : Math.max(...getSegmentsFor(perfect).map(a => (a.endDay - a.startDay) / (dayInSecond)));
-      console.log(perfect);
       const totalDoneMonth = [...new Set(records.filter(h => chkDayInMonth(h.day) && new Date(h.day).getFullYear() == year).map(d => d.day))].length;
 
       return [
         //group
         { name: 'Perfect Days', unit: 'days', total: perfect.length },
-        { name: 'Best Streak', unit: 'days', total: bestStreak },
         { name: 'Habit Done Total', total: dayList.length },
         { name: 'Habit Done This Month', total: totalDoneMonth },
         { name: 'OverallRate', unit: '%', total: dayList.length / totalDays },
@@ -75,20 +56,6 @@ export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean
       const totalDone = records.length;
       const doneInMonth = [... new Set(records.filter(h => chkDayInMonth(h.day)).map(h => h.day))].length;
       logger.info('doneInMonth: ', doneInMonth);
-      let currentStreak = 0;
-      let curDay = getCurrentDay().getTime() - dayInSecond;
-      while (true) {
-        curDay += dayInSecond;
-        if (records.filter(h => dateEqual(new Date(h.day), new Date(curDay))).length == 0) {
-          break;
-        } else {
-          currentStreak++;
-        }
-      }
-      logger.info('currentStreak: ', currentStreak);
-      const bestStreak = records.length == 0 ? 0 : Math.max(...getSegmentsFor(records).map(a => (a.endDay - a.startDay) / (dayInSecond)));
-
-      logger.info('bestStreak: ', bestStreak);
       const Vol_ThisMonth = records.filter(h => chkDayInMonth(h.day))
         .map(h => h.data?.goal?.done || 0)
         .reduce((a, b) => a + b, 0);
@@ -102,11 +69,9 @@ export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean
 
       const habit = habits[0];
       let unit = '';
-      const result = [ //detail
+      const result: Array<{ name: string, total: number, unit?: string, filters?: { hids: string[], time: { from_date: number, to_date: number } } }> = [ //detail
         { name: 'Done this month', total: doneInMonth, filters: { hids: habits.map(h => h.id), time: { from_date: new Date(year, month, 1).getTime(), to_date: new Date(year, month + 1, 1).getTime() } } },
         { name: 'Total Done', total: totalDone, filters: { hids: habits.map(h => h.id), time: { from_date: new Date(year - 20, month, 1).getTime(), to_date: new Date().getTime() } } },
-        { name: 'Current Streak', unit: 'days', total: currentStreak },
-        { name: 'Best Streak', unit: 'days', total: bestStreak },
       ];
       if (habit.goalOption && habit.goalOption.enable) {
         unit = habit.goalOption.unit;
@@ -119,7 +84,6 @@ export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean
       return result;
     }
   }, deps, [{ name: 'Perfect Days', unit: 'days', total: null },
-  { name: 'Best Streak', unit: 'days', total: null },
   { name: 'Habit Done Total', total: null },
   { name: 'Habit Done This Month', total: null },
   { name: 'OverallRate', unit: '%', total: null },

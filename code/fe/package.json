@@ -15,7 +15,7 @@
   },
   "jest": {
     "setupFiles": [
-      "./tests/jest-setup.js"
+      "./tests/jest-setup.ts"
     ]
   },
   "dependencies": {

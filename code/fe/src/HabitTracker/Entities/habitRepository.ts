@@ -353,7 +353,6 @@ class HabitTrackerRepository extends BaseRepo<HabitTracker> {
     year: number,
   ) => {
     const logger = getLogger('getRecord');
-    const dayToMiliseconds = 24 * 60 * 60 * 1000;
     const chkDayInMonth = (d) =>
       new Date(d).getMonth() == month && new Date(d).getFullYear() == year;
     //lấy record, group by date
@@ -374,21 +373,9 @@ class HabitTrackerRepository extends BaseRepo<HabitTracker> {
     const endDayMonth = moment(
       new Date(getCurrentDay().getFullYear(), month + 1, 1),
     ).add(-1, 'day');
-    //best
-    let best = 0;
-    let current = 0;
     const dayList = [...new Set(records.map((h) => h.key))] as Array<number>;
-    for (let i = 0; i < dayList.length - 1; i++) {
-      if (dayList[i + 1] - dayList[i] == dayToMiliseconds) {
-        current++;
-        best = best < current ? current : best;
-      } else {
-        current = 0;
-      }
-    }
     const dayInSecond = 24 * 3600 * 1000;
     const totalDays = (dayList[dayList.length - 1] - dayList[0]) / dayInSecond;
-    const bestStreak = best;
     const totalDoneMonth = [
       ...new Set(
         records
@@ -400,9 +387,7 @@ class HabitTrackerRepository extends BaseRepo<HabitTracker> {
       ),
     ].length;
     return {
-      currentStreak: 10,
       perfect: records.filter((d) => d.status == 'COMPLETED').length,
-      bestStreak: bestStreak,
       total: dayList.length,
       totalDoneMonth,
       overallRate: dayList.length / totalDays,

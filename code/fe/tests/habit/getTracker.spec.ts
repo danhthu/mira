@@ -28,7 +28,9 @@ describe('getTracker', () => {
         await habitRepository.adds(habits);
         const result = await habitTrackerRepository.getTracker('1', new Date());
         expect(result.hid).toEqual('1');
-        expect(result.status).toEqual('NOT_WORK');
+        // 'NOT_WORK' không tồn tại trong type STATUS — getTracker trả 'CREATED'
+        // cho habit chưa làm hôm nay (xem habitRepository.ts:216).
+        expect(result.status).toEqual('CREATED');
     });
     it('returns tracker if exists', async () => {
         const habits = [

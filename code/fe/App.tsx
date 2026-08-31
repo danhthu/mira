@@ -48,6 +48,9 @@ Sentry.init({
 
 });
 */
+// Tắt cho V1: gửi 100% crash/performance trace ra ngoài, vi phạm ràng buộc cứng #5
+// (local-first, không gửi gì lên server ở V1). Giữ lại code để bật lại khi có quyết định khác.
+/*
 Sentry.init({
   dsn:
     'https://844c6244861ad88bed702620c058708b@o4507438821015552.ingest.us.sentry.io/4507804381282304',
@@ -60,6 +63,7 @@ Sentry.init({
     profilesSampleRate: 1.0,
   },
 })
+*/
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',

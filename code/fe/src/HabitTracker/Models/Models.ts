@@ -1,18 +1,17 @@
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { getCurrentDay, getDay } from '../../Common/Utils/common';
 import { Habit, habitRepository, HabitTracker, habitTrackerRepository } from '../Entities';
-import { HabitTrackerModel } from './HabitTrackerModel';
+import { HabitTrackerModel2 } from './HabitTrackerModel';
 
 //#region homeScreen
 export const useGetTags = () => {
   return useAsyncAction(
     async () => {
-      const result = []
-        ; (await habitRepository.list())
-          .filter((h) => h.tags && h.tags.data)
-          .filter((h) => h.tags.data.filter((d) => d.selected).length > 0)
-          .map((h) => h.tags.data.map((k) => k.text))
-          .forEach((h) => h.forEach((i) => result.push(i)));
+      const result: Array<string> = [];
+      (await habitRepository.list())
+        .filter((h) => h.tags && h.tags.length > 0)
+        .map((h) => h.tags)
+        .forEach((h) => h.forEach((i) => result.push(i)));
       return ['all', ...new Set(result)];
     },
     [useDectectDataChanged(habitRepository)],
@@ -85,7 +84,7 @@ export const useGetData = (day: Date, tag) => {
   const data = useAsyncAction(
     async () => {
       const trackers = await habitTrackerRepository.list();
-      const habits = (await HabitTrackerModel.getListHabit(day)).map(h => ({
+      const habits = (await HabitTrackerModel2.getListHabit(day)).map(h => ({
         habit: h,
         tracker: trackers.findLast(t => t.hid == h.id && t.day == day.getTime())
       }));

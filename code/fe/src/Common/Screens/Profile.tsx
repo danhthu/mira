@@ -6,11 +6,11 @@ import moment from 'moment';
 import { useText } from '../../../lang';
 import { Router,ROUTER_NAME } from '../../../Router';
 import { B } from '../../../libs/components';
-import { ICON_LIST } from '../../../libs/components/Icon';
+import { ICON_LIST } from '../../../libs/components/BIcon';
 import { AppStyle, useTheme } from '../../../theme';
-import { TimeTrackerWidget } from '../../TimeTracker';
+import { Card as TimeTrackerWidget } from '../../TimeTracker/Components/Card';
 import { FONTSIZE, MARGIN } from '../../../theme/Constraints';
-import { HabitTrackerModel } from '../../HabitTracker/Models/HabitTrackerModel';
+import { HabitTrackerModel2 as HabitTrackerModel } from '../../HabitTracker/Models/HabitTrackerModel';
 import { ChallengerTrackerModel } from '../../Challenger/Models/ChallengerTrackerModel';
 
 export const Profile = ({ navigation }) => {
@@ -47,10 +47,12 @@ const HabitSection = (props: { navigation }) => {
   const markedDates = {};
   data.forEach(item => {
     markedDates[moment(new Date(item.day)).format('YYYY-MM-DD')] = {
+      // 'CREATED' là trạng thái "chưa làm" thật của HabitTracker (không có 'NOTWORK' —
+      // xem type STATUS ở Common/Interfaces/interface.ts), status_0 tương ứng ý đó.
       selected: true, marked: true, selectedColor:
-                item.status == 'NOTWORK' ? styles.status_0_text : item.status == 'DONE' ? styles.status_1_text : styles.status_2_text,
+                item.status == 'CREATED' ? styles.status_0_text : item.status == 'DONE' ? styles.status_1_text : styles.status_2_text,
       selectedContainerColor:
-                item.status == 'NOTWORK' ? styles.status_0 : item.status == 'DONE' ? styles.status_1 : styles.status_2,
+                item.status == 'CREATED' ? styles.status_0 : item.status == 'DONE' ? styles.status_1 : styles.status_2,
     };
   });
 

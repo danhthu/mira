@@ -21,7 +21,7 @@ export class Habit extends base {
   public endDate?: Date;
   public time?: Date;
   public style?: any;
-  public priority?: number;
+  public priority?: 'hight' | 'normal' | 'low';
   public tags?: tagOption;
   public status?: STATUS; //tracker
 

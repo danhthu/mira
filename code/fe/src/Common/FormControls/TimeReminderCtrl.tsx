@@ -12,7 +12,7 @@ export const TimeReminderCtrl = (props: {
 }) => {
   const text = useText();
   return <B.TextBox dataType="time"
-    icon={'bell'}
+    icon={'bells'}
     iconStyle={{ color: 'orange', fontWeight: '500' }}
     label={text.batdau || 'Nhắc tôi'}
     value={!props.value ? null : props.value} onChanged={props.onChanged} />;

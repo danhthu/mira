@@ -220,7 +220,7 @@ const Caption = (props: { state: [day: Date, setDay: Dispatch<SetStateAction<Dat
               dateLesser(day, getCurrentDay())
             ) ? moment(day).format('DD-MMM') : text.chonngay || 'Chọn'}
           </Text>
-          <BICon name="calendar-blank" style={[{ fontSize: 16, marginLeft: 8 }, (dateGreater(day, getCurrentDay(), 2)
+          <BICon name="calendar-start" style={[{ fontSize: 16, marginLeft: 8 }, (dateGreater(day, getCurrentDay(), 2)
             ||
             dateLesser(day, getCurrentDay())
           ) && {
@@ -727,17 +727,15 @@ const WorkItem = (props: { viewStyle?: ViewStyle } & Work) => {
           alignItems: 'center',
         }}
       >
-        {props.status != 'DONE' && (
-          <B.ICon
-            name={props.status == 'DOING' ? 'pause-circle' : 'play-circle'}
-            style={{
-              color:
-                props.status == 'DOING' ? colors.success : colors.secondary,
-              fontWeight: FONT_WEIGHT.THIN,
-              fontSize: 35,
-            }}
-          />
-        )}
+        <B.ICon
+          name={props.status == 'DOING' ? 'pause-circle' : 'play-circle'}
+          style={{
+            color:
+              props.status == 'DOING' ? colors.success : colors.secondary,
+            fontWeight: FONT_WEIGHT.THIN,
+            fontSize: 35,
+          }}
+        />
       </TouchableOpacity>}
       {props.status == 'DONE' &&
         <View

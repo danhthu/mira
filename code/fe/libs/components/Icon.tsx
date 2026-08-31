@@ -10,6 +10,22 @@ export type ICON_LIST='checkbox-active' | 'checkbox-passive' |'play-circle'|'pau
 |'radio-button-off-outline'|'checkcircleo'|'check-circle'|'leaft'|'trash'|'work'|'music'|'person'|'hearto'|'check'|'arrowup'|'arrowdown'|'meh'|'today-outline'
 
 
+// FontAwesome không có glyph 'person' (dùng 'user'); nhánh 'person' đã được xử lý
+// riêng bằng Ionicons ở trên nên bỏ khỏi danh sách FontAwesome cho khớp glyphmap thật.
+const FontAwesomeNames = ['play-circle','pause-circle','bell-o','repeat','check-circle','leaf','trash','music'] as const
+const MaterialIconNames = ['calendar-today','priority-high','work','work-outline'] as const
+const AntDesignNames = ['meh', 'clockcircleo','down','up','pluscircleo','minuscircleo','tag','dashboard','checkcircleo','hearto','check','arrowup','arrowdown'] as const
+
+function isFontAwesomeName(name: string): name is (typeof FontAwesomeNames)[number] {
+  return (FontAwesomeNames as readonly string[]).indexOf(name) > -1
+}
+function isMaterialIconName(name: string): name is (typeof MaterialIconNames)[number] {
+  return (MaterialIconNames as readonly string[]).indexOf(name) > -1
+}
+function isAntDesignName(name: string): name is (typeof AntDesignNames)[number] {
+  return (AntDesignNames as readonly string[]).indexOf(name) > -1
+}
+
 export const FontICon = (props: {
   style?: StyleProp<TextStyle>|undefined,
   size?:number,
@@ -17,9 +33,6 @@ export const FontICon = (props: {
   name?: ICON_LIST|string
 }) => {
 
-  const FontAwesomeNames = ['play-circle','pause-circle','bell-o','repeat','check-circle','leaf','trash','music','person']
-  const MaterialIconNames=['calendar-today','priority-high','work','work-outline']
-  const AntDesignNames=['meh', 'clockcircleo','down','up','pluscircleo','minuscircleo','tag','dashboard','checkcircleo','hearto','check','arrowup','arrowdown']
   if(props.name=='person' || props.name=='happy-outline'|| props.name=='radio-button-off-outline'||props.name=='today-outline'){
     return (<Ionicons  name={props.name} color={props.color} style={props.style} size={props.size} />)
   }
@@ -29,17 +42,19 @@ export const FontICon = (props: {
   if(props.name=='list-alt'){
     return (<FontAwesome5  name={props.name} color={props.color} style={props.style} size={props.size}  />)
   }
-  if(AntDesignNames.indexOf(props.name)>-1 ){
+  if(props.name && isAntDesignName(props.name)){
     return <AntDesign color={props.color}  style={props.style} size={props.size} name={props.name} />
   }
-  if(MaterialIconNames.indexOf(props.name)>-1 ){
+  if(props.name && isMaterialIconName(props.name)){
     return <MaterialIcons color={props.color} style={props.style} size={props.size} name={props.name}/>
   }
-  if(FontAwesomeNames.indexOf(props.name)>-1 ){
+  if(props.name && isFontAwesomeName(props.name)){
     return <FontAwesome color={props.color} style={props.style} size={props.size} name={props.name}/>
   }
 
-  return <Fontisto color={props.color} style={ props.style}  name={props.name||'circle-o-notch'}></Fontisto>
+  // Các icon còn lại (checkbox-active/passive, arrow-left/right, ...) đều thuộc bộ Fontisto.
+  // Không thể narrow tĩnh từ ICON_LIST|string sang glyph name thật của Fontisto nên cast có kiểm tra runtime ở trên.
+  return <Fontisto color={props.color} style={ props.style}  name={(props.name || 'circle-o-notch') as React.ComponentProps<typeof Fontisto>['name']}></Fontisto>
 }
 
 export const ImageICon = FontICon

@@ -1,7 +1,6 @@
 import moment from "moment";
 import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { BICon } from "../../../../libs/components";
 import { HEADER_HEIGHT } from "../../../../theme/Constraints";
 import { FONTSIZE } from "../../../Common";
 import { Header } from "../../../Common/Components/Header";
@@ -14,21 +13,11 @@ import { useText } from "../../Text";
 //tab: this week (numer)
 //tab: calendar (number)
 //tab: unplan (number)
+// Ràng buộc #3: không point/level/badge — bỏ hẳn Point/Level/Collection, chỉ giữ thống kê trung tính (done/plan/miss/unplan).
 export const Dashboard = () => {
-    //diem so: point, level, huy hiệu
-    //work list: done, miss, plan, unplan
     const t = useText().translate;
     const [showTitle, setShowTitle] = useState(false);
     const styles = useStyles();
-    const data = useAsyncAction(async () => {
-        return {
-            point: 10, level: 1,
-
-        };
-    }, [], {
-        point: 10,
-        level: 1
-    });
     return <View style={[styles.screen]}>
         <Header title={''} />
         <Text style={{ fontWeight: '500', fontSize: FONTSIZE.PAGE_TITLE }}>
@@ -42,39 +31,9 @@ export const Dashboard = () => {
                 setShowTitle(false);
             }
         }}>
-            <Point point={data.point} />
-            <Level level={data.level} />
-            <Collection />
             <Summary />
         </ScrollView>
     </View>;
-};
-
-const Point = ({ point = 0 }) => {
-    const maxPoint = 1000;
-    const pointLevel = point >= maxPoint * 0.8 ? 3 :
-        point >= maxPoint * 0.5 ? 2 :
-            point >= 0 ? 1 : 0;
-
-
-    return <View>
-        <Text style={{ fontSize: FONTSIZE.LARGE }}>{point}</Text>
-        <View>
-            <View style={{ flexDirection: 'row' }}>
-                <BICon name="star" style={{ color: pointLevel > 0 ? 'yellow' : 'gray' }} />
-                <BICon name="star" style={{ color: pointLevel > 1 ? 'yellow' : 'gray' }} />
-                <BICon name="star" style={{ color: pointLevel > 2 ? 'yellow' : 'gray' }} />
-            </View>
-        </View>
-    </View>;
-};
-
-const Level = ({ level = 1 }) => {
-    return <View></View>;
-};
-
-const Collection = ({ data = [{}] }) => {
-    return <View></View>;
 };
 
 const Summary = () => {

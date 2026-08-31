@@ -192,7 +192,7 @@ export const DetailScreen = ({ route, navigation }) => {
 
 
         <View style={{ alignItems: 'center', marginTop: 30 }}>
-          <ButtonV2 radius={30} width={220} rounded variant='black' text={text.completed || 'Completed'} onPress={() => completed()}></ButtonV2>
+          <ButtonV2 radius={30} type='black' text={text.completed || 'Completed'} onPress={() => completed()}></ButtonV2>
         </View>
 
         <GroupTitle

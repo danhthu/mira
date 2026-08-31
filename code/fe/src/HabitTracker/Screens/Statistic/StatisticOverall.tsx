@@ -34,9 +34,9 @@ export const OverallTab = () => {
 const Summary = () => {
   const text = useText();
   const [data, setData] = useState({
-    currentStreak: 10,
     successRate: 92,
-    bestStreak: 10,
+    total: 0,
+    perfect: 0,
     completedHabits: 7,
   });
   const styles = StyleSheet.create({
@@ -65,7 +65,6 @@ const Summary = () => {
       <Text style={{ fontSize: FONTSIZE.NORMAL, fontWeight: 'bold' }}>
         {text.Summary || 'Summary:'}
       </Text>
-      {/**current streak */}
       <View
         style={{
           flexDirection: 'row',
@@ -76,9 +75,9 @@ const Summary = () => {
         <View style={[{ marginRight: GRID_GUTTER / 2, flex: 1 }]}>
           <View style={styles.container}>
             <BText style={styles.label}>
-              {text.currentStreak || 'Current streak'}
+              {text.totalDaysDone || 'Total days done'}
             </BText>
-            <BText style={styles.value}>{data.currentStreak} days</BText>
+            <BText style={styles.value}>{data.total} days</BText>
           </View>
         </View>
         <View style={[{ marginLeft: GRID_GUTTER / 2, flex: 1 }]}>
@@ -94,9 +93,9 @@ const Summary = () => {
         <View style={[{ marginRight: GRID_GUTTER / 2, flex: 1 }]}>
           <View style={styles.container}>
             <BText style={styles.label}>
-              {text.bestStreak || 'Best streak day'}
+              {text.perfectDays || 'Perfect days'}
             </BText>
-            <BText style={styles.value}>{data.bestStreak} days</BText>
+            <BText style={styles.value}>{data.perfect} days</BText>
           </View>
         </View>
         <View style={[{ marginLeft: GRID_GUTTER / 2, flex: 1 }]}>

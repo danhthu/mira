@@ -69,7 +69,7 @@ export const DataMonth = (props: {
         borderRadius: BORDER_ROUND.NORMAL,
         backgroundColor: 'white'
       }}
-      renderArrow={dir => dir == 'left' ? <B.ICon name='arrow-left' /> : <B.ICon name='arrow-right' />}
+      renderArrow={dir => dir == 'left' ? <B.ICon name='left' /> : <B.ICon name='right' />}
       marking={{ dots: null }}
       markingType={'period'}
       markedDates={markedDates}

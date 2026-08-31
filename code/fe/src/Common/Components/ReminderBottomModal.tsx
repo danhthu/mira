@@ -21,7 +21,8 @@ import { reminderOption } from '../Interfaces'
 import { CustomCalendarView } from './CustomCalendarView'
 
 export const ReminderBottomModal = (props: {
-  value: Date | reminderOption
+  // Chỉ nơi gọi (ReminderCtrl.tsx) truyền reminderOption, không có Date thuần
+  value: reminderOption
   testId?: string
   onChanged: (val) => void
   onDismiss?: () => void
@@ -101,11 +102,11 @@ export const ReminderBottomModal = (props: {
             .getTime(),
       text: text.tuantoi || 'Tuần tới',
     },
-  ]
+  ] as const // giữ literal type cho `icon` để khớp ICON_LIST thay vì bị widen thành string
 
   useEffect(() => {
     updateState({
-      calendarMonth: moment(props.value || new Date()).format('MMM-YYYY'),
+      calendarMonth: moment(props.value?.date || new Date()).format('MMM-YYYY'),
       value: props.value,
     })
   }, [props.value])

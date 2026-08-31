@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native'
-import { tagOption } from '../../common/interface'
 import { Button, Divider, Surface, Switch } from 'react-native-paper'
 
 import { useTheme } from '../../theme'
@@ -19,9 +18,14 @@ import { BCard, CaptionRow } from './Card'
 import { debugStyle } from './debugStyle'
 import { FONTSIZE } from '../../theme/Constraints'
 
+// Không dùng chung `tagOption` (= string[]) của Common/Interfaces: component này
+// thao tác trên danh sách { text, selected }, khác hẳn shape của tagOption dùng ở HabitTracker.
+type BContextItem = { text: string; selected?: boolean }
+type BContextData = { data: BContextItem[] }
+
 export interface BContextProp {
-  data?: tagOption
-  dispatch?: (newData: tagOption) => void
+  data?: BContextData
+  dispatch?: (newData: BContextData) => void
   style?: StyleProp<ViewStyle>
 }
 export const BContext = (props: BContextProp) => {

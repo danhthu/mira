@@ -16,7 +16,7 @@ export const MandatorySelector = ({ route, navigation }) => {
   const [data, setData, dataRef] = useStateData([] as Work[]);
   useAsyncAction(async () => {
     //load data
-    setData(await workRepository.getList(day));
+    setData(await workRepository.getListByDate(day));
   }, [route.params]);
   const save = () => {
     workRepository.updateList(dataRef.current);
@@ -29,8 +29,9 @@ export const MandatorySelector = ({ route, navigation }) => {
     return save;
   }, []);
   const selectItem = (item) => {
-    const newData = data.filter(d => d.id == item.id)[0].mandatory = !item.mandatory;
-    setData([...newData]);
+    const target = data.filter(d => d.id == item.id)[0];
+    target.mandatory = !item.mandatory;
+    setData([...data]);
   };
   return <Background><FlatList
     style={{ padding: PADDING.SCREEN, }}

@@ -18,7 +18,6 @@ import {
   FONT_WEIGHT,
   HEADER_HEIGHT,
   ICON_TOUCH_WIDTH,
-  useDateFormat,
 } from '../../../theme/Constraints';
 import { Router } from '../../../Router';
 import { useNavigation } from '@react-navigation/native';

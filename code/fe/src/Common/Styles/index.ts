@@ -192,6 +192,23 @@ export const useCommonStyle = () => {
         position: 'absolute',
         right: 0,
       },
+      // Alias giữ cho các màn hình gọi style.header.leftButton/rightButton (Challenger, Goal)
+      leftButton: {
+        width: ICON_TOUCH_WIDTH,
+        height: HEADER_HEIGHT,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        left: 0,
+      },
+      rightButton: {
+        width: ICON_TOUCH_WIDTH,
+        height: HEADER_HEIGHT,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        right: 0,
+      },
       icon: {
         color: colors.primary,
         fontSize: FONT_SIZE.PageTitle,

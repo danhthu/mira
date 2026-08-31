@@ -51,7 +51,7 @@ export const AddGroup = ({ route, navigation }) => {
         title={title}
         right={
           <TouchableOpacity style={[debugStyle]} onPress={() => save(data)}>
-            <Text style={{ fontSize: FONTSIZE.NORMAL }}>{t}</Text>
+            <Text style={{ fontSize: FONTSIZE.NORMAL }}>{t('Save')}</Text>
           </TouchableOpacity>
         }
       />

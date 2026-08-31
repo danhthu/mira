@@ -14,9 +14,13 @@ describe('trackerStatusByDate', () => {
         await habitTrackerRepository.empty();
     });
     it('Check Calendar Data', async () => {
+        // created_date phải TRƯỚC startDate — getListByDate loại habit ra khỏi
+        // những ngày trước khi nó được tạo, nên tạo hôm nay mà đánh dấu hoàn
+        // thành cho ngày 2024 sẽ luôn bị lọc ra (đây là bug từng có ở fixture).
+        const createdDate = new Date(2024, 0, 1).getTime();
         const habits = [
             {
-                created_date: new Date().getTime(),
+                created_date: createdDate,
                 id: '1', tags: ['tag1', 'tag2'], name: 'test', repeatOption: {
                     enable: true,
                     kind: 'daily',
@@ -24,7 +28,7 @@ describe('trackerStatusByDate', () => {
                 } as repeatOption
             },
             {
-                created_date: new Date().getTime(),
+                created_date: createdDate,
                 id: '2', tags: ['tag2', 'tag3'], name: 'test 2', repeatOption: {
                     enable: true,
                     kind: 'daily',

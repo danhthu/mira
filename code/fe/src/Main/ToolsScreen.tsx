@@ -100,7 +100,7 @@ const Caption = () => {
 
 };
 
-const PercentageWidget = ({ label, description, percentage }) => {
+const PercentageWidget = ({ label, description, percentage }: { label: string, description: string, icon?: string, percentage: number }) => {
   const colors = {
     success: 'green',
     warning: 'orange',

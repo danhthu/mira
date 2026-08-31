@@ -52,6 +52,13 @@ export const HabitItem = (props: {
     }
   };
 
+  const onOpenDetail = () =>
+    Router.Open(navigation, 'HabitAppModal', {
+      screen: 'Detail', data: {
+        habit: props.item, tracker: props.tracker, day: props.day.getTime(), id: item.id,
+      }
+    });
+
   const canTouch = (day, allow) => {
     return true;
     /*return (

@@ -1,4 +1,4 @@
-import { TextProps, Text, View, ViewStyle, Dimensions, useWindowDimensions, TextStyle } from "react-native";
+import { TextProps, Text, View, ViewStyle, Dimensions, useWindowDimensions, TextStyle, StyleProp } from "react-native";
 import { useHtmlStyle, useTextStyle } from "./Styles";
 import HTMLRender from "react-native-render-html";
 import { FONTSIZE, FONT_WEIGHT } from "../../theme/Constraints";
@@ -7,7 +7,7 @@ import React from "react";
 export interface BTextProps extends TextProps {
     kind?: 'default' | 'primary' | 'secondary',
     size?: 'normal' | 'small' | 'big',
-    style?:TextStyle|TextStyle[],
+    style?:StyleProp<TextStyle>,
     onPress?:()=>void
 }
 export const BText = (props: BTextProps) => {

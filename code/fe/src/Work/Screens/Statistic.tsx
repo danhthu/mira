@@ -1,19 +1,15 @@
-import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { Dispatch, MutableRefObject, SetStateAction, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, Modal, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { B, BButton, BICon, BText as Text } from '../../../libs/components';
-import { Link } from '../../../libs/components/Link';
 import { Cel, Row } from '../../../libs/components/Row';
-import { Router } from '../../../Router';
 import { useTheme } from '../../../theme';
-import { FONTSIZE, FONT_SIZE, FONT_WEIGHT, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
-import { Tip } from '../../Common/Components/Tip';
+import { FONTSIZE, FONT_SIZE, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { useCommonStyle } from '../../Common/Styles';
 import { dateGreater, dateLesser, getNextWeekend, getStartOfWeek } from '../../Common/Utils/common';
 import { Background } from '../Components/Background';
-import { Work, workRepository } from '../Entities';
+import { workRepository } from '../Entities';
 import { useText } from '../Text';
 type FILTER = 'a' | 'w' | 'm' | 'y' | { from: Date, to: Date }
 function convertFilterToDate(filter: FILTER): { from: Date, to: Date } {
@@ -31,9 +27,6 @@ function convertFilterToDate(filter: FILTER): { from: Date, to: Date } {
   };
 }
 
-function calcScore(data: Work[]): number {
-  return data.length;
-}
 export const Statistic = () => {
   const [filter, setFilter] = useState('w' as FILTER);
   return <Background>
@@ -49,7 +42,6 @@ const RptBody = (props: { filter: FILTER }) => {
   const text = useText();
   const style = useSummaryStyle();
   const commonStyle = useCommonStyle();
-  const nav = useNavigation();
   const [dataTotal, setDataTotal] = useState({
     total: 100,
     completed: 10, //madatory
@@ -57,7 +49,6 @@ const RptBody = (props: { filter: FILTER }) => {
     totalCompleted: 50,
     completeBeforeEndTime: 10, //dung
     completeAfterEndTime: 10, //muộn
-    score: 1000
   });
   useAsyncAction(async () => {
     const tmp = await workRepository.filter(w => dateGreater(w.startDate, filter.from) && dateLesser(w.startDate, filter.to));
@@ -70,32 +61,18 @@ const RptBody = (props: { filter: FILTER }) => {
       totalCompleted: tmp.filter(t => t.status == 'DONE').length,
       completeBeforeEndTime: tmp.filter(t => t.status == 'DONE' && (!t.endDate || dateGreater(t.finishDate, t.endDate, 1))).length, //dung
       completeAfterEndTime: tmp.filter(t => t.status == 'DONE' && (t.endDate && dateLesser(t.finishDate, t.endDate))).length, //muộn
-      score: calcScore(tmp)
     }));
   }, [props.filter]);
-  const scoreTooltip = <View><Text>Chỉ số điểm làm việc của bạn, chi tiết</Text><Link href="https://google.com">tại đây</Link></View>;
+  // Ràng buộc #3: không điểm thành tích/badge, không màu đỏ báo "chưa đủ" — chỉ hiển thị số liệu trung tính.
   return (<View style={{ borderWidth: 1, borderColor: colors.outlineVariant, margin: PADDING.SCREEN, padding: 8, backgroundColor: colors.grayColor, borderRadius: 16 }}>
-    {/**Score  - Achievement Score */}
-    {/**complete task */}
-    {/**13.4 from last week |  */}
-    {/**complete rate */}
-    {/**complete distribution */}
-    {/**complete rate distribution */}
-    {/**score component */}
     <Row>
       <Cel style={[{ marginTop: 10 }, commonStyle.full]}>
-        <Tip
-          placement="bottom"
-          content={scoreTooltip}><Text style={[{ textAlign: 'center', fontSize: 30, }]}>{text.yourScore || 'Your Score'}</Text></Tip>
         <Text size="small" style={{ textAlign: 'center', marginTop: 8, marginBottom: 8 }}>{
           props.filter == 'w' ? '' + moment(filter.from).format('DD MMM') + ' - ' + moment(filter.to).format('DD MMM') + '' :
             props.filter == 'm' ? moment(filter.from).format('MMM, YYYY')
               : props.filter == 'y' ? moment(filter.from).format('YYYY')
                 : moment(filter.from).format('DD MMM YYYY') + ' - ' + moment(filter.to).format('DD MMM YYYY')
         }</Text>
-        <Link onPress={() => { Router.Open(nav, 'WorkAppModal', { screen: 'StatisticScore', filter }); }}
-          style={{ textAlign: 'center', fontWeight: FONT_WEIGHT.SEMIBOLD, fontSize: 50, color: colors.secondary }}>{'' + dataTotal.score}</Link>
-        <Text style={{ color: 'orange', fontWeight: '500', textAlign: 'center', fontSize: 30 }}>*****</Text>
       </Cel>
     </Row>
     <Row>
@@ -104,9 +81,9 @@ const RptBody = (props: { filter: FILTER }) => {
       </Cel>
       <Cel style={commonStyle.right}>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[style.textSuccess]}>{dataTotal.totalCompleted}/</Text>
+          <Text style={[style.textNeutral]}>{dataTotal.totalCompleted}/</Text>
           <Text>{dataTotal.total} </Text>
-          <Text style={[dataTotal.totalCompleted * 100 / dataTotal.total > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.totalCompleted * 100 / dataTotal.total)}%)</Text>
+          <Text style={[style.textNeutral]}>({Math.round(dataTotal.totalCompleted * 100 / dataTotal.total)}%)</Text>
         </View>
       </Cel>
     </Row>
@@ -116,34 +93,34 @@ const RptBody = (props: { filter: FILTER }) => {
       </Cel>
       <Cel style={commonStyle.right}>
         <View style={{ flexDirection: 'row', }}>
-          <Text style={[style.textSuccess]}>{dataTotal.completed}/</Text>
+          <Text style={[style.textNeutral]}>{dataTotal.completed}/</Text>
           <Text>{dataTotal.mandatory} </Text>
-          <Text style={[dataTotal.completed * 100 / dataTotal.mandatory > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.completed * 100 / dataTotal.mandatory)}%)</Text>
+          <Text style={[style.textNeutral]}>({Math.round(dataTotal.completed * 100 / dataTotal.mandatory)}%)</Text>
         </View>
       </Cel>
     </Row>
 
     <Row>
       <Cel style={commonStyle.full}>
-        <Text style={style.textSuccess}>{text.dunghan || 'Đúng hạn'}</Text>
+        <Text>{text.dunghan || 'Đúng hạn'}</Text>
       </Cel>
       <Cel style={commonStyle.right}>
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[style.textSuccess]}>{dataTotal.completeBeforeEndTime}/{dataTotal.totalCompleted} </Text>
-          <Text style={[dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted)}%)</Text>
+          <Text style={[style.textNeutral]}>{dataTotal.completeBeforeEndTime}/{dataTotal.totalCompleted} </Text>
+          <Text style={[style.textNeutral]}>({Math.round(dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted)}%)</Text>
         </View>
       </Cel>
     </Row>
 
     <Row style={{ borderBottomWidth: 0 }}>
       <Cel style={commonStyle.full}>
-        <Text style={[style.textDanger]}>{text.quahan || 'Quá  hạn'}</Text>
+        <Text>{text.quahan || 'Quá  hạn'}</Text>
       </Cel>
       <Cel style={commonStyle.right}>
         <View style={[{ flexDirection: 'row' }]}>
-          <Text style={[style.textDanger,]}>{dataTotal.completeAfterEndTime || '--'}/</Text>
+          <Text style={[style.textNeutral]}>{dataTotal.completeAfterEndTime || '--'}/</Text>
           <Text >{dataTotal.total} </Text>
-          <Text style={[dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted > 50 ? style.textSuccess : style.textDanger]}>{dataTotal.completeAfterEndTime == 0 ? '--' : '(' + Math.round(dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted) + '%)'}</Text>
+          <Text style={[style.textNeutral]}>{dataTotal.completeAfterEndTime == 0 ? '--' : '(' + Math.round(dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted) + '%)'}</Text>
         </View>
       </Cel>
     </Row>
@@ -219,8 +196,7 @@ const CustomFilter = forwardRef((props: { filter: FILTER, setFilter: Dispatch<Se
 const useSummaryStyle = () => {
   const colors = useTheme();
   return StyleSheet.create({
-    textSuccess: { color: colors.success, },
-    textDanger: { color: colors.error, },
+    textNeutral: { color: colors.onSurface, },
   });
 };
 
@@ -239,7 +215,7 @@ const StatusWidget2 = (props: {
         total: (await workRepository.getUnPlanned(props.day)).length,
       };
     }
-    const data = (await workRepository.getList(props.day)).filter(
+    const data = (await workRepository.getListByDate(props.day)).filter(
       (w) =>
         (props.type == 'mandatory' && w.mandatory) ||
         (props.type == 'today' && !w.mandatory),
@@ -358,7 +334,7 @@ const Caption = (props = { filter: 'w' } as { filter?: FILTER, setFilter: Dispat
       ]}
       onPress={() => { customFilterDialogRef.current?.show(); }}
     >
-      <BICon name="calendar-blank" style={{ fontSize: 14, color: colors.onPrimary }}></BICon>
+      <BICon name="calendar-start" style={{ fontSize: 14, color: colors.onPrimary }}></BICon>
     </TouchableOpacity>
     <CustomFilter ref={customFilterDialogRef} filter={filter} setFilter={setFilter} />
   </View>;

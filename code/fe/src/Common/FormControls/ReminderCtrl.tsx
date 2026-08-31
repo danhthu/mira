@@ -16,7 +16,8 @@ import { useText } from '../Text'
 
 const rowHeight = TBL_ROW_HEIGHT
 export const ReminderCtrl = (props: {
-  value?: Date | reminderOption
+  // Cả 2 nơi gọi (Work/Screens/Add.tsx, Edit.tsx) đều truyền reminderOption, không có Date
+  value?: reminderOption
   onChanged?: (val: reminderOption) => void
 }) => {
   const style = useStyle()
@@ -28,7 +29,7 @@ export const ReminderCtrl = (props: {
       <View style={{ height: rowHeight, justifyContent: 'center' }}>
         <B.ICon
           size={FONTSIZE.NORMAL}
-          name={'bell'}
+          name={'bells'}
           style={[
             style.icon_wrapper,
             { marginRight: 10, color: colors.error },
@@ -45,10 +46,10 @@ export const ReminderCtrl = (props: {
           <View>
             <Text style={{ color: colors.primary }}>
               {(text.reminder || 'Nhắc tôi') +
-                moment(props.value).format(' HH:mm')}
+                moment(props.value.date).format(' HH:mm')}
             </Text>
             <Text size="small" style={{ color: colors.primary }}>
-              {moment(props.value).format('dddd, DD MMMM')}
+              {moment(props.value.date).format('dddd, DD MMMM')}
             </Text>
           </View>
         )}

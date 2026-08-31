@@ -1,6 +1,8 @@
 import { Animated, Easing } from 'react-native';
 
 class ModalTransition {
+  animationValue: Animated.Value;
+
   constructor() {
     this.animationValue = new Animated.Value(0);
   }

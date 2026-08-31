@@ -18,9 +18,9 @@ ky_thuat:
     lenh_test: "npm test"            # = vitest run (thêm 2026-08-25 cùng tầng repository)
     thu_muc: code/be
   mobile:
-    khung: "React Native + Expo SDK 54"   # nâng từ 53 lên 54 ngày 2026-08-25 để khớp Expo Go trên iOS
-    lenh_build:                      # CHƯA CÓ — package.json chỉ có "start/android/ios/web", không có build script thật (Expo dùng EAS, chưa cấu hình)
-    lenh_test: "npm test"            # = vitest run, glob src/**/*.test.ts (sửa 2026-08-25, glob cũ chặn test ngoài core/)
+    khung: "React Native + Expo 51 / RN 0.74 / React 18"   # 2026-08-27: code/fe bị thay bằng Batify verbatim, xem ghi_chu_quyet_dinh — KHÔNG còn SDK 54/Zustand/SQLite như trước
+    lenh_build: "npm run web:build"  # expo export --platform web + patch-pwa.mjs — CHƯA có build native (Expo dùng EAS, chưa cấu hình)
+    lenh_test: "npm test"            # = jest — HIỆN KHÔNG CHẠY ĐƯỢC, config trùng lặp + setupFiles trỏ sai tên file, xem code/CLAUDE.md "Nợ kỹ thuật"
     thu_muc: code/fe
   csdl:
     he: PostgreSQL
@@ -82,12 +82,13 @@ ghi_chu_quyet_dinh:
   - "code/fe/src/core/{lifeRate,freedomCapital,expenseConversion}.ts thuộc phạm vi V2 (tài chính), V1 spec ghi rõ 'không tài chính' — GIỮ NGUYÊN, không xóa, không phát triển thêm trong vòng lặp V1."
   - "code/be (Postgres backend, hạ tầng sync) ngoài phạm vi V1 ('chưa làm sync ở V1' theo CLAUDE.md gốc) — người dùng chọn VẪN TIẾP TỤC xây song song, không chặn lại."
   - "docs/00-vision.md → 08-three-pillars.md coi là đặc tả đã chốt (tương đương đầu ra phan-tich-yeu-cau) — nhưng người dùng vẫn muốn chạy đủ G1–G3 để sinh bộ docs/dac-ta/* + PLAN.md chuẩn theo khuôn skill, chấp nhận có thể trùng lặp một phần với docs/00-08."
+  - "2026-08-27: code/fe (kiến trúc features/shared/core/SQLite, 12 module, 177 test) bị THAY HOÀN TOÀN bằng app Batify gốc verbatim (commit d633408, nhánh feat/port-batify-modules) bởi một phiên làm việc khác cùng ngày. Người dùng xác nhận: Batify là khung xuất phát tạm, dọn dần cho khớp 6 'Ràng buộc cứng' — KHÔNG quay lại kiến trúc cũ. Danh sách nợ kỹ thuật cụ thể (streak/point-level/màu đỏ vi phạm ràng buộc #3, Sentry vi phạm #5, jest config hỏng, 141 lỗi tsc) ghi ở code/CLAUDE.md mục 'Nợ kỹ thuật cần dọn trước khi ship V1'. G2–G4 dưới đây reset về trạng thái phản ánh code Batify, không phải kiến trúc cũ đã mất."
 
 tien_do:
   G0: xong
   G1: xong        # 3 câu mức Chặn đã được người dùng xác nhận 2026-08-25, xem docs/dac-ta/cau-hoi.md
-  G2: xong        # đã sửa 4 vi phạm (tạo shared/types/enums.ts làm nguồn union type chung), scripts/soi-cau-truc.sh sạch, tsc --noEmit sạch
-  G3: xong        # 2026-08-25: PLAN.md + plans/mira-v1-{a..f}.md — 6 phase, 27 step, mọi step có nguồn R/UC và nghiệm thu kiểm được
-  G4: dang-lam   # 2026-08-25: fix pass sau phản biện 2 agent — xem changelog cùng ngày
+  G2: xong        # 2026-08-27 — code/CLAUDE.md mô hình hoá lại theo cây thư mục Batify thật (pullstate/AsyncStorage/class-validator)
+  G3: xong        # 2026-08-27 — PLAN.md viết lại theo hướng "dọn Batify cho khớp ràng buộc cứng", 5 nhóm A-E, tất cả A-D xong
+  G4: xong        # 2026-08-27: 4 agent song song + fix tay — tsc 141→0 lỗi, jest 0 chạy được→27/27 pass, streak/point-level/màu đỏ/Sentry đã gỡ theo 6 ràng buộc cứng. Còn 2 câu hỏi mở (Reminder rỗng, Trading giữ hay gỡ) không chặn V1.
   G5: chua
   G6: chua

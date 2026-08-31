@@ -6,7 +6,6 @@ import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 
 import { B, BICon, BText as Text } from '../../../libs/components';
 import { habitRepository, habitTrackerRepository } from '../Entities';
-import { HabitTrackerModel } from '../Models/HabitTrackerModel';
 import { getDay } from '../../../libs/dateUtils';
 import { debugStyle } from '../../../libs/components/debugStyle';
 import { useNavigation } from '@react-navigation/native';

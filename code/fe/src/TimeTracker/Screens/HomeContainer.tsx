@@ -51,7 +51,7 @@ export function HomeContainer({ route, navigation }) {
     icon: 'setting',
     component: Settings
   },
-  ];
+  ] as const; // giữ literal type cho `icon` để khớp ICON_LIST thay vì bị widen thành string
   return (
     <Background >
       <Drawer.Navigator initialRouteName={initialRouteName} screenOptions={{ headerShown: false }}>

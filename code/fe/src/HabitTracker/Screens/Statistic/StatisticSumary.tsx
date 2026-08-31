@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FlatList, Image, ScrollView, View } from 'react-native';
 import { sortBy } from 'sort-by-typescript';
 import usePerformance from '../../../../hook/useScreenLoadTime';
-import { getSegmentsFor } from '../../../../libs';
 import { B, BText as Text } from '../../../../libs/components';
 import { Link } from '../../../../libs/components/Link';
 import { Cel, Row } from '../../../../libs/components/Row';
@@ -39,11 +38,6 @@ function bgDiff<T extends { day: number }>(data: Array<T>, evenColor, oddColor):
   }
   return data;
 }
-function bestStreak<T extends { day: number }>(data: Array<T>): number {
-  if (data.length == 0) return 0;
-  const segs = getSegmentsFor(data).map(s => (s.endDay - s.startDay) / (24 * 3600 * 1000) - 1);
-  return Math.max(...segs);
-}
 export const StatisticSumary = ({ route, navigation }) => {
   usePerformance('HabitTracker\StatisticSumary');
   const commonStyle = useCommonStyle();
@@ -76,7 +70,6 @@ export const StatisticSumary = ({ route, navigation }) => {
       <Text style={{ fontWeight: FONT_WEIGHT.SEMIBOLD, marginRight: 30 }}>
         {text.totalDone || 'Total Done'}: {data.trackers.length || '--'}
       </Text>
-      <Text style={{ fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.BestStreak || 'Best Streak'}: {bestStreak(data.trackers) || '--'}</Text>
     </View>
     <ScrollView style={{ marginBottom: 30 }}>
       <View>
@@ -107,7 +100,7 @@ export const StatisticSumary = ({ route, navigation }) => {
                 {!item.data || !item.data.goal && <B.ICon name="check-circle" style={{ color: colors.success, fontSize: FONT_SIZE.ListItem }} />}
                 {item.data.goal && <Text style={[{ fontSize: FONT_SIZE.ListItem }, item.data.goal.done == item.data.goal.total && {
                   color: colors.success,
-                }, item.data.goal.done < item.data.goal.total * 0.5 && { color: colors.error },
+                }, item.data.goal.done < item.data.goal.total * 0.5 && { color: colors.grayColors[700] },
                 item.data.goal.done < item.data.goal.total
                 && item.data.goal.done > item.data.goal.total * 0.5 && { color: colors.warning },]}>{item.data.goal.done} <Text style={{ fontSize: FONT_SIZE.SecondaryText }}>{item.data.goal.unit}</Text></Text>}
               </Cel>

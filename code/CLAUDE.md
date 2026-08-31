@@ -16,17 +16,54 @@ Ba chỉ số lõi:
 
 ---
 
-## Stack
+## Đợt reset 2026-08-27 — đọc trước khi làm bất cứ gì ở fe/
 
-**App (fe/)**: React Native + Expo (SDK mới nhất), TypeScript strict, SQLite qua `expo-sqlite` + Drizzle ORM, Zustand, Vitest cho logic thuần.
+Ngày 2026-08-27, `code/fe` bị thay hoàn toàn bằng app "Batify" gốc (commit `d633408`, nhánh `feat/port-batify-modules`): ~103 màn hình, 14 module, giữ nguyên không dọn lint/type/i18n. Quyết định của chủ dự án: **dùng Batify làm khung xuất phát, dọn dần cho khớp 6 ràng buộc cứng bên dưới** — không quay lại kiến trúc `features/`/`shared/`/`core`/SQLite cũ.
 
-**Backend (be/)**: Node.js + TypeScript strict, PostgreSQL (raw SQL, không ORM), `pg` library.
+**Stack thật của fe/ bây giờ** (không phải mục "Stack" cũ bên dưới — mục đó mô tả kiến trúc đã bị thay, giữ lại để biết lịch sử):
+- React Native + Expo 51 / RN 0.74 / React 18 (không phải bản SDK mới nhất)
+- State: `pullstate` — mỗi domain có 1 `Store` instance global (vd. `store/configStore.ts`)
+- Lưu trữ: `AsyncStorage` qua `Common/Repositories/Repo.ts` — `class Repository<T>` generic (CRUD + `registerDataChanged`), mỗi module tự new instance (`new HabitTrackerRepository('habit_tracker')`). Không SQLite, không Drizzle.
+- Navigation: `@react-navigation` (stack + tab lồng nhau theo module), bọc qua `Router/index.ts` (`Router.Open/Replace/...`)
+- Domain model: `class-validator` + `class-transformer` (decorator trên entity, vd. `HabitTracker/Entities/Habit.ts`)
+- Test: `jest` (không phải Vitest) — **hiện KHÔNG chạy được**, xem "Nợ kỹ thuật" bên dưới.
+
+**Cấu trúc thư mục thật** (không phải `features/`):
+```
+fe/src/Common/        ← lớp dùng chung thật sự: Repositories, FormControls, Styles, Hooks, Entities base
+fe/src/<TênModule>/    ← mỗi module 1 domain: Challenger, Emotion, Goal, HabitTracker, Home, Main,
+                          Me, Reminder, TimeTracker, Trading, Welcome, Work — mỗi module tự có
+                          Screens/, Entities/, đôi khi Repositories/ riêng
+fe/src/theme/          ← AppStyle.ts — màu, font
+```
+Không có luật "module X không được import module Y" như kiến trúc cũ — Batify không theo ràng buộc đó. Trước khi thêm luật import mới, hỏi chủ dự án.
+
+### Nợ kỹ thuật — trạng thái 2026-08-27 (đợt dọn multi-agent, xem PLAN.md)
+
+Khảo sát 2026-08-27 tìm thấy các chỗ Batify vi phạm trực tiếp "Ràng buộc cứng" bên dưới. Cùng ngày đã dọn xong 6/8 mục bằng 4 agent song song + fix tay:
+
+1. ✅ **Streak** (vi phạm #3) — gỡ sạch khỏi `HabitTracker/` (UI lẫn hàm tính nội bộ trong `habitRepository.ts`, không còn ai gọi nên xoá luôn, không phải chỉ ẩn).
+2. ✅ **Point/Level/Achievement Score** (vi phạm #3) — gỡ khỏi `Work/Screens/Tools/Dashboard.tsx` (giữ lại `Summary` trung tính) và `Work/Screens/Statistic.tsx`/`StatisticScore.tsx` (điểm to + sao cam giả rating, phát hiện thêm ngoài khảo sát ban đầu — cũng đã gỡ).
+3. ✅ **Màu đỏ báo "chưa đủ"** (vi phạm #3) — `HabitTracker/Screens/Statistic/StatisticSumary.tsx` đổi `colors.error` sang xám trung tính; `Work/Screens/Statistic.tsx`/`StatisticScore.tsx` cũng có ngưỡng tương tự, đã sửa cùng lúc.
+4. ✅ **Sentry** (vi phạm #5 local-first) — `Sentry.init()` ở `App.tsx` đã comment lại cho V1, giữ code để bật lại khi cần.
+5. ✅ **`npm test`** — xoá `jest.config.js` rỗng, sửa tên `tests/jet-setup.ts` → `jest-setup.ts`. Chạy được **27/27 pass** (kể cả 2 test từng fail vì fixture/expectation sai, không phải lỗi hệ thống — đã sửa).
+6. ✅ **`npx tsc`** — 141 lỗi → **0 lỗi**.
+7. ⬜ `Reminder/Screens/Home.tsx` rỗng 0 byte — module chưa hoàn thiện, chưa biết có nằm trong scope V1 không. Chưa xử lý.
+8. ⬜ `Trading/` (theo dõi thói quen xem giá chứng khoán) là tính năng gốc của Batify, không thuộc sản phẩm Mira — cân nhắc gỡ hẳn hay giữ lại như module riêng. Chưa xử lý.
+
+Ràng buộc #2 (Giờ vàng không có giá) và #4 (Đồng hồ cát) — #2 chưa audit hết `TimeTracker/`, #4 chưa tồn tại trong Batify (cần xây mới đúng ràng buộc ngay từ đầu, không phải dọn). Cả hai chưa nằm trong đợt này.
+
+---
+
+## Stack (kiến trúc cũ — không còn áp dụng cho fe/, xem mục reset ở trên; vẫn áp dụng cho be/)
+
+**Backend (be/)**: Node.js + TypeScript strict, PostgreSQL (raw SQL, không ORM), `pg` library. Không đổi — `code/be` không bị đụng trong đợt reset.
 
 ---
 
 ## Kiến trúc — bắt buộc tuân theo
 
-### App (FE)
+### App (FE) — ĐÃ LỖI THỜI, xem "Đợt reset 2026-08-27" ở trên cho cấu trúc thật
 
 ```
 fe/src/features/<name>/   ← mỗi feature là một folder độc lập
@@ -37,7 +74,7 @@ fe/src/i18n/vi.ts         ← mọi chuỗi hiển thị, không inline string t
 fe/src/store/              ← Zustand (không Redux)
 ```
 
-**Import rule (cứng):**
+**Import rule (cứng) — CHỈ áp dụng nếu quay lại kiến trúc cũ, hiện KHÔNG áp dụng cho fe/:**
 - `features/X` → **chỉ được** import từ `shared/`, `core/`, `db/`, `i18n/`, `store/`
 - `features/X` → **không bao giờ** import từ `features/Y`
 - `core/` → không import React, không import `db/`, không import `store/`

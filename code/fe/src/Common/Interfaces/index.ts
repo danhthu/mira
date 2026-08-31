@@ -1,3 +1,3 @@
-import { repeatOption,reminderOption,priorityOption,planOption,tagOption,checkListOption,StyleOption,goalOption } from './interface';
+import { repeatOption,reminderOption,priorityOption,planOption,tagOption,checkListOption,goalOption } from './interface';
 import { settings } from './settings';
-export { repeatOption,reminderOption,priorityOption,planOption,tagOption,checkListOption,StyleOption,goalOption,settings }; 
+export { repeatOption,reminderOption,priorityOption,planOption,tagOption,checkListOption,goalOption,settings };

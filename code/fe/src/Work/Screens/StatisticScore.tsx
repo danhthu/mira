@@ -1,16 +1,13 @@
-import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { B, BICon, BText as Text } from '../../../libs/components';
-import { Link } from '../../../libs/components/Link';
-import { Router } from '../../../Router';
 import { useTheme } from '../../../theme';
-import { FONTSIZE, FONT_SIZE, FONT_WEIGHT, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
+import { FONTSIZE, FONT_SIZE, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { dateGreater, dateLesser, getNextWeekend, getStartOfWeek } from '../../Common/Utils/common';
 import { Background } from '../Components/Background';
-import { Work, workRepository } from '../Entities';
+import { workRepository } from '../Entities';
 import { useText } from '../Text';
 type FILTER = 'w' | 'm' | 'y' | { from: Date, to: Date }
 function convertFilterToDate(filter: FILTER): { from: Date, to: Date } {
@@ -26,9 +23,6 @@ function convertFilterToDate(filter: FILTER): { from: Date, to: Date } {
   };
 }
 
-function calcScore(data: Work[]): number {
-  return data.length;
-}
 export const Statistic = () => {
   const [filter, setFilter] = useState('w' as FILTER);
   return <Background>
@@ -44,7 +38,6 @@ const RptBody = (props: { filter: FILTER }) => {
   const colors = useTheme();
   const text = useText();
   const style = useSummaryStyle();
-  const nav = useNavigation();
   const [dataTotal, setDataTotal] = useState({
     total: 100,
     completed: 10, //madatory
@@ -52,7 +45,6 @@ const RptBody = (props: { filter: FILTER }) => {
     totalCompleted: 50,
     completeBeforeEndTime: 10, //dung
     completeAfterEndTime: 10, //muộn
-    score: 1000
   });
   useAsyncAction(async () => {
     const tmp = await workRepository.filter(w => dateGreater(w.startDate, filter.from) && dateLesser(w.startDate, filter.to));
@@ -65,59 +57,48 @@ const RptBody = (props: { filter: FILTER }) => {
       totalCompleted: tmp.filter(t => t.status == 'DONE').length,
       completeBeforeEndTime: tmp.filter(t => t.status == 'DONE' && (!t.endDate || dateGreater(t.finishDate, t.endDate, 1))).length, //dung
       completeAfterEndTime: tmp.filter(t => t.status == 'DONE' && (t.endDate && dateLesser(t.finishDate, t.endDate))).length, //muộn
-      score: calcScore(tmp)
     }));
   }, [props.filter]);
+  // Ràng buộc #3: không điểm thành tích/badge, không màu đỏ báo "chưa đủ" — chỉ hiển thị số liệu trung tính.
   return (<View style={{ borderWidth: 1, borderColor: colors.outlineVariant, margin: PADDING.SCREEN, padding: 8, backgroundColor: colors.grayColor, borderRadius: 16 }}>
-    {/**Score  - Achievement Score */}
-    {/**complete task */}
-    {/**13.4 from last week |  */}
-    {/**complete rate */}
-    {/**complete distribution */}
-    {/**complete rate distribution */}
-    {/**score component */}
     <View style={{ marginLeft: 50, marginRight: 50, marginTop: 10 }}>
-      <Link onPress={() => { }} style={{ textAlign: 'center' }}>{text.yourScore || 'Your Score'}</Link>
       <Text size="small" style={{ textAlign: 'center', marginTop: 8, marginBottom: 8 }}>{props.filter == 'w' ? 'Tuần (' + moment(filter.from).format('DD/MM') + ' - ' + moment(filter.to).format('DD/MM') + ')' :
         props.filter == 'm' ? moment(filter.from).format('MMM, YYYY')
           : moment(filter.from).format('YYYY')
       }</Text>
-      <Link onPress={() => { Router.Open(nav, 'WorkAppModal', { screen: 'StatisticScore', filter }); }}
-        style={{ textAlign: 'center', fontWeight: FONT_WEIGHT.SEMIBOLD, fontSize: 50, color: colors.secondary }}>{'' + dataTotal.score}</Link>
-      <Text style={{ color: 'orange', fontWeight: '500', textAlign: 'center', fontSize: 30 }}>*****</Text>
     </View>
     <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.outlineVariant }}>
       <Text style={{ flex: 1, lineHeight: TBL_ROW_HEIGHT }}>{text.total || 'Total'}</Text>
       <View style={{ alignSelf: 'flex-end', height: TBL_ROW_HEIGHT, flexDirection: 'row', justifyContent: 'center' }}>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textSuccess]}>{dataTotal.totalCompleted}/</Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>{dataTotal.totalCompleted}/</Text>
         <Text style={[{ lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.total} </Text>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, dataTotal.totalCompleted * 100 / dataTotal.total > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.totalCompleted * 100 / dataTotal.total)}%)</Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>({Math.round(dataTotal.totalCompleted * 100 / dataTotal.total)}%)</Text>
       </View>
     </View>
 
     <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.outlineVariant }}>
       <Text style={[{ flex: 1 }, { lineHeight: TBL_ROW_HEIGHT }]}>{text.mandatory || 'Mandatory'}</Text>
       <View style={{ alignSelf: 'flex-end', height: TBL_ROW_HEIGHT, flexDirection: 'row', justifyContent: 'center' }}>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textSuccess]}>{dataTotal.completed}/</Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>{dataTotal.completed}/</Text>
         <Text style={[{ lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.mandatory} </Text>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, dataTotal.completed * 100 / dataTotal.mandatory > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.completed * 100 / dataTotal.mandatory)}%)</Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>({Math.round(dataTotal.completed * 100 / dataTotal.mandatory)}%)</Text>
       </View>
     </View>
 
     <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.outlineVariant, justifyContent: 'center' }}>
-      <Text style={[{ flex: 1, }, style.textSuccess, { lineHeight: TBL_ROW_HEIGHT }]}>{text.dunghan || 'Đúng hạn'}</Text>
+      <Text style={[{ flex: 1, }, { lineHeight: TBL_ROW_HEIGHT }]}>{text.dunghan || 'Đúng hạn'}</Text>
       <View style={{ alignSelf: 'flex-end', height: TBL_ROW_HEIGHT, flexDirection: 'row' }}>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textSuccess]}>{dataTotal.completeBeforeEndTime}/{dataTotal.totalCompleted} </Text>
-        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted > 50 ? style.textSuccess : style.textDanger]}>({Math.round(dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted)}%)</Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>{dataTotal.completeBeforeEndTime}/{dataTotal.totalCompleted} </Text>
+        <Text style={[{ lineHeight: TBL_ROW_HEIGHT }, style.textNeutral]}>({Math.round(dataTotal.completeBeforeEndTime * 100 / dataTotal.totalCompleted)}%)</Text>
       </View>
     </View>
 
     <View style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.outlineVariant }}>
-      <Text style={[{ flex: 1 }, style.textDanger, { lineHeight: TBL_ROW_HEIGHT }]}>{text.quahan || 'Quá  hạn'}</Text>
+      <Text style={[{ flex: 1 }, { lineHeight: TBL_ROW_HEIGHT }]}>{text.quahan || 'Quá  hạn'}</Text>
       <View style={[{ alignSelf: 'flex-end', flexDirection: 'row' }]}>
-        <Text style={[style.textDanger, { lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.completeAfterEndTime || '--'}/</Text>
+        <Text style={[style.textNeutral, { lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.completeAfterEndTime || '--'}/</Text>
         <Text style={[{ lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.total} </Text>
-        <Text style={[dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted > 50 ? style.textSuccess : style.textDanger, { lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.completeAfterEndTime == 0 ? '--' : '(' + Math.round(dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted) + '%)'}</Text>
+        <Text style={[style.textNeutral, { lineHeight: TBL_ROW_HEIGHT }]}>{dataTotal.completeAfterEndTime == 0 ? '--' : '(' + Math.round(dataTotal.completeAfterEndTime * 100 / dataTotal.totalCompleted) + '%)'}</Text>
       </View>
     </View>
   </View>
@@ -127,8 +108,7 @@ const RptBody = (props: { filter: FILTER }) => {
 const useSummaryStyle = () => {
   const colors = useTheme();
   return StyleSheet.create({
-    textSuccess: { color: colors.success, },
-    textDanger: { color: colors.error, },
+    textNeutral: { color: colors.onSurface, },
   });
 };
 
@@ -147,7 +127,7 @@ const StatusWidget2 = (props: {
         total: (await workRepository.getUnPlanned(props.day)).length,
       };
     }
-    const data = (await workRepository.getList(props.day)).filter(
+    const data = (await workRepository.getListByDate(props.day)).filter(
       (w) =>
         (props.type == 'mandatory' && w.mandatory) ||
         (props.type == 'today' && !w.mandatory),
@@ -265,7 +245,7 @@ const Caption = (props = { filter: 'w' } as { filter?: FILTER, setFilter: Dispat
       ]}
       onPress={() => { }}
     >
-      <BICon name="calendar-blank" style={{ fontSize: 14, color: colors.onPrimary }}></BICon>
+      <BICon name="calendar-start" style={{ fontSize: 14, color: colors.onPrimary }}></BICon>
     </TouchableOpacity>
 
   </View>;

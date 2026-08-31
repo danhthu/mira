@@ -12,7 +12,7 @@ import { ReminderCtrl } from '../../Common/FormControls/ReminderCtrl';
 import { RepeatCtrl } from '../../Common/FormControls/RepeatCtrl';
 import { useAsyncAction } from '../../Common/Hooks';
 import { useCommonStyle } from '../../Common/Styles';
-import { LinkTo } from '../../Goal/Components';
+import { LinkToGoal } from '../../Goal/Components';
 import { GoalLinkToAction } from '../../Goal/Components/LinkTo';
 import { Work, workRepository } from '../Entities';
 import { useText } from '../Text';
@@ -122,7 +122,7 @@ export const Edit = ({ route, navigation }) => {
         />
       </View>
       <View style={style.sectionContainer}>
-        <LinkTo
+        <LinkToGoal
           rowHeight={rowHeight}
           table="Work"
           tableId={data.id}
