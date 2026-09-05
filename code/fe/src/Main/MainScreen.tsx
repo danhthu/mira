@@ -12,7 +12,9 @@ import {
   SafeAreaProvider
 } from 'react-native-safe-area-context';
 import { RichEditorBottomModal } from '../Common/Components';
-import { useSettings } from '../Common/Hooks';
+import { useAsyncAction, useSettings } from '../Common/Hooks';
+import { personRepository } from '../Common/Repositories';
+import { PersonApp } from '../Person';
 import { EmotionApp } from '../Emotion';
 import { GoalApp } from '../Goal';
 import { Home } from '../Home/Screens/Home';
@@ -35,9 +37,17 @@ export const MainScreen = () => {
   const [settings, setSettings, settingsLoaded] = useSettings();
   const [route, setRoute] = useState();
 
-  // initialRouteName chỉ có tác dụng lúc navigator mount, nên phải chờ settings
-  // nạp xong — không thì người dùng cũ lần nào mở app cũng bị đưa về Welcome.
-  if (!settingsLoaded) return null;
+  // Đã có người trong danh sách nghĩa là đã dùng app thật, dù cờ onboarding có thể
+  // chưa được đặt (người dùng từ bản cũ, hoặc bỏ qua onboarding rồi tự thêm người).
+  // Không có bước này thì bản nâng cấp sẽ ném họ về màn onboarding.
+  const people = useAsyncAction(async () => personRepository.list(), [], null);
+  const peopleLoaded = people !== null;
+
+  // initialRouteName chỉ có tác dụng lúc navigator mount, nên phải chờ cả settings
+  // lẫn danh sách người nạp xong mới dựng navigator.
+  if (!settingsLoaded || !peopleLoaded) return null;
+
+  const goStraightToHome = settings.hasSetupProfile === true || people.length > 0;
 
   return (
     <SafeAreaProvider>
@@ -48,7 +58,7 @@ export const MainScreen = () => {
               cơ chế áp lực ngược ràng buộc cứng #3, còn Trading là tính năng gốc Batify.
               Thư mục của chúng vẫn nằm nguyên trong `src/` chờ đợt dọn file. */}
           <Stack.Navigator
-            initialRouteName={settings.is_first_init ? 'Home' : 'Welcome'}
+            initialRouteName={goStraightToHome ? 'Home' : 'Welcome'}
           >
             <Stack.Screen
               name="Welcome"
@@ -84,6 +94,7 @@ export const MainScreen = () => {
             />
             <Stack.Screen name="TimeApp" component={TimeTrackerApp.Screens.Container} options={{ headerShown: false }} />
             <Stack.Screen name="MoneyApp" component={MoneyApp.Screens.Container} options={{ headerShown: false }} />
+            <Stack.Screen name="PersonApp" component={PersonApp.Screens.People} options={{ headerShown: false }} />
             {/* Container của Common (Setting/Privacy/Term/HelpCenter) trước đây không được
                 đăng ký ở navigator nào — màn Cài đặt (có công tắc đồng bộ) không có đường vào. */}
             <Stack.Screen name="SettingApp" component={SettingContainer} options={{ headerShown: false }} />

@@ -1,139 +1,134 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-import { StepNavigation, StepView } from 'react-native-step-view-navigation';
-import { useText } from '../../../lang';
-import { Link } from '../../../libs/components/Link';
-import { useTheme } from '../../../theme';
-import { FONTSIZE } from '../../Common';
+import { Pressable, Text, View } from 'react-native';
+import { Router } from '../../../Router';
 import { useSettings } from '../../Common/Hooks';
-import { useCommonStyle } from '../../Common/Styles';
-import { Step1, Step2, Step3, Step4, Step5, Step6, StepFinish } from '../Components';
+import { uuid } from '../../Common/Utils/common';
+import { PersonRole } from '../../Core/types';
+import { StepCadence } from '../Components/StepCadence';
+import { StepDone } from '../Components/StepDone';
+import { StepNames } from '../Components/StepNames';
+import { StepRoles } from '../Components/StepRoles';
+import { useWelcomeStyle } from '../Components/styles';
+import { FIRST_STEP, LAST_STEP } from '../Models/constants';
+import {
+  PersonDraft,
+  addDraft,
+  removeDraft,
+  renameDraft,
+  setCadence,
+  toggleRole,
+} from '../Models/draft';
+import { saveDrafts } from '../Models/save';
+import { useText } from '../Text';
 
-
-
-
-export const Home = ({ navigation, route }) => {
-  const styles = useStyle();
-  const [step, setStep] = useState(1);
+/**
+ * Onboarding bốn bước của `05-v1-spec.md`: mỗi bước một câu hỏi, bỏ qua được hết.
+ *
+ * Không hỏi tuổi, không hỏi khoảng cách, không hỏi thu nhập. Tuổi và khoảng cách
+ * chỉ hỏi sau, khi người dùng chủ động bật Đồng hồ cát trong Cài đặt — ràng buộc
+ * cứng #4 và `00-vision.md` rủi ro #1.
+ */
+export const Home = () => {
+  const style = useWelcomeStyle();
   const text = useText();
-  const [stepStatus, setStepStatus] = useState({} as { [key: string]: boolean });
-  const [settings, setSettings] = useSettings();
-  const finish = () => {
-    setSettings({ hasSetupProfile: true });
-    navigation.navigate('Home');
+  const nav = useNavigation();
+  const [, setSettings] = useSettings();
+  const [step, setStep] = useState(FIRST_STEP);
+  const [drafts, setDrafts] = useState<readonly PersonDraft[]>([]);
+  const [savedCount, setSavedCount] = useState(0);
+
+  // Lưu ngay khi vào bước cuối, không đợi chạm "bắt đầu": người đóng app ở màn
+  // "xong" vẫn giữ được danh sách vừa nhập.
+  const goTo = async (next: number) => {
+    setStep(next);
+    if (next === LAST_STEP) setSavedCount(await saveDrafts(drafts));
   };
 
+  const finish = () => {
+    // Cờ riêng cho "đã đi qua onboarding". KHÔNG dùng `is_first_init`: App.tsx đặt
+    // cờ đó ngay lần chạy đầu cho việc khác, nên dùng nó ở đây thì màn onboarding
+    // không bao giờ hiện ra được.
+    setSettings({ hasSetupProfile: true });
+    Router.Home(nav);
+  };
+
+  const question =
+    step === 1 ? text.step1Question : step === 2 ? text.step2Question : text.step3Question;
+  const hint = step === 1 ? text.step1Hint : step === 2 ? text.step2Hint : text.step3Hint;
+
   return (
+    <View style={style.screen}>
+      <View style={style.content}>
+        <Text style={style.stepCount}>
+          {`${text.stepPrefix} ${step}${text.stepSeparator}${LAST_STEP}`}
+        </Text>
 
-    <StepNavigation step={step} dots={false}  >
-      <StepView  >
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <Step1 />
-          <TouchableOpacity style={styles.btn} onPress={() => setStep(2)} >
-            <Text style={styles.btn_text}>{text.for('Let\'s do it')}</Text>
-          </TouchableOpacity>
-          <Text style={{ fontSize: FONTSIZE.NORMAL, marginTop: 10 }}>
-            {text.for('By continuing, you agree to our ')}<Link viewStyle={{ marginBottom: -3 }}>{text.for('Terms')}</Link>{text.for(' and')}<Link viewStyle={{ marginBottom: -3 }}>{text.for('Privacy policy')}</Link>
+        {step === LAST_STEP ? null : (
+          <View>
+            <Text style={style.question}>{question}</Text>
+            <Text style={style.hint}>{hint}</Text>
+          </View>
+        )}
+
+        {step === 1 ? (
+          <StepRoles
+            drafts={drafts}
+            onToggle={(role: PersonRole) => setDrafts(toggleRole(drafts, role, uuid()))}
+          />
+        ) : null}
+
+        {step === 2 ? (
+          <StepNames
+            drafts={drafts}
+            onRename={(key, name) => setDrafts(renameDraft(drafts, key, name))}
+            onAdd={(role) => setDrafts(addDraft(drafts, role, uuid()))}
+            onRemove={(key) => setDrafts(removeDraft(drafts, key))}
+          />
+        ) : null}
+
+        {step === 3 ? (
+          <StepCadence
+            drafts={drafts}
+            onChange={(key, cadence) => setDrafts(setCadence(drafts, key, cadence))}
+          />
+        ) : null}
+
+        {step === LAST_STEP ? <StepDone savedCount={savedCount} /> : null}
+      </View>
+
+      <View style={style.footer}>
+        <View style={style.footerSide}>
+          {step > FIRST_STEP && step < LAST_STEP ? (
+            <Pressable
+              accessibilityRole="button"
+              style={style.ghostAction}
+              onPress={() => setStep(step - 1)}
+            >
+              <Text style={style.ghostActionText}>{text.back}</Text>
+            </Pressable>
+          ) : null}
+          {step < LAST_STEP ? (
+            <Pressable
+              accessibilityRole="button"
+              style={style.ghostAction}
+              onPress={() => goTo(LAST_STEP)}
+            >
+              <Text style={style.ghostActionText}>{text.skip}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          style={style.primaryAction}
+          onPress={() => (step === LAST_STEP ? finish() : goTo(step + 1))}
+        >
+          <Text style={style.primaryActionText}>
+            {step === LAST_STEP ? text.finish : text.next}
           </Text>
-        </View>
-      </StepView>
-      <StepView >
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 2 ? <Step2 /> : null}
-          </View>
-
-          <TouchableOpacity style={styles.btn} onPress={() => setStep(3)} >
-            <Text style={styles.btn_text}>{text.for('Continue')}</Text>
-          </TouchableOpacity>
-        </View>
-      </StepView>
-      <StepView>
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 3 ? <Step3 /> : null}
-          </View>
-
-          <TouchableOpacity style={styles.btn} onPress={() => setStep(4)} >
-            <Text style={styles.btn_text}>{text.for('Continue')}</Text>
-          </TouchableOpacity>
-        </View>
-      </StepView>
-      <StepView>
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 4 ? <Step4 /> : null}
-          </View>
-
-          <TouchableOpacity style={styles.btn} onPress={() => { setStep(5); }} >
-            <Text style={styles.btn_text}>{text.for('Continue')}</Text>
-          </TouchableOpacity>
-        </View>
-      </StepView>
-
-      <StepView>
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 5 ? <Step5 /> : null}
-          </View>
-          <TouchableOpacity style={styles.btn} onPress={() => { setStep(6); }} >
-            <Text style={styles.btn_text}>{text.for('Continue')}</Text>
-          </TouchableOpacity>
-        </View>
-      </StepView>
-
-      <StepView>
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 6 ? <Step6 on_Completed={() => { setStepStatus({ ...stepStatus, step6: true }); }} /> : null}
-          </View>
-          {stepStatus['step6'] ? (
-            <TouchableOpacity style={styles.btn} onPress={() => { setStep(7); }} >
-              <Text style={styles.btn_text}>{text.for('Continue')}</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </StepView>
-      <StepView>
-        <View style={[styles.container, { backgroundColor: '#eaddca' }]}>
-          <View style={{ flex: 1 }}>
-            {step == 7 ? <StepFinish on_Completed={() => { setStepStatus({ ...stepStatus, step7: true }); }} /> : null}
-          </View>
-          {stepStatus['step7'] ? (
-            <TouchableOpacity style={styles.btn} onPress={finish} >
-              <Text style={styles.btn_text}>{text.for('Finish')}</Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </StepView>
-    </StepNavigation>
+        </Pressable>
+      </View>
+    </View>
   );
-};
-
-const useStyle = () => {
-  const color = useTheme();
-  const style = useCommonStyle();
-  return StyleSheet.create({
-    container: style.screen && { flex: 1, paddingLeft: 30, paddingRight: 30, paddingBottom: 30, paddingTop: 50 },
-    btn: {
-
-      backgroundColor: color.secondary,
-      padding: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: 40,
-    },
-
-    btn_text: {
-      color: 'white'
-    },
-
-    label: {
-      fontSize: 20,
-    },
-    img: {
-      height: 100
-    }
-  });
 };
