@@ -16,6 +16,7 @@ import { useSettings } from '../Common/Hooks';
 import { EmotionApp } from '../Emotion';
 import { GoalApp } from '../Goal';
 import { Home } from '../Home/Screens/Home';
+import { MoneyApp } from '../Money';
 import { TimeTrackerApp } from '../TimeTracker';
 import { WelcomApp } from '../Welcome';
 import { useText } from './Text';
@@ -82,6 +83,7 @@ export const MainScreen = () => {
               options={{ headerShown: false, presentation: 'modal' }}
             />
             <Stack.Screen name="TimeApp" component={TimeTrackerApp.Screens.Container} options={{ headerShown: false }} />
+            <Stack.Screen name="MoneyApp" component={MoneyApp.Screens.Container} options={{ headerShown: false }} />
             {/* Container của Common (Setting/Privacy/Term/HelpCenter) trước đây không được
                 đăng ký ở navigator nào — màn Cài đặt (có công tắc đồng bộ) không có đường vào. */}
             <Stack.Screen name="SettingApp" component={SettingContainer} options={{ headerShown: false }} />
