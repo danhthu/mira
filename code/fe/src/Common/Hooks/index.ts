@@ -55,8 +55,13 @@ interface Settings extends Dictionary {
   dateFormat?: string
 }
 
-export const useSettings = (): [Settings, (updated: Settings) => void] => {
+// Phần tử thứ ba `loaded` cho biết đã đọc xong storage chưa. Cần vì mỗi lần gọi
+// hook là một state riêng khởi tạo bằng mặc định — ai đọc settings ngay lần render
+// đầu (vd. initialRouteName của navigator, chỉ có tác dụng lúc mount) sẽ thấy
+// giá trị chưa nạp. Chỗ gọi cũ chỉ lấy hai phần tử đầu nên không ảnh hưởng.
+export const useSettings = (): [Settings, (updated: Settings) => void, boolean] => {
   const [data, setData] = useState({ dateFormat: 'DD-MMM-YYYY' } as Settings);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     (async () => {
       const tmp = await AsyncStorage.getItem('settings');
@@ -65,6 +70,7 @@ export const useSettings = (): [Settings, (updated: Settings) => void] => {
       } else {
         setData({ dateFormat: 'DD-MM-YYYY' } as Settings);
       }
+      setLoaded(true);
     }
     )();
   }, []);
@@ -74,7 +80,7 @@ export const useSettings = (): [Settings, (updated: Settings) => void] => {
     setData(prev => {
       return { ...prev, ...updated, u: new Date().getTime() };
     });
-  }];
+  }, loaded];
 };
 function isoStringToDate(key: string, value: any) {
   const isoFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;

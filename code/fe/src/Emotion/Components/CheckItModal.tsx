@@ -130,19 +130,25 @@ const AutoExpandingTextInput = (props: {
   value?: string
   onTextChanged?: (text) => void
 }) => {
-  const [inputHeight, setInputHeight] = useState(40) // Chiều cao ban đầu
+  // Chiều cao hộp = đúng số đo, KHÔNG cộng thêm đệm. Trên web, contentSize đo theo
+  // chiều cao hộp khi nội dung ngắn hơn hộp; cộng 20 rồi đặt lại làm height thì lần
+  // đo kế tiếp lại lớn thêm 20 — vòng lặp vô hạn, React ném "Maximum update depth
+  // exceeded" và Home trắng trang. Đặt bằng số đo thì lần đo sau ra cùng giá trị,
+  // setState bỏ qua, vòng lặp dừng.
+  const [contentHeight, setContentHeight] = useState(0)
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={[styles.textInput, { height: Math.max(40, inputHeight) }]} // Điều chỉnh chiều cao tối thiểu
+        style={[styles.textInput, { height: Math.max(40, contentHeight) }]}
         multiline={true}
         placeholder="Write something ..."
         placeholderTextColor="gray"
         onContentSizeChange={(event) => {
-          setInputHeight(event.nativeEvent.contentSize.height + 20) // Cập nhật chiều cao dựa trên nội dung
+          const next = Math.round(event.nativeEvent.contentSize.height)
+          setContentHeight((prev) => (prev === next ? prev : next))
         }}
-        value={props.value}
+        value={props.value ?? ''}
         onChangeText={props.onTextChanged}
       />
     </View>

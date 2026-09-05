@@ -120,10 +120,16 @@ const Header = () => {
             { alignSelf: 'flex-start', alignItems: 'center', marginRight: 10 },
           ]}
         >
-          <Image
-            source={require('../../../assets/icon.png')}
-            style={{ width: 60, height: 60 }}
-          />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Cài đặt"
+            onPress={() => Router.Open(nav, 'SettingApp', { screen: 'Setting' })}
+          >
+            <Image
+              source={require('../../../assets/icon.png')}
+              style={{ width: 60, height: 60 }}
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </View>

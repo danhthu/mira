@@ -2,6 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import { useTheme } from '../../theme';
+import { Container as SettingContainer } from '../Common/Screens/Container';
 import { IconSelectionModal } from '../Common/Screens/IconSelectionModal';
 import { TabScreen } from './TabScreen';
 
@@ -34,8 +35,12 @@ const Stack = createStackNavigator();
 export const MainScreen = () => {
   const theme = useTheme();
   const text = useText();
-  const [settings, setSettings] = useSettings();
+  const [settings, setSettings, settingsLoaded] = useSettings();
   const [route, setRoute] = useState();
+
+  // initialRouteName chỉ có tác dụng lúc navigator mount, nên phải chờ settings
+  // nạp xong — không thì người dùng cũ lần nào mở app cũng bị đưa về Welcome.
+  if (!settingsLoaded) return null;
 
   return (
     <SafeAreaProvider>
@@ -92,6 +97,9 @@ export const MainScreen = () => {
               options={{ headerShown: false, presentation: 'modal' }}
             />
             <Stack.Screen name="TimeApp" component={TimeTrackerApp.Screens.Container} options={{ headerShown: false }} />
+            {/* Container của Common (Setting/Privacy/Term/HelpCenter) trước đây không được
+                đăng ký ở navigator nào — màn Cài đặt (có công tắc đồng bộ) không có đường vào. */}
+            <Stack.Screen name="SettingApp" component={SettingContainer} options={{ headerShown: false }} />
 
             <Stack.Screen
               name="IconSelectionModal"
