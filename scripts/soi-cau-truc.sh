@@ -14,7 +14,11 @@ cd "$(dirname "$0")/.."
 FE="code/fe/src"
 
 # Feature = một domain, tự chứa Entities/Screens/Components/Models của nó.
-FEATURES="Challenger Emotion Goal HabitTracker Reminder TimeTracker Trading Welcome Work"
+FEATURES="Challenger Emotion Goal HabitTracker Hourglass Money Person Reminder TimeTracker Trading Welcome Work"
+
+# Thư mục trong src/ KHÔNG phải feature. Mọi thư mục khác mà không có trong
+# $FEATURES hay $ROOTS sẽ bị mục 0 bắt — xem lý do ở đó.
+NON_FEATURES="Assets Common Controls Core Me"
 
 # Composition root: việc của nó LÀ ghép các feature lại, nên được phép import feature.
 ROOTS="Main Home"
@@ -39,6 +43,27 @@ fail_if_missing() {
 fail_if_missing "$FE"
 fail_if_missing "$FE/Common"
 
+echo "== 0. Mọi thư mục trong src/ đều phải được khai báo =="
+# Bài học 27/08 và 05/09: script chỉ soi những tên có trong $FEATURES. Feature mới
+# sinh ra mà quên khai thì KHÔNG bị soi dòng nào, và tổng "0 vi phạm" là lời nói dối.
+# Mục này bắt chính lỗi đó, và cố ý thoát mã 2 chứ không cộng vào tổng vi phạm —
+# script sai thì mọi con số bên dưới đều không đáng tin.
+undeclared=""
+for d in "$FE"/*/; do
+  name=$(basename "$d")
+  case " $FEATURES $ROOTS $NON_FEATURES " in
+    *" $name "*) ;;
+    *) undeclared="$undeclared $name" ;;
+  esac
+done
+if [ -n "$undeclared" ]; then
+  echo "  !! CHƯA KHAI BÁO:$undeclared"
+  echo "     Thêm vào \$FEATURES (nếu là feature) hoặc \$NON_FEATURES, rồi chạy lại."
+  exit 2
+fi
+echo "  sạch — $(echo $FEATURES | wc -w) feature, $(echo $ROOTS | wc -w) composition root"
+
+echo ""
 echo "== 1. Common/ (lớp shared) không được import ngược lên feature =="
 common_up=$(grep -rnoE "from '\.\./\.\./($FEATURE_RE)[a-zA-Z/.]*'" "$FE/Common" 2>/dev/null || true)
 if [ -n "$common_up" ]; then

@@ -18,6 +18,7 @@ import { PersonApp } from '../Person';
 import { EmotionApp } from '../Emotion';
 import { GoalApp } from '../Goal';
 import { Home } from '../Home/Screens/Home';
+import { HourglassApp } from '../Hourglass';
 import { MoneyApp } from '../Money';
 import { TimeTrackerApp } from '../TimeTracker';
 import { WelcomApp } from '../Welcome';
@@ -95,6 +96,7 @@ export const MainScreen = () => {
             <Stack.Screen name="TimeApp" component={TimeTrackerApp.Screens.Container} options={{ headerShown: false }} />
             <Stack.Screen name="MoneyApp" component={MoneyApp.Screens.Container} options={{ headerShown: false }} />
             <Stack.Screen name="PersonApp" component={PersonApp.Screens.People} options={{ headerShown: false }} />
+            <Stack.Screen name="HourglassApp" component={HourglassApp.Screens.Container} options={{ headerShown: false }} />
             {/* Container của Common (Setting/Privacy/Term/HelpCenter) trước đây không được
                 đăng ký ở navigator nào — màn Cài đặt (có công tắc đồng bộ) không có đường vào. */}
             <Stack.Screen name="SettingApp" component={SettingContainer} options={{ headerShown: false }} />

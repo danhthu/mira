@@ -7,6 +7,9 @@ import { LineStringScreen } from './LineStringScreen';
 import { PrivacyScreen } from './PrivacyScreen';
 import { SettingScreen } from './SettingScreen';
 import { TermScreen } from './TermScreen';
+// Màn Đồng hồ cát cũng đăng ký ở đây để mục Cài đặt mở được nó ngay. Route cùng tên
+// nên đăng ký thêm ở navigator gốc (`Main/MainScreen.tsx`) vẫn không đụng nhau.
+import { HourglassApp } from '../../Hourglass';
 
 const Stack = createStackNavigator();
 export const Container = ({ route, navigation }) => {
@@ -32,6 +35,12 @@ export const Container = ({ route, navigation }) => {
       <Stack.Screen
         name="Setting"
         component={SettingScreen}
+      ></Stack.Screen>
+
+      <Stack.Screen
+        name={HourglassApp.Routes.hourglass}
+        component={HourglassApp.Screens.Overview}
+        options={{ headerShown: false }}
       ></Stack.Screen>
 
       <Stack.Screen name="Term" component={TermScreen}></Stack.Screen>

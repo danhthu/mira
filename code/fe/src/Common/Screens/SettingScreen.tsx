@@ -7,8 +7,12 @@ import { SyncStatusLine } from '../Sync/SyncStatusLine';
 import { syncText } from '../Sync/Text';
 import { useSyncStatus } from '../Sync/useSyncStatus';
 import { DEFAULT_SYNC_SETTINGS } from '../Sync/SyncSettingsStore';
+// Sáu mục đầu của `05-v1-spec.md` §Settings do module Đồng hồ cát giữ, vì năm trong
+// sáu mục là cấu hình của chính nó. Một dòng import duy nhất — xem
+// `src/Hourglass/HANDOFF.md` mục "Nợ đã biết" cho hướng dọn.
+import { HourglassApp } from '../../Hourglass';
 
-export const SettingScreen = () => {
+export const SettingScreen = ({ navigation }: { readonly navigation: { readonly navigate: (route: string) => void } }) => {
   const colors = useTheme();
   const status = useSyncStatus();
   const [serverUrl, setServerUrl] = useState(DEFAULT_SYNC_SETTINGS.serverUrl);
@@ -19,7 +23,12 @@ export const SettingScreen = () => {
   }, [status.enabled]);
 
   return (
-    <ScrollView style={[styles.screen, { backgroundColor: colors.background }]}>
+    <ScrollView
+      testID="setting-screen"
+      style={[styles.screen, { backgroundColor: colors.background }]}
+    >
+      <HourglassApp.Screens.SettingsSections navigation={navigation} />
+
       <Text style={[styles.sectionTitle, { color: colors.onBackground }]}>
         {syncText.sectionTitle}
       </Text>
