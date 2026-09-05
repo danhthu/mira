@@ -23,8 +23,12 @@ growth/
   brand/              ← tokens.json, logo, voice — chưa có nội dung
   tracking.yaml       ← khung theo dõi growth metrics — chưa có nội dung
 
-docs/                 ← spec sản phẩm dùng chung
+docs/                 ← spec sản phẩm dùng chung (00-08 + dac-ta/ + nguon/ + luu-tru/)
+scripts/              ← soi-cau-truc.sh — kiểm luật kiến trúc, chạy được trong CI
 tools/                ← tooling nội bộ (vd. tools/admin — duyệt/tạo ảnh blog)
+
+PLAN.md               ← kế hoạch đang chạy
+PROJECT.yaml          ← tiến độ G0-G6 + quyết định đã chốt
 ```
 
 ## Việc chung, không riêng nhánh nào

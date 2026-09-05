@@ -8,8 +8,18 @@
 
 const CACHE = 'dailyops-v1';
 
-self.addEventListener('install', () => {
-  self.skipWaiting();
+// Precache vỏ HTML. Không có bước này thì app không bao giờ mở được offline:
+// nhánh 'navigate' bên dưới return sớm nên response HTML không đi qua cache.put,
+// và app là SPA — mọi đường vào đều là một navigation tới cùng một vỏ.
+// Cache cả '/' lẫn '/index.html' vì start_url trong manifest là '/'.
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches
+      .open(CACHE)
+      .then((cache) => cache.addAll(['/', '/index.html']))
+      .catch(() => undefined)
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
@@ -30,7 +40,21 @@ self.addEventListener('fetch', (event) => {
   // Điều hướng luôn thử mạng trước rồi mới rơi về bản cache: vào app mà nhận
   // đúng bản HTML cũ thì nó sẽ đòi một file JS đã bị xoá, ra màn hình trắng.
   if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/index.html')));
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Làm mới bản precache để lần offline sau nhận vỏ mới nhất.
+          if (response.ok) {
+            const copy = response.clone();
+            void caches.open(CACHE).then((cache) => cache.put('/index.html', copy));
+          }
+          return response;
+        })
+        .catch(async () => {
+          const shell = (await caches.match('/index.html')) ?? (await caches.match('/'));
+          return shell ?? Response.error();
+        }),
+    );
     return;
   }
 

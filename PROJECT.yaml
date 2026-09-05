@@ -87,8 +87,11 @@ ghi_chu_quyet_dinh:
 tien_do:
   G0: xong
   G1: xong        # 3 câu mức Chặn đã được người dùng xác nhận 2026-08-25, xem docs/dac-ta/cau-hoi.md
-  G2: xong        # 2026-08-27 — code/CLAUDE.md mô hình hoá lại theo cây thư mục Batify thật (pullstate/AsyncStorage/class-validator)
-  G3: xong        # 2026-08-27 — PLAN.md viết lại theo hướng "dọn Batify cho khớp ràng buộc cứng", 5 nhóm A-E, tất cả A-D xong
+  G2: xong        # 2026-09-05 — hoàn tất đủ BA đầu ra (27/08 chỉ sửa 1/3 nhưng đã đánh dấu xong, sai):
+                  #   code/CLAUDE.md + code/docs/structure.md viết lại theo cây Batify thật (vẫn feature-based, đổi quy ước tên)
+                  #   scripts/soi-cau-truc.sh viết lại — bản cũ soi features//core/ đã bị xoá nên in "sạch" rỗng suốt nhiều đợt kiểm
+                  #   Baseline thật: 36 vi phạm, 35 tự mất khi cắt module theo PLAN.md, nợ thật 1 (Common/Screens/Profile.tsx)
+  G3: xong        # 2026-09-05 — PLAN.md (viết lại 27/08) là kế hoạch đang dùng; plans/ cũ mồ côi đã chuyển vào docs/luu-tru/plans-v1-kien-truc-cu/
   G4: xong        # 2026-08-27: 4 agent song song + fix tay — tsc 141→0 lỗi, jest 0 chạy được→27/27 pass, streak/point-level/màu đỏ/Sentry đã gỡ theo 6 ràng buộc cứng. Còn 2 câu hỏi mở (Reminder rỗng, Trading giữ hay gỡ) không chặn V1.
   G5: chua
   G6: chua

@@ -28,15 +28,26 @@ Ngày 2026-08-27, `code/fe` bị thay hoàn toàn bằng app "Batify" gốc (com
 - Domain model: `class-validator` + `class-transformer` (decorator trên entity, vd. `HabitTracker/Entities/Habit.ts`)
 - Test: `jest` (không phải Vitest) — **hiện KHÔNG chạy được**, xem "Nợ kỹ thuật" bên dưới.
 
-**Cấu trúc thư mục thật** (không phải `features/`):
+**Cấu trúc thư mục thật** — vẫn là feature-based, chỉ khác quy ước tên. Chi tiết đầy đủ ở [`docs/structure.md`](docs/structure.md):
 ```
-fe/src/Common/        ← lớp dùng chung thật sự: Repositories, FormControls, Styles, Hooks, Entities base
-fe/src/<TênModule>/    ← mỗi module 1 domain: Challenger, Emotion, Goal, HabitTracker, Home, Main,
-                          Me, Reminder, TimeTracker, Trading, Welcome, Work — mỗi module tự có
-                          Screens/, Entities/, đôi khi Repositories/ riêng
-fe/src/theme/          ← AppStyle.ts — màu, font
+fe/libs,lang,theme,store,hook/   ← hạ tầng: component gốc, i18n, token, pullstate
+fe/src/Common/                    ← lớp dùng chung (vai trò của shared/ cũ)
+fe/src/<Feature>/                 ← Challenger, Emotion, Goal, HabitTracker, Reminder,
+                                     TimeTracker, Trading, Welcome, Work
+                                     mỗi feature tự có Entities/ Screens/ Components/
+                                     Models/ Setup/ Text/
+fe/src/Main,Home/                 ← composition root: được phép ghép nhiều feature
 ```
-Không có luật "module X không được import module Y" như kiến trúc cũ — Batify không theo ràng buộc đó. Trước khi thêm luật import mới, hỏi chủ dự án.
+
+**Luật import (chốt 2026-09-05):**
+1. `Common/` không import feature — lớp dùng chung phải nằm dưới.
+2. Feature không import feature khác. Cần dùng chung thì đưa xuống `Common/`.
+3. Composition root (`Main/`, `Home/`) được import feature — đó là việc của nó.
+4. Không vòng lặp giữa hai feature.
+
+`scripts/soi-cau-truc.sh` soi bốn luật này và **thoát mã 2 nếu thư mục cần soi không tồn tại** — bản cũ soi `features/`/`core/` đã bị xoá nên in "sạch" rỗng suốt nhiều đợt kiểm. Trạng thái 2026-09-05: 36 vi phạm, 35 tự biến mất khi cắt module theo `PLAN.md`, nợ thật 1 chỗ (`Common/Screens/Profile.tsx` — màn hình đặt nhầm tầng).
+
+**Chưa có tầng `core/`.** Công thức thuần của mô hình 3 trụ (vốn tự do, bốc hơi, tỷ giá đời) cần tầng riêng có test, không import React. Thêm `src/Core/` khi bắt đầu xây trụ Tài chính.
 
 ### Nợ kỹ thuật — trạng thái 2026-08-27 (đợt dọn multi-agent, xem PLAN.md)
 
@@ -63,21 +74,9 @@ Ràng buộc #2 (Giờ vàng không có giá) và #4 (Đồng hồ cát) — #2 
 
 ## Kiến trúc — bắt buộc tuân theo
 
-### App (FE) — ĐÃ LỖI THỜI, xem "Đợt reset 2026-08-27" ở trên cho cấu trúc thật
+### App (FE)
 
-```
-fe/src/features/<name>/   ← mỗi feature là một folder độc lập
-fe/src/shared/            ← thứ DUY NHẤT được import giữa các feature
-fe/src/core/              ← hàm thuần, không phụ thuộc React, phải có test
-fe/src/db/                ← SQLite schema + Drizzle migrations + repositories
-fe/src/i18n/vi.ts         ← mọi chuỗi hiển thị, không inline string trong JSX
-fe/src/store/              ← Zustand (không Redux)
-```
-
-**Import rule (cứng) — CHỈ áp dụng nếu quay lại kiến trúc cũ, hiện KHÔNG áp dụng cho fe/:**
-- `features/X` → **chỉ được** import từ `shared/`, `core/`, `db/`, `i18n/`, `store/`
-- `features/X` → **không bao giờ** import từ `features/Y`
-- `core/` → không import React, không import `db/`, không import `store/`
+Xem mục "Đợt reset 2026-08-27" ở trên cho cây thư mục và bốn luật import, hoặc [`docs/structure.md`](docs/structure.md) cho bản đầy đủ.
 
 ### Backend (BE)
 

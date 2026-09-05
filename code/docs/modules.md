@@ -1,17 +1,17 @@
 # Checklist tạo và sửa module — code/
 
-> Sinh bởi skill `cau-truc-du-an`, 2026-08-25. Áp dụng cho cả `code/fe/src/features/` và các lớp trong `code/be/src/`.
+> Sinh bởi skill `cau-truc-du-an`, 2026-08-25. Cập nhật đường dẫn 2026-09-05 cho khớp cây thật sau khi app đổi sang khung Batify — xem [`structure.md`](structure.md). Áp dụng cho cả feature ở `code/fe/src/` và các lớp trong `code/be/src/`.
 
 ## Tạo feature mới ở code/fe
 
 1. Đọc use case tương ứng trong `docs/dac-ta/use-case.md` — mọi feature phải khớp ít nhất một UC, không tạo trước khi có UC.
-2. Grep `code/fe/src/shared/` xem component/hook/util mình định viết đã có chưa.
-3. Tạo `code/fe/src/features/<ten>/` với `screens/`, và `components/`/`hooks/`/`store/` nếu cần — không bắt buộc đủ cả bốn, chỉ tạo thư mục con nào thật sự dùng (xem `today/` có đủ bốn, `moments/` chỉ có hai, đều hợp lệ).
+2. Grep `code/fe/src/Common/` xem component/hook/util mình định viết đã có chưa.
+3. Tạo `code/fe/src/<TenFeature>/` (viết hoa, theo quy ước hiện có) với `Screens/`, và `Entities/`/`Components/`/`Models/`/`Text/` nếu cần — không bắt buộc đủ cả năm, chỉ tạo thư mục con nào thật sự dùng (`Emotion/` có gần đủ, `Trading/` chỉ một file, đều hợp lệ).
 4. Viết `HANDOFF.md` cho feature theo đúng khuôn trong `code/CLAUDE.md` mục "Handoff protocol".
-5. Nối vào `navigation/RootNavigator.tsx` nếu là màn hình cấp cao nhất.
-6. Đăng ký chuỗi hiển thị vào `i18n/vi.ts`.
-7. Chạy `npm test` (tương ứng `code/fe/package.json`) và `npx tsc --noEmit`.
-8. Chạy `scripts/soi-cau-truc.sh`.
+5. Nối vào `src/Main/MainScreen.tsx` nếu là màn hình cấp cao nhất, và khai route trong `Router/`.
+6. Đặt chuỗi hiển thị vào `<TenFeature>/Text/` (chuỗi riêng) hoặc `lang/` (chuỗi dùng chung) — không inline string trong JSX.
+7. Chạy `npm test` và `npx tsc` (script `ts:check`) trong `code/fe`.
+8. Chạy `scripts/soi-cau-truc.sh` — không được thêm import chéo feature mới.
 
 ## Sửa feature đã có ở code/fe
 
