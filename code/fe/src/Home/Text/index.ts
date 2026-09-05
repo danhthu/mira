@@ -1,86 +1,59 @@
 /**
  * Toàn bộ chuỗi của màn hình chính. Giọng theo `docs/00-vision.md`: sentence case,
  * không "nên/phải/hãy", không dấu chấm than, không phán xét.
+ *
+ * Mỗi ô module có hai nhóm chuỗi: một câu khi đã có dữ liệu, một câu trung tính khi
+ * chưa có. Không nhóm nào ghép ra được số 0 — `00-vision.md` rủi ro #3.
  */
 
 const homeText = {
-  meaningfulLabel: 'Giờ ý nghĩa tuần này',
-  wasteLabel: 'Giờ lãng phí tuần này',
-  wealthLabel: 'Bạn giàu',
-  evaporationLabel: 'Tháng này bốc hơi',
-  overspendLabel: 'Tháng này tiêu quá thu',
+  workTitle: 'Công việc',
+  workRemainingPrefix: 'còn',
+  workRemainingSuffix: 'việc hôm nay',
+  workAllDone: 'việc hôm nay đã xong',
+  workEmpty: 'chưa có việc nào hôm nay',
 
-  hourUnit: 'h',
-  monthUnit: 'tháng',
-  minuteUnit: 'phút',
+  habitTitle: 'Thói quen',
+  habitPlannedPrefix: 'hôm nay có',
+  habitPlannedSuffix: 'thói quen',
+  habitPartialPrefix: 'đã làm',
+  habitPartialMiddle: 'trong',
+  habitPartialSuffix: 'thói quen hôm nay',
+  habitAllPrefix: 'đã làm cả',
+  habitAllSuffix: 'thói quen hôm nay',
+  habitEmpty: 'chưa có thói quen nào hôm nay',
 
-  /** Dùng cho mọi ô chưa đủ dữ liệu — không bao giờ hiện số 0. */
-  missingValue: '—',
+  challengeTitle: 'Thử thách',
+  challengeActivePrefix: 'đang theo',
+  challengeActiveSuffix: 'thử thách',
+  challengeEmpty: 'chưa có thử thách nào',
 
-  meaningfulEmpty: 'chưa ghi giờ nào tuần này',
-  meaningfulHint: 'chạm một người bên dưới là bắt đầu',
-  wasteEmpty: 'chưa ghi giờ nào tuần này',
-  wasteHint: 'chạm một nhãn bên dưới là ghi',
-  wealthEmpty: 'chưa có năm ô tài chính',
-  wealthHint: 'năm ô, mỗi tháng một lần',
-  evaporationEmpty: 'chưa có năm ô tài chính',
-  timeInconsistent: 'số giờ đã ghi vượt quỹ giờ trong tuần',
-  notApplicable: 'chưa áp dụng được',
+  tradingTitle: 'Trading',
+  tradingLine: 'nhịp xem bảng giá',
 
-  learningPrefix: 'đang tính · có',
-  learningSeparator: '/',
-  learningSuffix: 'ngày',
+  emotionTitle: 'Cảm xúc',
+  emotionLoggedPrefix: 'hôm nay đã ghi',
+  emotionLoggedSuffix: 'lần',
+  emotionEmpty: 'chưa ghi cảm xúc hôm nay',
 
-  wealthStandingPrefix: 'ở nấc',
-  wealthGapPrefix: 'còn',
-  wealthGapSuffix: 'nữa tới',
-  wealthTopTier: 'không còn nấc nào phía trước',
-  wealthSavingPacePrefix: 'ở nhịp tiết kiệm này, khoảng',
-  wealthSavingPaceSuffix: 'tháng nữa',
-  wealthBelowZero: 'chưa tới vạch 0',
-  wealthShortfallPrefix: 'còn',
-  wealthShortfallSuffix: 'nữa về vạch 0',
-  wealthBreakEvenPrefix: 'khoảng',
-  wealthBreakEvenSuffix: 'tháng tiết kiệm',
+  goalTitle: 'Mục tiêu',
+  goalActivePrefix: 'đang theo',
+  goalActiveSuffix: 'mục tiêu',
+  goalEmpty: 'chưa có mục tiêu nào',
 
-  lifeHoursPrefix: '=',
-  lifeHoursUnit: 'giờ đời',
-  moneyMonthNotePrefix: 'số của',
+  timeTitle: 'Thời gian',
+  timeLoggedPrefix: 'hôm nay đã ghi',
+  timeHourUnit: 'giờ',
+  timeMinuteUnit: 'phút',
+  timeEmpty: 'chưa ghi giờ nào hôm nay',
 
-  tierSurvival: 'sống sót',
-  tierSafe: 'an toàn',
-  tierFlexible: 'linh hoạt',
-  tierFree: 'tự do',
+  settingTitle: 'Cài đặt',
+  settingLine: 'đồng bộ, giao diện, dữ liệu',
 
-  peopleTitle: 'Ghi giờ ý nghĩa',
-  peopleHint: 'chạm để đếm giờ · giữ để ghi nhanh',
-  peopleEmpty: 'chưa có ai trong danh sách',
-  peopleAdd: 'thêm người',
-  peopleAddPlaceholder: 'tên người quan trọng',
-  peopleAddSave: 'lưu',
-  peopleAddCancel: 'bỏ',
-  peopleRunningPrefix: 'đang đếm với',
-  peopleStop: 'dừng và ghi',
-
-  wasteTitle: 'Ghi giờ lãng phí',
-  wasteHintRow: 'chạm ghi 30 phút · giữ để chọn',
-  wasteDrift: 'lướt vô định',
-  wasteMeeting: 'họp vô ích',
-  wasteTraffic: 'kẹt xe',
-  wasteWaiting: 'chờ đợi',
-
-  quickTitle: 'Ghi nhanh',
-  quick30: '30 phút',
-  quick60: '1 giờ',
-  quick120: '2 giờ',
-  quickCancel: 'bỏ',
-
+  momentTitle: 'Khoảnh khắc',
   momentPlaceholder: 'khoảnh khắc vừa rồi',
   momentSave: 'ghi',
   momentSaved: 'đã ghi',
-
-  settings: 'Cài đặt',
-  logged: 'đã ghi',
 } as const;
 
 export type HomeText = typeof homeText;

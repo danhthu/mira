@@ -14,14 +14,19 @@ import {
 import { RichEditorBottomModal } from '../Common/Components';
 import { useAsyncAction, useSettings } from '../Common/Hooks';
 import { personRepository } from '../Common/Repositories';
-import { PersonApp } from '../Person';
+import { ChallengerApp } from '../Challenger';
 import { EmotionApp } from '../Emotion';
 import { GoalApp } from '../Goal';
+import { HabitApp } from '../HabitTracker';
 import { Home } from '../Home/Screens/Home';
-import { HourglassApp } from '../Hourglass';
-import { MoneyApp } from '../Money';
 import { TimeTrackerApp } from '../TimeTracker';
+import { TradingScreen } from '../Trading';
 import { WelcomApp } from '../Welcome';
+import { WorkApp } from '../Work';
+
+// Person · Money · Hourglass tạm ẩn (chốt 2026-09-05): chúng thuộc mô hình ba trụ
+// của `docs/08-three-pillars.md`, còn sản phẩm đang chạy là bốn module Batify. Code
+// giữ nguyên trong `src/`, mở lại chỉ cần khai `Stack.Screen` như cũ.
 import { useText } from './Text';
 
 
@@ -54,10 +59,6 @@ export const MainScreen = () => {
     <SafeAreaProvider>
       <Background>
         <NavigationContainer>
-          {/* Work · HabitTracker · Challenger · Trading không còn đăng ký ở đây: Mira
-              không phải app năng suất (`docs/00-vision.md`), cờ `mandatory` của Work là
-              cơ chế áp lực ngược ràng buộc cứng #3, còn Trading là tính năng gốc Batify.
-              Thư mục của chúng vẫn nằm nguyên trong `src/` chờ đợt dọn file. */}
           <Stack.Navigator
             initialRouteName={goStraightToHome ? 'Home' : 'Welcome'}
           >
@@ -94,9 +95,27 @@ export const MainScreen = () => {
               options={{ headerShown: false, presentation: 'modal' }}
             />
             <Stack.Screen name="TimeApp" component={TimeTrackerApp.Screens.Container} options={{ headerShown: false }} />
-            <Stack.Screen name="MoneyApp" component={MoneyApp.Screens.Container} options={{ headerShown: false }} />
-            <Stack.Screen name="PersonApp" component={PersonApp.Screens.People} options={{ headerShown: false }} />
-            <Stack.Screen name="HourglassApp" component={HourglassApp.Screens.Container} options={{ headerShown: false }} />
+
+            <Stack.Screen
+              name="ChallengerApp"
+              component={ChallengerApp.Screens.Container}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="HabitAppModal"
+              component={HabitApp.Screens.Container}
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="WorkAppModal"
+              component={WorkApp.Screens.Container}
+              options={{ headerShown: false, presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="Trading"
+              component={TradingScreen}
+              options={{ presentation: 'modal', headerStyle: { backgroundColor: theme.background } }}
+            />
             {/* Container của Common (Setting/Privacy/Term/HelpCenter) trước đây không được
                 đăng ký ở navigator nào — màn Cài đặt (có công tắc đồng bộ) không có đường vào. */}
             <Stack.Screen name="SettingApp" component={SettingContainer} options={{ headerShown: false }} />

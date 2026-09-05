@@ -23,6 +23,7 @@ export const MomentInput = (props: { onSave: (text: string) => void }) => {
 
   return (
     <View style={style.section}>
+      <Text style={style.sectionTitle}>{text.momentTitle}</Text>
       <View style={style.inputRow}>
         <TextInput
           style={style.input}
