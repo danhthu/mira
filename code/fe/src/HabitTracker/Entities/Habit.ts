@@ -32,7 +32,4 @@ export class Habit extends base {
   //timetracker module
   public did?: number;
   public timeCatId?: string;
-
-  //score
-  public score?: number;
 }

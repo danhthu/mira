@@ -6,8 +6,6 @@ export const AssetManagement = {
   cat_default: require('./cat_default.png'),
   habit_default: require('./habit_default.png'),
 
-  no_habit_tracker: require('./no_habit_tracker.png'),
-  no_habit: require('./no_habit.png'),
   work: require('./work.jpg'),
   empty: require('./work.jpg'),
   relationship: require('./collections/relationship.png'),

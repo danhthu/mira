@@ -1,108 +1,121 @@
-import { View } from 'react-native';
-
-import { useTheme } from '../../../theme';
-
-import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
-import { Col, Grid } from 'react-native-easy-grid';
-import { FlatList } from 'react-native-gesture-handler';
-import { sortBy } from 'sort-by-typescript';
-import { useText } from '../../../lang';
+import { View } from 'react-native';
 import { BText as Text } from '../../../libs/components';
-import { getCurrentDay } from '../../../libs/dateUtils';
-import { BORDER_ROUND, FONT_SIZE, FONT_WEIGHT, PADDING, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
-import { getLogger } from '../../Common';
+import { useTheme } from '../../../theme';
+import {
+  BORDER_ROUND,
+  FONT_SIZE,
+  FONT_WEIGHT,
+  PADDING,
+  TBL_ROW_HEIGHT,
+} from '../../../theme/Constraints';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { Habit, habitRepository, habitTrackerRepository } from '../Entities';
-const logger = getLogger('DataRecord');
-export const DataRecord = (props: { habits: Habit[], hideTextComponent?: boolean, month?: number, year?: number }) => {
-  const nav = useNavigation();
+import { useText } from '../Text';
+
+/**
+ * Bảng số liệu của một thói quen trong một tháng.
+ *
+ * Bản trước liệt kê 'Perfect Days', 'OverallRate' và 'MonthlyRate' — nhãn tiếng
+ * Anh, và cả ba đều là tỷ lệ hoàn thành: một mẫu số để đối chiếu, tức là chấm
+ * điểm. Ở đây chỉ còn số đếm và khối lượng thật người dùng đã ghi.
+ */
+export const DataRecord = (props: {
+  habit: Habit
+  month: number
+  year: number
+}) => {
   const colors = useTheme();
   const text = useText();
-  const deps = [useDectectDataChanged(habitRepository), useDectectDataChanged(habitTrackerRepository), props.habits, props.month, props.year];
-  const data = useAsyncAction<Array<{ name: string, total: any, unit?: string, filters?: any }>>(async () => {
-    const habits = (props.habits || [] as Array<Habit>);
-    const month = props.month || new Date().getMonth();
-    const year = props.year || new Date().getFullYear();
-    const chkDayInMonth = d => new Date(d).getMonth() == month && new Date(d).getFullYear() == year;
-    const records = (await habitTrackerRepository.filter(h => h.status == 'DONE'))
-      .filter(h => habits.filter(a => a.id == h.hid).length > 0);
-    records.sort(sortBy('day'));
-    const firstDayMonth = new Date(getCurrentDay().getFullYear(), month, 1);
-    const endDayMonth = moment(new Date(getCurrentDay().getFullYear(), month + 1, 1)).add(-1, 'day');
-    const dayList = [...new Set(records.map(h => h.day))];
-    const dayInSecond = 24 * 3600 * 1000;
-    const totalDays = (dayList[dayList.length - 1] - dayList[0]) / ((dayInSecond));
+  const deps = [
+    useDectectDataChanged(habitRepository),
+    useDectectDataChanged(habitTrackerRepository),
+    props.habit,
+    props.month,
+    props.year,
+  ];
 
-    if (habits.length == 0 || habits.length > 1) {
-      const perfect = (await Promise.all(dayList.map(async d => {
-        const doneDay = records.filter(r => r.day == d).map(r => r.hid).sort();
-        const habitInDay = (await habitRepository.getListByDate(new Date(d))).map(h => h.id).sort();
-        return { filter: JSON.stringify(doneDay) === JSON.stringify(habitInDay), day: d };
-      }))).filter(d => d.filter);
-      const totalDoneMonth = [...new Set(records.filter(h => chkDayInMonth(h.day) && new Date(h.day).getFullYear() == year).map(d => d.day))].length;
+  const rows = useAsyncAction<Array<{ label: string; value: number; unit?: string }>>(
+    async () => {
+      const records = (
+        await habitTrackerRepository.filter(
+          (h) => h.status == 'DONE' && h.hid == props.habit.id,
+        )
+      ).sort((a, b) => a.day - b.day);
+      const inMonth = (day: number) =>
+        moment(new Date(day)).isSame(
+          new Date(props.year, props.month, 1),
+          'month',
+        );
+      const monthRecords = records.filter((h) => inMonth(h.day));
+      const volume = (list: typeof records) =>
+        list.map((h) => h.data?.goal?.done || 0).reduce((a, b) => a + b, 0);
 
-      return [
-        //group
-        { name: 'Perfect Days', unit: 'days', total: perfect.length },
-        { name: 'Habit Done Total', total: dayList.length },
-        { name: 'Habit Done This Month', total: totalDoneMonth },
-        { name: 'OverallRate', unit: '%', total: dayList.length / totalDays },
-        { name: 'MonthlyRate', unit: '%', total: totalDoneMonth / (endDayMonth.diff(moment(firstDayMonth), 'days')) },
+      const result: Array<{ label: string; value: number; unit?: string }> = [
+        { label: text.days_this_month, value: monthRecords.length },
+        { label: text.total_marked, value: records.length },
       ];
-    }
-
-    if (habits.length == 1) {
-      const totalDone = records.length;
-      const doneInMonth = [... new Set(records.filter(h => chkDayInMonth(h.day)).map(h => h.day))].length;
-      logger.info('doneInMonth: ', doneInMonth);
-      const Vol_ThisMonth = records.filter(h => chkDayInMonth(h.day))
-        .map(h => h.data?.goal?.done || 0)
-        .reduce((a, b) => a + b, 0);
-      logger.info('Vol_ThisMonth: ', Vol_ThisMonth);
-      const Vol_Total = records
-        .map(h => h.data?.goal?.done || 0)
-        .reduce((a, b) => a + b, 0);
-      logger.info('Vol_Total: ', Vol_Total);
-      const Vol_avg = Math.floor(Vol_Total / dayList.length);
-      const overallRate = Math.floor(dayList.length * 100 / totalDays);
-
-      const habit = habits[0];
-      let unit = '';
-      const result: Array<{ name: string, total: number, unit?: string, filters?: { hids: string[], time: { from_date: number, to_date: number } } }> = [ //detail
-        { name: 'Done this month', total: doneInMonth, filters: { hids: habits.map(h => h.id), time: { from_date: new Date(year, month, 1).getTime(), to_date: new Date(year, month + 1, 1).getTime() } } },
-        { name: 'Total Done', total: totalDone, filters: { hids: habits.map(h => h.id), time: { from_date: new Date(year - 20, month, 1).getTime(), to_date: new Date().getTime() } } },
-      ];
-      if (habit.goalOption && habit.goalOption.enable) {
-        unit = habit.goalOption.unit;
-        result.push(...[{ name: 'Vol.This month', unit, total: Vol_ThisMonth },
-        { name: 'Vol.Total', unit, total: Vol_Total },
-        { name: 'Daily Avg.', unit, total: Vol_avg }]);
+      if (props.habit.goalOption && props.habit.goalOption.enable) {
+        const unit = props.habit.goalOption.unit;
+        const days = new Set(records.map((h) => h.day)).size;
+        result.push(
+          { label: text.volume_this_month, value: volume(monthRecords), unit },
+          { label: text.volume_total, value: volume(records), unit },
+          {
+            label: text.volume_daily,
+            value: days == 0 ? 0 : Math.floor(volume(records) / days),
+            unit,
+          },
+        );
       }
-      //normal
-      result.push({ name: 'OverallRate', unit: '%', total: overallRate });
       return result;
-    }
-  }, deps, [{ name: 'Perfect Days', unit: 'days', total: null },
-  { name: 'Habit Done Total', total: null },
-  { name: 'Habit Done This Month', total: null },
-  { name: 'OverallRate', unit: '%', total: null },
-  ], 'HabitTracker\DataRecord');
+    },
+    deps,
+    [],
+  );
+
+  if (rows.length == 0) {
+    return (
+      <View style={{ padding: PADDING.ELEMENT }}>
+        <Text style={{ color: colors.token.textSecondary }}>
+          {text.empty_record}
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <View style={{ borderRadius: BORDER_ROUND.NORMAL, borderWidth: 1, backgroundColor: 'white', borderColor: colors.outline, padding: PADDING.ELEMENT }}>
-      <FlatList data={data}
-        renderItem={({ item }) => (<Grid>
-          <Col style={{ paddingLeft: 2, height: TBL_ROW_HEIGHT, justifyContent: 'center', }}>
-            <Text >{text.for(item.name)}</Text>
-          </Col>
-          <Col style={{ paddingRight: 2, flex: null, height: TBL_ROW_HEIGHT, justifyContent: 'center' }}>
-            <Text style={{ fontWeight: FONT_WEIGHT.SEMIBOLD, textAlign: 'right', }}>{item.total || '--'} {<Text style={{ fontWeight: FONT_WEIGHT.SEMIBOLD, textAlign: 'right', fontSize: FONT_SIZE.SecondaryText }}>{item.total ? item.unit : null}</Text>}</Text>
-          </Col>
-        </Grid>)}
-        ItemSeparatorComponent={() => <View style={{ borderBottomWidth: 1, borderBottomColor: colors.outlineVariant, }} />}
-      />
+    <View
+      style={{
+        borderRadius: BORDER_ROUND.NORMAL,
+        borderWidth: 1,
+        backgroundColor: colors.token.surface,
+        borderColor: colors.token.border,
+        padding: PADDING.ELEMENT,
+      }}
+    >
+      {rows.map((row, index) => (
+        <View
+          key={row.label}
+          style={{
+            flexDirection: 'row',
+            height: TBL_ROW_HEIGHT,
+            alignItems: 'center',
+            borderTopWidth: index == 0 ? 0 : 1,
+            borderTopColor: colors.token.border,
+          }}
+        >
+          <Text style={{ flex: 1 }}>{row.label}</Text>
+          <Text style={{ fontWeight: FONT_WEIGHT.SEMIBOLD }}>
+            {row.value}
+            {row.unit ? (
+              <Text style={{ fontSize: FONT_SIZE.SecondaryText }}>
+                {' ' + row.unit}
+              </Text>
+            ) : null}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 };
-
-

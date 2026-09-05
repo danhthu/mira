@@ -23,15 +23,18 @@ export const CCalendarStrip = React.forwardRef((props: {
     const colors = useTheme();
     //console.log('calendarstrip selected', props.selectedDay);
     //marked
-    return (<View style={[props.style, { backgroundColor: 'red' }]}>
+    // Ba màu 'red'/'orange'/'blue' viết cứng ở đây là màu debug bỏ quên từ bản Batify —
+    // dải lịch này hiện ngay đầu màn Thói quen và màn Kế hoạch, nên nền đỏ là thứ người
+    // dùng nhìn thấy đầu tiên. Chuyển sang token; ràng buộc cứng #3 cũng cấm đỏ ở đây.
+    return (<View style={[props.style, { backgroundColor: colors.surface }]}>
         <WeekCalendar
             theme={{
                 selected: {
-                    color: 'blue',
-                    backgroundColor: 'orange'
+                    color: colors.token.textOnAccent,
+                    backgroundColor: colors.token.accent
                 },
                 header: {
-                    backgroundColor: 'red'
+                    backgroundColor: colors.surface
                 },
                 dayName: {
 

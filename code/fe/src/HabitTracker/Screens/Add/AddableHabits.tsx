@@ -1,117 +1,110 @@
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import iconifyAssets from '../../../../assets/iconifyAssets';
 import { BICon, BText as Text } from '../../../../libs/components';
-import { Router } from '../../../../Router';
+import { getDay } from '../../../../libs/dateUtils';
 import { useTheme } from '../../../../theme';
-import {
-  BLACK_COLOR,
-  FONTSIZE,
-  ROUND_BIG,
-  ROUND_NORMAL
-} from '../../../../theme/Constraints';
+import { FONTSIZE, ROUND_BIG, ROUND_NORMAL } from '../../../../theme/Constraints';
 import { AssetManagement } from '../../Assets/';
-import { HabitTemplate } from '../../Entities';
+import { Habit, HabitTemplate, habitRepository } from '../../Entities';
 
+/** Mẫu kèm cờ đã-có-trong-danh-sách; `owned` không phải trạng thái của tracker. */
+export type AddableTemplate = HabitTemplate & { owned?: boolean };
 
+/**
+ * Một chạm vào dấu cộng là thói quen đã nằm trong danh sách hôm nay.
+ *
+ * Mẫu được chép sang một `Habit` mới với `created_date` là hôm nay; mọi trường
+ * riêng của bảng mẫu (`group`, `collection`, ... ) bị bỏ lại để bản ghi lưu đúng
+ * hình dạng `Habit` như mọi thói quen tự đặt — không thêm khoá mới nào vào kho.
+ */
 export const AddableHabits = ({
   habits = [],
+  onAdded,
 }: {
-  habits: Array<HabitTemplate>
+  habits: Array<AddableTemplate>
+  onAdded: () => void
 }) => {
-
-  const [data, setData] = useState(habits || []);
-  const nav = useNavigation();
-
-  const habitItemStyles = StyleSheet.create({
+  const colors = useTheme();
+  const styles = StyleSheet.create({
     image_container: {
       width: 50,
       height: 50,
-      padding: 20,
       justifyContent: 'center',
       alignItems: 'center',
     },
-    image: {
-      width: 25,
-      height: 25,
-
-    },
+    image: { width: 24, height: 24 },
     title: {
       lineHeight: 50,
       height: 50,
       fontSize: FONTSIZE.NORMAL,
-      color: '#000',
-      flex: 1
+      color: colors.token.textPrimary,
+      flex: 1,
     },
-    container: {
-      flexDirection: 'row'
-      , marginBottom: ROUND_NORMAL
+    row: { flexDirection: 'row', marginBottom: ROUND_NORMAL },
+    action: {
+      width: 50,
+      height: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
   });
-  useEffect(() => {
-    setData(habits);
-  }, [habits]);
 
-  const colors = useTheme();
+  const add = async (template: AddableTemplate) => {
+    const habit: Habit = {
+      ...new Habit(),
+      name: template.name,
+      description: template.description,
+      icon: template.icon,
+      color: template.color,
+      repeatOption: template.repeatOption,
+      goalOption: template.goalOption,
+      created_date: getDay(new Date()).getTime(),
+    };
+    await habitRepository.add(habit);
+    await habitRepository.save();
+    onAdded();
+  };
+
   return (
-    <FlatList scrollEnabled={false} data={data}
-      renderItem={({ item, index }) => {
-        const h = item,
-          i = index;
-        return <View key={i} style={[habitItemStyles.container,]}>
-          <View style={[{ flex: 1, flexDirection: 'row', borderRadius: ROUND_BIG }, { backgroundColor: h.color }]}>
-            <View style={habitItemStyles.image_container}>
+    <FlatList
+      scrollEnabled={false}
+      data={habits}
+      keyExtractor={(item, index) => item.id || String(index)}
+      renderItem={({ item }) => (
+        <View style={styles.row}>
+          <View
+            style={[
+              { flex: 1, flexDirection: 'row', borderRadius: ROUND_BIG },
+              { backgroundColor: colors.token.surfaceMuted },
+            ]}
+          >
+            <View style={styles.image_container}>
               <Image
-                style={habitItemStyles.image}
+                style={styles.image}
                 source={
-                  !h.icon
-                    ? AssetManagement.habit_default
-                    : iconifyAssets[h.icon] || AssetManagement.habit_default
+                  iconifyAssets[item.icon] || AssetManagement.habit_default
                 }
               />
             </View>
-            <Text style={[habitItemStyles.title,]}>
-              {h.name || 'no name'}
-            </Text>
+            <Text style={styles.title}>{item.name}</Text>
           </View>
           <TouchableOpacity
-            onPress={() => {
-              if (!h.status) {
-                Router.Open(nav, 'HabitAppModal', { screen: 'AddFromTemplate', data: h });
-              }
-            }}
-            style={[
-              {
-                width: 50,
-                height: 50,
-                justifyContent: 'center',
-                alignSelf: 'flex-end',
-                alignItems: 'center',
-              },
-            ]}
+            style={styles.action}
+            disabled={!!item.owned}
+            onPress={() => add(item)}
           >
-            {h.status && (
-              <BICon
-                name="checkcircle"
-                style={{ alignSelf: 'center', color: colors.success, fontSize: 20 }}
-              />
-            )}
-            {!h.status && (
-              <BICon
-                name="pluscircle"
-                style={{ alignSelf: 'center', color: BLACK_COLOR, fontSize: 20 }}
-              />
-            )}
+            <BICon
+              name={item.owned ? 'checkcircle' : 'pluscircle'}
+              style={{
+                fontSize: 20,
+                color: item.owned
+                  ? colors.token.positive
+                  : colors.token.accent,
+              }}
+            />
           </TouchableOpacity>
-        </View>;
-      }
-      } />
+        </View>
+      )}
+    />
   );
 };

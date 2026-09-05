@@ -1,29 +1,35 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { BText as Text } from '../../../../libs/components';
-import {
-  BLACK_COLOR,
-  FONTSIZE,
-  GRAY_COLOR,
-  GROUP_MARGIN,
-  ROUND_NORMAL,
-  WHITE_COLOR
-} from '../../../../theme/Constraints';
-
 import { createStackNavigator } from '@react-navigation/stack';
 import { useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { BText as Text } from '../../../../libs/components';
+import { useTheme } from '../../../../theme';
+import {
+  FONTSIZE,
+  GROUP_MARGIN,
+  ROUND_NORMAL,
+} from '../../../../theme/Constraints';
 import { useCommonStyle } from '../../../Common/Styles';
 import { Header } from '../../Components/Header';
 import { useText } from '../../Text';
 import { StatisticDetailScreen } from './StatisticDetail';
 import { OverallTab } from './StatisticOverall';
-import { TodayTab } from './StatisticToday';
 import { WeeklyTab } from './StatisticWeekly';
 
 const Stack = createStackNavigator();
 
-export const StatisticScreen = ({ route, navigation }) => {
+/**
+ * Bản trước có ba tab: Hôm nay, Hàng tuần, Tổng thể.
+ *
+ * Tab "Hôm nay" là vòng tròn điểm số — số to ở giữa cùng câu "your daily habits
+ * are not completed" và một dòng "điểm hôm nay giảm x% so với hôm qua" nền đỏ.
+ * Gỡ cơ chế chấm điểm đi thì tab đó không còn nói được gì mà màn danh sách chưa
+ * nói rõ hơn, nên bỏ hẳn thay vì để lại một vòng tròn rỗng.
+ */
+export const StatisticScreen = ({ route }) => {
   const initialRouteName =
-    route.params && route.params.sub ? 'Statistic.' + route.params.sub : 'Statistic.Home';
+    route.params && route.params.sub
+      ? 'Statistic.' + route.params.sub
+      : 'Statistic.Home';
   return (
     <Stack.Navigator
       initialRouteName={initialRouteName}
@@ -34,14 +40,14 @@ export const StatisticScreen = ({ route, navigation }) => {
     >
       <Stack.Screen
         name="Statistic.Home"
-        options={{ title: 'Statistic', headerShown: false }}
+        options={{ headerShown: false }}
         component={Home}
       />
       <Stack.Screen
         name="Statistic.Details"
         initialParams={route.params}
         component={StatisticDetailScreen}
-        options={{ title: 'Statistic', headerShown: false }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
@@ -50,132 +56,77 @@ export const StatisticScreen = ({ route, navigation }) => {
 const Home = () => {
   const commonStyle = useCommonStyle();
   const text = useText();
-  const styles = StyleSheet.create({
-    tab_today: {
-      backgroundColor: '#fff',
-    },
-    tab_weekly: {
-      backgroundColor: '#fff',
-    },
-    tab_overall: {
-      backgroundColor: '#ddd',
-    },
-  });
-  const [activeIndex, setActivedIndex] = useState(0);
+  const colors = useTheme();
+  const [activeIndex, setActiveIndex] = useState(0);
   return (
     <View
       style={[
         commonStyle.screen,
-        { flex: 1 },
-        activeIndex == 0
-          ? styles.tab_today
-          : activeIndex == 1
-            ? styles.tab_weekly
-            : styles.tab_overall,
+        { flex: 1, backgroundColor: colors.token.background },
       ]}
     >
-      <Header title={text.Statistic || 'Statistic'} />
+      <Header title={text.screen_statistic} />
       <ScrollView
-        contentContainerStyle={[{ paddingBottom: 80 }]}
+        contentContainerStyle={{ paddingBottom: 80 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={{ height: 60 }}>
-          <Tab
-            onTabIndexChanged={(index) => setActivedIndex(index)}
-            activedIndex={activeIndex}
-          />
-        </View>
-        {activeIndex == 0 && <TodayTab />}
-        {activeIndex == 1 && <WeeklyTab />}
-        {activeIndex == 2 && <OverallTab />}
+        <Tab
+          activeIndex={activeIndex}
+          labels={[text.tab_week, text.tab_overall]}
+          onChanged={setActiveIndex}
+        />
+        {activeIndex == 0 && <WeeklyTab />}
+        {activeIndex == 1 && <OverallTab />}
       </ScrollView>
     </View>
   );
 };
 
-const Tab = (
-  props: { activedIndex?; onTabIndexChanged?} = {
-    activedIndex: 0,
-    onTabIndexChanged: (index) => { },
-  },
-) => {
-  const text = useText();
+const Tab = (props: {
+  activeIndex: number
+  labels: Array<string>
+  onChanged: (index: number) => void
+}) => {
+  const colors = useTheme();
   const styles = StyleSheet.create({
-    activedBg: {
-      backgroundColor: BLACK_COLOR,
+    bar: {
+      flexDirection: 'row',
+      backgroundColor: colors.token.surfaceMuted,
       borderRadius: ROUND_NORMAL,
+      padding: 4,
+      marginBottom: GROUP_MARGIN,
     },
-    activedText: {
-      color: WHITE_COLOR,
-    },
-    bg: {
-      backgroundColor: GRAY_COLOR,
-      justifyContent: 'center',
-      flex: 1,
-      padding: GROUP_MARGIN / 4,
-    },
-    text: {
-      color: BLACK_COLOR,
+    item: { flex: 1, padding: 6, borderRadius: ROUND_NORMAL },
+    itemActive: { backgroundColor: colors.token.accent },
+    label: {
       textAlign: 'center',
-      lineHeight: 30,
+      lineHeight: 26,
       fontSize: FONTSIZE.NORMAL,
+      color: colors.token.textSecondary,
     },
+    labelActive: { color: colors.token.textOnAccent },
   });
   return (
-    <View
-      style={[
-        styles.bg,
-        {
-          flexDirection: 'row',
-          borderRadius: ROUND_NORMAL,
-          marginBottom: GROUP_MARGIN,
-        },
-      ]}
-    >
-      <TouchableOpacity
-        onPress={() => props.onTabIndexChanged(0)}
-        style={[
-          styles.bg,
-          {
-            borderTopLeftRadius: ROUND_NORMAL,
-            borderBottomLeftRadius: ROUND_NORMAL,
-          },
-          props.activedIndex == 0 && styles.activedBg,
-        ]}
-      >
-        <Text
-          style={[styles.text, props.activedIndex == 0 && styles.activedText]}
+    <View style={styles.bar}>
+      {props.labels.map((label, index) => (
+        <TouchableOpacity
+          key={label}
+          style={[
+            styles.item,
+            props.activeIndex == index && styles.itemActive,
+          ]}
+          onPress={() => props.onChanged(index)}
         >
-          {text.Today || 'Today'}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => props.onTabIndexChanged(1)}
-        style={[styles.bg, props.activedIndex == 1 && styles.activedBg]}
-      >
-        <Text
-          style={[styles.text, props.activedIndex == 1 && styles.activedText]}
-        >
-          {text.Weekly || 'Weekly'}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => props.onTabIndexChanged(2)}
-        style={[
-          styles.bg,
-          {
-            borderTopRightRadius: ROUND_NORMAL,
-            borderBottomRightRadius: ROUND_NORMAL,
-          },
-          props.activedIndex == 2 && styles.activedBg,
-        ]}
-      >
-        <Text
-          style={[styles.text, props.activedIndex == 2 && styles.activedText]}
-        >
-          {text.overall || 'Overall'}
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={[
+              styles.label,
+              props.activeIndex == index && styles.labelActive,
+            ]}
+          >
+            {label}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };

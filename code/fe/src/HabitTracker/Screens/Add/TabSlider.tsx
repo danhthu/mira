@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { BLACK_COLOR, GRAY_COLOR, ROUND_NORMAL } from '../../../../theme/Constraints';
+import { useTheme } from '../../../../theme';
+import { ROUND_NORMAL } from '../../../../theme/Constraints';
 
 const TabSlider = ({ tabs, children, style, tabButtonHeight = 35 }) => {
+  const colors = useTheme();
+  const styles = useStyles();
   const [activeTab, setActiveTab] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const translateX = useRef(new Animated.Value(0)).current;
@@ -39,7 +42,7 @@ const TabSlider = ({ tabs, children, style, tabButtonHeight = 35 }) => {
           {tabs.map((tab, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.tabButton, activeTab == index && { backgroundColor: BLACK_COLOR, borderRadius: ROUND_NORMAL }]}
+              style={[styles.tabButton, activeTab == index && { backgroundColor: colors.token.accent, borderRadius: ROUND_NORMAL }]}
               onPress={() => handleTabPress(index)}
             >
               {typeof tab === 'string' ? (
@@ -78,7 +81,9 @@ const TabSlider = ({ tabs, children, style, tabButtonHeight = 35 }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = () => {
+  const colors = useTheme();
+  return StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: GRAY_COLOR,
+    backgroundColor: colors.token.surfaceMuted,
     borderRadius: ROUND_NORMAL,
     borderWidth: 1,
   },
@@ -97,12 +102,12 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: '#555',
+    color: colors.token.textSecondary,
   },
   activeTabText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: '600',
+    color: colors.token.textOnAccent,
   },
   contentContainer: {
     flexDirection: 'row',
@@ -112,5 +117,6 @@ const styles = StyleSheet.create({
 
   },
 });
+};
 
 export default TabSlider;

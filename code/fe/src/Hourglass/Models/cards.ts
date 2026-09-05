@@ -61,6 +61,32 @@ function toCardState(result: MetricState<Hourglass>): HourglassCardState {
   return { status: 'ready', value: result.value };
 }
 
+/**
+ * Nhịp gặp lấy từ cấu hình riêng của Đồng hồ cát, và nếu chưa chỉnh thì lấy
+ * `person.desiredCadence` — onboarding đã hỏi đúng câu đó rồi, hỏi lại là thừa và
+ * card sẽ hiện "gặp 0 lần/năm" cho người vừa khai nhịp xong.
+ *
+ * KHÔNG lùi tiếp về mặc định theo vai. Không biết nhịp thì để `visitsPerYear = 0`
+ * và card tự rơi vào trạng thái chưa tính được — với tính năng mà `00-vision.md`
+ * cảnh báo là có thể gây tê liệt, đưa ra "còn 288 lần gặp" từ một phỏng đoán còn
+ * tệ hơn là không đưa con số nào.
+ */
+function resolveCadence(input: BuildCardInput): {
+  visitsPerYear: number;
+  daysPerVisit: number;
+} {
+  const { person, config } = input;
+  const monthly =
+    config.monthlyCadence > 0 ? config.monthlyCadence : (person.desiredCadence ?? 0);
+  return {
+    visitsPerYear: visitsPerYearFromMonthlyCadence(monthly),
+    // Một lần gặp ít nhất là một ngày. Con số này chưa được hỏi ở đâu, nên khi có
+    // nhịp mà thiếu nó thì lấy mức thấp nhất trung thực — "0 ngày bên nhau" là câu
+    // không có nghĩa, còn 1 ngày là điều chắc chắn đúng với mọi lần gặp.
+    daysPerVisit: config.daysPerVisit > 0 ? config.daysPerVisit : 1,
+  };
+}
+
 function computeState(input: BuildCardInput, age: number): HourglassCardState {
   const { person, config, currentWeeklyHours } = input;
 
@@ -74,24 +100,13 @@ function computeState(input: BuildCardInput, age: number): HourglassCardState {
     );
   }
 
-  return toCardState(
-    companionshipHourglass({
-      age,
-      visitsPerYear: visitsPerYearFromMonthlyCadence(config.monthlyCadence),
-      daysPerVisit: config.daysPerVisit,
-    }),
-  );
+  return toCardState(companionshipHourglass({ age, ...resolveCadence(input) }));
 }
 
 export function buildCard(input: BuildCardInput): HourglassCard {
   const { person, config, quietReason } = input;
 
-  const cadence = usesChildHourglass(person.role)
-    ? null
-    : {
-        visitsPerYear: visitsPerYearFromMonthlyCadence(config.monthlyCadence),
-        daysPerVisit: config.daysPerVisit,
-      };
+  const cadence = usesChildHourglass(person.role) ? null : resolveCadence(input);
 
   const age = ageFromBirthYear(person.birthYear, input.currentYear);
 

@@ -1,310 +1,182 @@
-import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import { BICon, BText as Text } from '../../../../libs/components';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { BText as Text } from '../../../../libs/components';
 import { ButtonV2 } from '../../../../libs/components/Buttons';
 import { Router } from '../../../../Router';
 import { useTheme } from '../../../../theme';
 import {
-  BLACK_COLOR,
   FONT_SIZE,
   FONTSIZE,
-  HEADER_HEIGHT,
   ROUND_BIG,
-  SECOND_BLACK_COLOR
 } from '../../../../theme/Constraints';
 import { useAsyncAction } from '../../../Common/Hooks';
 import { useCommonStyle } from '../../../Common/Styles';
 import { AssetManagement } from '../../Assets/';
-import iconifyAssets from '../../Assets/iconifyAssets';
 import { Header } from '../../Components/Header';
 import { habitRepository, habitTemplateRepository } from '../../Entities';
 import { useText } from '../../Text';
-import { AddableHabits } from './AddableHabits';
+import { AddableHabits, AddableTemplate } from './AddableHabits';
 import TabSlider from './TabSlider';
 
-export const Home = ({ navigation, route }) => {
-  const [showTitle, setShowTitle] = useState(false);
+/**
+ * Màn chọn thói quen mới.
+ *
+ * Luồng cũ tốn ba chạm cho một thói quen: chạm dấu cộng trên thẻ gợi ý → mở màn
+ * `AddFromTemplate` (một biểu mẫu tám mục đã điền sẵn) → chạm "Add". Hai chạm sau
+ * không thêm thông tin gì mà người dùng chưa thấy, nên đã bỏ: dấu cộng ghi thẳng
+ * thói quen vào máy. Muốn sửa màu, lịch lặp hay lời nhắc thì vào Chi tiết → Sửa,
+ * nhưng đó là việc làm một lần, không nằm trong ngân sách nhập liệu hằng ngày.
+ *
+ * Hai lối đi hỏng cũng đã gỡ cùng lúc: nút "Tất cả" của mỗi nhóm và thẻ bộ sưu
+ * tập đều điều hướng tới `HabitTrackerAppModal` — một tên route không tồn tại
+ * trong navigator nào — nên chạm vào không có gì xảy ra.
+ */
+export const Home = ({ navigation }) => {
   const text = useText();
-  const colors = useTheme();
   const commonStyle = useCommonStyle();
+
   return (
     <View style={[commonStyle.screen]}>
-      <Header
-        title={showTitle ? text.pick_a_new_one || 'Pick a new one' : null}
-      />
-      <ScrollView onScroll={evt => {
-        if (!showTitle && evt.nativeEvent.contentOffset.y > HEADER_HEIGHT) {
-          setShowTitle(true);
-        }
-        if (evt.nativeEvent.contentOffset.y < HEADER_HEIGHT && showTitle) {
-          setShowTitle(false);
-        }
-      }}>
-        <View style={{ flex: 1 }}>
-
-          <Text style={{ fontWeight: 'bold', fontSize: FONT_SIZE.PageTitle }}>{text.pick_a_new_one || 'Pick a new one'}</Text>
-          <TabSlider style={{ marginTop: 20, marginBottom: 20 }} tabs={[text.popular || 'Polular', text.all || 'All']}>
-            <>
-              <PopularCollection />
-              <Groups />
-            </>
-            <AllHabits />
-          </TabSlider>
-        </View>
-      </ScrollView>
-      <View style={{
-        position: 'absolute',
-        bottom: 20, // Khoảng cách từ dưới cùng của màn hình (hoặc có thể là 0 nếu muốn sát đáy)
-        left: 0,
-        right: 0, // Chiều rộng button sẽ được căn đều theo màn hình
-        justifyContent: 'center', // Căn giữa button theo chiều ngang
-        alignItems: 'center',
-      }}>
-        <ButtonV2 type='secondary' text={text.add_my_own || 'Add my own'} onPress={() => {
-          Router.Open(navigation, 'HabitAppModal', { screen: 'AddModal' });
-        }} />
-      </View>
-    </View>
-  );
-};
-
-const AllHabits = () => {
-  const [data, setData] = useState([]);
-  useAsyncAction(async () => {
-    const habits = (await habitRepository.list()).map(h => h.id);
-    const tmp = (await habitTemplateRepository.list()).map((h) => ({
-      ...h,
-      status: habits.includes(h.id) ? 'DONE' : undefined
-    }));
-    setData(tmp);
-  }, []);
-
-  return <AddableHabits habits={data} />;
-};
-
-const PopularCollection = () => {
-  const text = useText();
-  const nav = useNavigation();
-  const [data, setData] = useState([]);
-  useAsyncAction(async () => {
-    setData(
-      (await habitTemplateRepository.filter((h) => h.collection !== null))
-        .filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.collection === item.collection),
-        )
-        .map((h) => ({
-          text: h.collection,
-          img: h.collection_icon,
-          color: h.color,
-        })),
-    );
-  }, []);
-  const catStyle = StyleSheet.create({
-    container: {
-      marginRight: 20,
-    },
-    text: {
-      fontSize: FONTSIZE.SMALL,
-      color: SECOND_BLACK_COLOR,
-      textAlign: 'center',
-      width: 130,
-      overflow: 'hidden',
-    },
-    img: {
-      width: 130,
-      height: 130,
-    },
-    img_container: {
-      borderRadius: ROUND_BIG,
-      justifyContent: 'center',
-      alignItems: 'center',
-      width: 130,
-      height: 130,
-    },
-  });
-
-  return (
-    <View>
-      <View>
-        <View style={{ flexDirection: 'row' }}>
-          <Image
-            style={{
-              width: 30,
-              height: 30,
-              marginRight: 5,
-            }}
-            source={AssetManagement['popular']}
-          />
-          <Text
-            style={{
-              color: BLACK_COLOR,
-              fontWeight: 'bold',
-              lineHeight: 30,
-              height: 30,
-              fontSize: FONTSIZE.Title,
-            }}
-          >
-            {text.Popular_collections || 'Popular collections'}
-          </Text>
-        </View>
-        <Text style={{ color: SECOND_BLACK_COLOR, fontSize: FONTSIZE.SMALL }}>
-          {text.Monitor_that_you_have_unsaved_changes ||
-            'Monitor that you have unsaved changes'}
+      <Header title={text.screen_add} />
+      <ScrollView>
+        <Text
+          style={{
+            fontWeight: '600',
+            fontSize: FONT_SIZE.PageTitle,
+            marginBottom: 4,
+          }}
+        >
+          {text.pick_one}
         </Text>
-      </View>
-      <ScrollView horizontal>
-        <View>
-          <View style={{ flexDirection: 'row', marginTop: 20 }}>
-            {data.map((c, i) => (
-              <TouchableOpacity
-                onPress={() =>
-                  Router.Open(nav, 'HabitTrackerAppModal', {
-                    screen: 'HomeDetailModal',
-                    collection: c,
-                  })
-                }
-                key={i}
-                style={{
-                  marginRight: 20,
-                }}
-              >
-                <View
-                  style={[catStyle.img_container, { backgroundColor: c.color }]}
-                >
-                  <Image
-                    style={catStyle.img}
-                    source={
-                      AssetManagement[c.img] ||
-                      iconifyAssets['emojione--astonished-face']
-                    }
-                  />
-                </View>
-                <Text style={catStyle.text}>{c.text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <Hint />
+        <TabSlider
+          style={{ marginTop: 16, marginBottom: 20 }}
+          tabs={[text.tab_suggested, text.tab_all]}
+        >
+          <Groups />
+          <AllHabits />
+        </TabSlider>
       </ScrollView>
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+        }}
+      >
+        <ButtonV2
+          type="secondary"
+          text={text.add_own}
+          onPress={() =>
+            Router.Open(navigation, 'HabitAppModal', { screen: 'AddModal' })
+          }
+        />
+      </View>
     </View>
   );
 };
 
-const Groups = () => {
-  const [data, setData] = useState([]);
-  useAsyncAction(async () => {
-    const all = await habitTemplateRepository.list();
-    const habits = (await habitRepository.list()).map(h => h.id);
-    const data = all
-      .filter((h) => h.group !== null)
-      .filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.group === item.group),
-      )
-      .map((h) => ({
-        ...h,
-        text: h.group,
-        img: h.group_icon,
-        desc: h.group_desc,
-        children: all
-          .filter((hh) => hh.group == h.group)
-          .map((k) => ({ ...k, status: habits.includes(k.id) ? 'DONE' : undefined })),
-      }));
-
-    setData(data);
-  }, []);
+const Hint = () => {
   const colors = useTheme();
-  const nav = useNavigation();
   const text = useText();
+  return (
+    <Text style={{ color: colors.token.textSecondary, fontSize: FONTSIZE.SMALL }}>
+      {text.add_own_hint}
+    </Text>
+  );
+};
+
+/** Danh sách phẳng mọi mẫu, dùng cho tab "Tất cả". */
+const AllHabits = () => {
+  const [reloadKey, setReloadKey] = useState(0);
+  const data = useAsyncAction(
+    async () => {
+      const owned = (await habitRepository.list()).map((h) => h.name);
+      return (await habitTemplateRepository.list()).map((h) => ({
+        ...h,
+        owned: owned.includes(h.name),
+      }));
+    },
+    [reloadKey],
+    [] as Array<AddableTemplate>,
+  );
+  return (
+    <AddableHabits
+      habits={data}
+      onAdded={() => setReloadKey((k) => k + 1)}
+    />
+  );
+};
+
+/** Các nhóm gợi ý, mỗi nhóm hiện đủ mẫu của nó — không còn nút "Tất cả" chết. */
+const Groups = () => {
+  const [reloadKey, setReloadKey] = useState(0);
+  const text = useText();
+  const colors = useTheme();
+  const groups = useAsyncAction(
+    async () => {
+      const all = await habitTemplateRepository.list();
+      const owned = (await habitRepository.list()).map((h) => h.name);
+      return [...new Set(all.map((h) => h.group).filter((g) => !!g))].map(
+        (name) => {
+          const first = all.find((h) => h.group == name);
+          return {
+            name,
+            desc: first.group_desc,
+            icon: first.group_icon,
+            children: all
+              .filter((h) => h.group == name)
+              .map((h) => ({ ...h, owned: owned.includes(h.name) })),
+          };
+        },
+      );
+    },
+    [reloadKey],
+    [] as Array<{
+      name: string
+      desc: string
+      icon: string
+      children: Array<AddableTemplate>
+    }>,
+  );
+
   const styles = StyleSheet.create({
-    group_container: {},
-    group_image: {
-      width: 30,
-      height: 30,
-      marginRight: 5,
-    },
-    group_title: {
-      lineHeight: 30,
-      color: BLACK_COLOR,
-      fontWeight: 'bold',
+    image: { width: 28, height: 28, marginRight: 8 },
+    title: {
+      lineHeight: 28,
+      fontWeight: '600',
       fontSize: FONTSIZE.Title,
+      color: colors.token.textPrimary,
     },
-    group_desc: {
-      color: SECOND_BLACK_COLOR,
+    desc: {
+      color: colors.token.textSecondary,
       fontSize: FONTSIZE.SMALL,
+      marginBottom: 8,
     },
   });
+
+  if (groups.length == 0) {
+    return <Text style={styles.desc}>{text.empty_template}</Text>;
+  }
 
   return (
     <>
-      {data.map((g, i) => (
-        <View key={i}>
-          <View
-            key={i}
-            style={[
-              {
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginBottom: 5,
-              },
-            ]}
-          >
-            <View style={{ flex: 1, justifyContent: 'center' }}>
-              <View style={[{ flexDirection: 'row' }]}>
-                <Image
-                  style={styles.group_image}
-                  source={
-                    AssetManagement[g.img] || AssetManagement.habit_default
-                  }
-                />
-                <Text style={styles.group_title}>{g.text}</Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              onPress={() =>
-                Router.Open(nav, 'HabitTrackerAppModal', {
-                  screen: 'HomeDetailModal',
-                  group: g,
-                })
-              }
-              style={[
-                {
-                  alignSelf: 'flex-end',
-                  flexDirection: 'row',
-                  width: 50,
-                  alignItems: 'center',
-                  height: 50,
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  fontSize: FONTSIZE.SMALL,
-                  lineHeight: 30,
-                  flex: 1,
-                  textAlign: 'right',
-                }}
-              >
-                {text.All || 'All'}
-              </Text>
-              <BICon
-                name="right"
-                style={{
-                  lineHeight: 30,
-                  marginLeft: 3,
-                  fontSize: FONTSIZE.SSMALL,
-                }}
-              />
-            </TouchableOpacity>
+      {groups.map((g) => (
+        <View key={g.name} style={{ marginBottom: ROUND_BIG }}>
+          <View style={{ flexDirection: 'row' }}>
+            <Image
+              style={styles.image}
+              source={AssetManagement[g.icon] || AssetManagement.habit_default}
+            />
+            <Text style={styles.title}>{g.name}</Text>
           </View>
-          <>{g.children && <AddableHabits habits={g.children} />}</>
+          <Text style={styles.desc}>{g.desc}</Text>
+          <AddableHabits
+            habits={g.children}
+            onAdded={() => setReloadKey((k) => k + 1)}
+          />
         </View>
       ))}
     </>

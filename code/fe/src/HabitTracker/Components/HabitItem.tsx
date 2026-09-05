@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import {
   StyleProp,
   StyleSheet,
@@ -6,81 +7,63 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+import { B } from '../../../libs/components';
 import { FontICon } from '../../../libs/components/Icon';
 import { getCurrentDay, getDay } from '../../../libs/dateUtils';
 import { Router } from '../../../Router';
 import { AppStyle, useTheme } from '../../../theme';
-
-import { useNavigation } from '@react-navigation/native';
-import { useText } from '../../../lang';
-import { B } from '../../../libs/components';
-import { FONTSIZE, getLogger } from '../../Common';
-import { useSettings } from '../../Common/Hooks';
+import { FONTSIZE } from '../../Common';
 import { Habit, HabitTracker, habitTrackerRepository } from '../Entities';
-const logger = getLogger('HabitItem');
+
+/**
+ * Một dòng thói quen trong danh sách ngày.
+ *
+ * Đây là chỗ tốn thao tác nhất trong ngày, nên chạm vào vòng tròn bên phải là
+ * ghi xong — một chạm, không hộp thoại xác nhận, chạm lại thì bỏ ghi. Ngày trong
+ * tương lai không cho ghi (vòng tròn mờ đi) thay vì cho chạm rồi mới báo lỗi.
+ */
 export const HabitItem = (props: {
-  color?: any
+  color?: string
   item: Habit
   tracker: HabitTracker
   day: Date
   styles?: StyleProp<ViewStyle>
   onChanged?: (done: boolean) => void
 }) => {
-  // console.log(['HabitItem', props.item.name, props.tracker.status])
-  const size = 60;
-  const item = props.item;
-  const tracker = props.tracker;
+  const { item, tracker, day } = props;
   const theme = useTheme();
-  const style = stlyes(theme);
-  const text = useText();
+  const style = styles(theme);
   const navigation = useNavigation();
-  const [settings] = useSettings();
-  const allow_previous = settings.habit_day_previous_allow || 5;
-  //const styles = segmentStyles(useTheme())
+  const isFuture = getDay(day) > getCurrentDay();
+  const isDone = tracker.status == 'DONE';
 
-  const onCompleted = async (props) => {
-    if (getDay(props.day) <= getCurrentDay() && tracker.status != 'DONE') {
-      logger.info('use touch done tracker', props.day.getTime());
-      await habitTrackerRepository.doneTracker(item.id, props.day);
-      props.onChanged(true);
+  const toggle = async () => {
+    if (isFuture) return;
+    if (isDone) {
+      await habitTrackerRepository.unDoneTracker(item.id, day);
+      props.onChanged(false);
     } else {
-      if (getDay(props.day) <= getCurrentDay() && tracker.status == 'DONE') {
-        logger.info('use touch undone tracker');
-        await habitTrackerRepository.unDoneTracker(item.id, props.day);
-        props.onChanged(false);
-      }
+      await habitTrackerRepository.doneTracker(item.id, day);
+      props.onChanged(true);
     }
   };
 
-  const onOpenDetail = () =>
+  const openDetail = () =>
     Router.Open(navigation, 'HabitAppModal', {
-      screen: 'Detail', data: {
-        habit: props.item, tracker: props.tracker, day: props.day.getTime(), id: item.id,
-      }
+      screen: 'Detail',
+      data: { habit: item, tracker, day: day.getTime(), id: item.id },
     });
 
-  const canTouch = (day, allow) => {
-    return true;
-    /*return (
-      getDay(day) <= getCurrentDay() &&
-      getDay(day) >=
-      getDay(
-        new Date(getCurrentDay().getTime() - allow * 24 * 60 * 60 * 1000),
-      )
-    );*/
-  };
-  const colors = useTheme();
-  if (!props.item) return <View></View>;
   return (
     <View style={[style.container, props.styles, item.style]} key={item.id}>
-      <View style={[style.leftContainer, {}]}>
+      <View style={style.leftContainer}>
         <B.ImageFor
           name={item.icon || item.name}
           height={54}
           width={54}
           style={[item.icon && { backgroundColor: 'transparent' }]}
           textStyle={{
-            color: '#000',
+            color: theme.token.textPrimary,
             lineHeight: 50,
             fontSize: FONTSIZE.NORMAL,
           }}
@@ -88,114 +71,76 @@ export const HabitItem = (props: {
       </View>
       <View style={style.middleContainer}>
         <TouchableOpacity
-          style={[
-            {
-              justifyContent: 'center',
-            },
-          ]}
-          onPress={() =>
-            Router.Open(navigation, 'HabitAppModal', {
-              screen: 'Detail', data: {
-                habit: props.item, tracker: props.tracker, day: props.day.getTime(), id: item.id,
-              }
-            })
-          }
+          style={{ justifyContent: 'center' }}
+          onPress={openDetail}
         >
           <Text
             style={[
               style.title,
-              {
-                textDecorationLine:
-                  tracker.status == 'DONE' ? 'line-through' : 'none',
-              },
+              { textDecorationLine: isDone ? 'line-through' : 'none' },
             ]}
           >
-            {item.name || 'New Habit'}
+            {item.name}
           </Text>
-          {!item.planOption ? null : (
+          {item.planOption ? (
             <View style={{ flexDirection: 'row' }}>
-              <View style={{ justifyContent: 'center', height: 16 }}>
-                <FontICon
-                  name="clockcircleo"
-                  size={FONTSIZE.SubTitle}
-                  style={{ marginRight: 5, color: theme.primary }}
-                />
-              </View>
-
-              <Text
-                style={[
-                  style.desc,
-                  {
-                    textDecorationLine:
-                      tracker.status == 'DONE' ? 'line-through' : 'none',
-                  },
-                ]}
-              >
-                {' '}
-                At {item.planOption.hour}:{item.planOption.minut}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-      <View style={[]}>
-        {item.goalOption && tracker.status != 'DONE' ? (
-          <TouchableOpacity onPress={onOpenDetail}>
-            {item.goalOption.unit == 'Time' ? (
               <FontICon
                 name="clockcircleo"
-                style={style.right_icon_undone}
-                size={FONTSIZE.SMALL}
+                size={FONTSIZE.SubTitle}
+                style={{ marginRight: 5, color: theme.token.textSecondary }}
               />
-            ) : (
-              <Text style={style.righ_text_title}>{item.goalOption.unit}</Text>
-            )}
-            <Text style={style.righ_text_subTitle}>
-              {tracker.data.goal?.done || 0}
-              {item.goalOption.unit == 'Time'
-                ? ''
-                : '/' + item.goalOption.total}
+              <Text style={style.desc}>
+                {item.planOption.hour}:{item.planOption.minut}
+              </Text>
+            </View>
+          ) : null}
+        </TouchableOpacity>
+      </View>
+      <View>
+        {item.goalOption && !isDone ? (
+          <TouchableOpacity style={style.rightContainer} onPress={openDetail}>
+            <Text style={style.goalUnit}>{item.goalOption.unit}</Text>
+            <Text style={style.goalValue}>
+              {tracker.data?.goal?.done || 0}/{item.goalOption.total}
             </Text>
           </TouchableOpacity>
-        ) : canTouch(props.day, allow_previous) ? (
+        ) : (
           <TouchableOpacity
-            style={[style.rightContainer]}
-            onPress={() => onCompleted(props)}
+            style={style.rightContainer}
+            disabled={isFuture}
+            onPress={toggle}
           >
-            {tracker.status == 'DONE' ? (
-              <FontICon
-                style={style.right_icon_done}
-                name="check-circle"
-                size={24}
-              ></FontICon>
-            ) : (
-              <FontICon
-                name="radio-button-off-outline"
-                size={24}
-                style={style.right_icon_undone}
-              ></FontICon>
-            )}
+            <FontICon
+              name={isDone ? 'check-circle' : 'radio-button-off-outline'}
+              size={24}
+              style={{
+                color: isDone
+                  ? theme.token.positive
+                  : isFuture
+                    ? theme.token.border
+                    : theme.token.borderStrong,
+              }}
+            />
           </TouchableOpacity>
-        ) : null}
+        )}
       </View>
     </View>
   );
 };
 
-const stlyes = (theme: typeof AppStyle) =>
+const styles = (theme: typeof AppStyle) =>
   StyleSheet.create({
     title: {
       fontWeight: '500',
       fontSize: FONTSIZE.Title,
+      color: theme.token.textPrimary,
     },
     desc: {
       fontSize: FONTSIZE.SubTitle,
       marginTop: -2,
-      color: theme.primary,
+      color: theme.token.textSecondary,
     },
-
     container: {
-      //borderRadius: theme.BORDER.normal,
       flex: 1,
       flexDirection: 'row',
       marginTop: 5,
@@ -223,20 +168,13 @@ const stlyes = (theme: typeof AppStyle) =>
       height: 60,
       justifyContent: 'center',
     },
-    right_icon_undone: {
-      color: theme.secondary,
-    },
-    right_icon_done: {
-      color: theme.success,
-    },
-    righ_text_title: {
+    goalUnit: {
       textTransform: 'lowercase',
       fontSize: FONTSIZE.SMALL,
-      color: theme.tertiary,
+      color: theme.token.textSecondary,
     },
-    righ_text_subTitle: {
-      textTransform: 'lowercase',
+    goalValue: {
       fontSize: FONTSIZE.SMALL,
-      color: theme.tertiary,
+      color: theme.token.textSecondary,
     },
   });

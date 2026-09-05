@@ -65,9 +65,9 @@ export const DataMonth = (props: {
     <Calendar
       style={{
         borderWidth: 1,
-        borderColor: colors.outlineVariant,
+        borderColor: colors.token.border,
         borderRadius: BORDER_ROUND.NORMAL,
-        backgroundColor: 'white'
+        backgroundColor: colors.token.surface
       }}
       renderArrow={dir => dir == 'left' ? <B.ICon name='left' /> : <B.ICon name='right' />}
       marking={{ dots: null }}

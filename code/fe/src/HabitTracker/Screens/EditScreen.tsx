@@ -32,7 +32,7 @@ export const EditScreen = ({ route, navigation }) => {
   const style = useStyle();
   const theme = useTheme();
   const colors = useTheme();
-  const [data, setData] = useState({ ...new Habit(), name: 'New Habit' });
+  const [data, setData] = useState({ ...new Habit(), name: '' });
   const habitRef = useRef(data);
   const commonStyle = useCommonStyle();
   const update = (updated) => {
@@ -61,7 +61,7 @@ export const EditScreen = ({ route, navigation }) => {
 
   return (
     <Background style={[commonStyle.screen, { paddingTop: 16 }]}>
-      <Header title={text.chinhsua || 'Chỉnh sửa'} onSave={save} />
+      <Header title={text.screen_edit} onSave={save} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
         >
@@ -77,7 +77,7 @@ export const EditScreen = ({ route, navigation }) => {
             ></BImageIConSet>
           </View>
           <View style={style.sectionContainer}>
-            <B.TextBox label={text.habit_name || 'Tên thói quen'}
+            <B.TextBox label={text.habit_name}
               inputStyle={{ textAlign: 'center', }}
               viewStyle={{ borderBottomWidth: 0 }}
               value={data.name}
@@ -109,8 +109,7 @@ export const EditScreen = ({ route, navigation }) => {
           <View style={[style.sectionContainer]}>
             <B.TextBox dataType="date"
               icon={'calendar-end'}
-              iconStyle={{ color: colors.error }}
-              label={text.batdau || 'Chọn thời gian kết thúc'}
+              label={text.end_date}
               value={data.endDate} onChanged={val => update({ endDate: val })} />
           </View>
 
@@ -129,7 +128,7 @@ export const EditScreen = ({ route, navigation }) => {
                 })
               }
             >
-              <B.Text>{text.ghichu || 'Ghi chú'}</B.Text>
+              <B.Text>{text.note}</B.Text>
               {data.description && <B.Html>{data.description}</B.Html>}
             </TouchableOpacity>
           </View>
@@ -188,7 +187,7 @@ const Header = (props: { title?: string, onSave?: () => void }) => {
         ]}
         onPress={props.onSave}
       >
-        <Text style={{ fontSize: FONT_SIZE.Text, color: colors.onPrimary, fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.save || 'Lưu'}</Text>
+        <Text style={{ fontSize: FONT_SIZE.Text, color: colors.onPrimary, fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.save}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -208,9 +207,6 @@ const useStyle = () => {
         padding: 8,
         paddingLeft: 0,
         paddingRight: 0,
-
-        //paddingLeft: 20,
-        //backgroundColor: '#fff'
       },
 
     }),

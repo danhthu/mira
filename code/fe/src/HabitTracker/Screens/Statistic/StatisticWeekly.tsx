@@ -1,48 +1,63 @@
+import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { useState } from 'react';
-import { ColorValue, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { BICon, BText as Text } from '../../../../libs/components';
+import { getCurrentDay } from '../../../../libs/dateUtils';
+import { Router } from '../../../../Router';
+import { useTheme } from '../../../../theme';
 import {
-  BLACK_COLOR,
   CAPTION_HEIGHT,
   FONTSIZE,
-  GRAY_COLOR,
   GRID_GUTTER,
   GROUP_MARGIN,
   ROUND_NORMAL,
-  SECOND_BLACK_COLOR,
-  WHITE_COLOR,
 } from '../../../../theme/Constraints';
-
-import { useNavigation } from '@react-navigation/native';
-import { getCurrentDay } from '../../../../libs/dateUtils';
 import { useAsyncAction } from '../../../Common/Hooks';
 import { getDay, getStartOfWeek } from '../../../Common/Utils/common';
-import { WeeklyScoreView } from '../../Components/WeekScore';
 import { Habit, habitRepository, habitTrackerRepository } from '../../Entities';
 import { useColors } from '../../Styles/HomeStyle';
 import { useText } from '../../Text';
 import { repeateToString } from '../../Utils';
+import { EmptyState } from '../HomeScreen';
 
+/**
+ * Lưới bảy ngày cho từng thói quen của tuần hiện tại.
+ *
+ * Bản trước đặt phía trên lưới một `WeeklyScoreView`: điểm tuần cỡ 48px kèm một
+ * đến ba ngôi sao vàng, cuộn ngang qua các tuần cũ. Đó là điểm số và huy hiệu,
+ * ràng buộc #3 cấm cả hai, nên component và hàm `getWeeklyScores` sau lưng nó đã
+ * xoá. Lưới còn lại chỉ nói ngày nào có ghi — không tính tỷ lệ, không so tuần này
+ * với tuần trước.
+ */
 export const WeeklyTab = () => {
-  const [state, setState] = useState({ habits: [], start: new Date });
   const habitColors = useColors().habitColors;
-  useAsyncAction(async () => {
-    setState({ ...state, habits: await habitRepository.getHabitsForThisWeek() });
-  }, []);
+  const navigation = useNavigation();
+  const text = useText();
+  const habits = useAsyncAction(
+    async () => await habitRepository.getHabitsForThisWeek(),
+    [],
+    [] as Array<Habit>,
+  );
+
+  if (habits.length == 0) {
+    return (
+      <EmptyState
+        message={text.empty_week}
+        actionText={text.empty_week_action}
+        onAction={() =>
+          Router.Open(navigation, 'HabitAppModal', { screen: 'Add' })
+        }
+      />
+    );
+  }
 
   return (
     <View>
-      <View style={{ alignItems: 'center' }}>
-        <WeeklyScoreView width={200} onWeekChanged={async (start, end) => {
-          setState({ habits: await habitRepository.getHabitsForThisWeek({ start, end }), start: start });
-        }} />
-      </View>
-      {state.habits.map((h, i) => (
+      {habits.map((h, i) => (
         <HabitWeekView
-          key={i}
+          key={h.id}
           habit={h}
-          start={state.start}
           color={habitColors[i % habitColors.length]}
         />
       ))}
@@ -50,130 +65,115 @@ export const WeeklyTab = () => {
   );
 };
 
-const HabitWeekView = (props: { habit: Habit; color: ColorValue, start?: Date, end?: Date }) => {
+const HabitWeekView = (props: { habit: Habit; color: string }) => {
   const text = useText();
-  const navigation = useNavigation<any>();
+  const colors = useTheme();
+  const navigation = useNavigation<{ navigate: (name: string, params: object) => void }>();
   const days = [
-    text.Mon || 'Mon',
-    text.Tue || 'Tue',
-    text.Web || 'Web',
-    text.Thu || 'Thu',
-    text.Fri || 'Fri',
-    text.Sat || 'Sat',
-    text.Sun || 'Sun',
+    text.mon,
+    text.tue,
+    text.wed,
+    text.thu,
+    text.fri,
+    text.sat,
+    text.sun,
   ];
-  const [data, setData] = useState(
-    Array.from({ length: days.length }).map((i, index) => ({
-      status: false,
-    })) as Array<{ status: boolean }>,
-  );
-  useAsyncAction(async () => {
-    if (props.habit) {
-      const startDay = props.start ? getStartOfWeek(props.start) : getStartOfWeek(new Date);
-      for (let i = 0; i <= 6; i++) {
-        const date = getDay(
-          moment((startDay))
-            .add(i, 'days')
-            .toDate(),
-        );
-        const status = (
-          await habitTrackerRepository.getTracker(props.habit.id, date)
-        )?.status;
-        data[i] = date.getTime() > getCurrentDay().getTime() ? { status: false } : status == 'DONE' ? { status: true } : { status: false };
-      }
+  const [marked, setMarked] = useState(days.map(() => false));
 
-      setData([...data]);
+  useAsyncAction(async () => {
+    const startDay = getStartOfWeek(new Date());
+    const result: boolean[] = [];
+    for (let i = 0; i <= 6; i++) {
+      const date = getDay(moment(startDay).add(i, 'days').toDate());
+      if (date.getTime() > getCurrentDay().getTime()) {
+        result.push(false);
+        continue;
+      }
+      const tracker = await habitTrackerRepository.getTracker(
+        props.habit.id,
+        date,
+      );
+      result.push(tracker?.status == 'DONE');
     }
-  }, [props.habit, props.start]);
+    setMarked(result);
+  }, [props.habit]);
 
   const styles = StyleSheet.create({
-    dayComponentContainer: { flex: 1 },
-    dayNameContainer: {},
+    card: {
+      backgroundColor: colors.token.surface,
+      borderWidth: 1,
+      borderColor: colors.token.border,
+      borderRadius: ROUND_NORMAL,
+      padding: ROUND_NORMAL,
+      marginBottom: GROUP_MARGIN,
+    },
+    head: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.token.border,
+      marginBottom: GRID_GUTTER / 2,
+    },
     dayName: {
       fontSize: FONTSIZE.SSMALL,
-      color: SECOND_BLACK_COLOR,
+      color: colors.token.textMuted,
       textAlign: 'center',
     },
-    dayValueContainer: {
+    dot: {
       marginTop: 5,
       height: 30,
       width: 30,
       borderRadius: 15,
       alignSelf: 'center',
       justifyContent: 'center',
-      backgroundColor: WHITE_COLOR,
+      backgroundColor: colors.token.surfaceMuted,
     },
-    dayValueContainerActived: {
-      backgroundColor: props.color,
-    },
-    dayValue: {
-      fontSize: FONTSIZE.NORMAL,
+    dotMarked: { backgroundColor: props.color },
+    repeat: {
+      lineHeight: CAPTION_HEIGHT,
+      color: colors.token.textSecondary,
+      marginRight: 3,
+      fontSize: FONTSIZE.SMALL,
     },
   });
 
   return (
-    <View
-      style={{
-        backgroundColor: GRAY_COLOR,
-        borderRadius: ROUND_NORMAL,
-        padding: ROUND_NORMAL,
-        paddingLeft: ROUND_NORMAL * 1.5,
-        paddingRight: ROUND_NORMAL * 1.5,
-        marginBottom: GROUP_MARGIN,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          paddingLeft: 5,
-
-          borderBottomWidth: 1,
-          borderBottomColor: BLACK_COLOR,
-          marginBottom: GRID_GUTTER / 2,
-        }}
-      >
-        <Text
-          style={{ flex: 1, lineHeight: CAPTION_HEIGHT, fontWeight: 'bold' }}
-        >
-          {props.habit?.name}
+    <View style={styles.card}>
+      <View style={styles.head}>
+        <Text style={{ flex: 1, lineHeight: CAPTION_HEIGHT, fontWeight: '600' }}>
+          {props.habit.name}
         </Text>
         <TouchableOpacity
           style={{ alignSelf: 'flex-end', flexDirection: 'row' }}
-          onPress={() => {
-            navigation.navigate('Statistic.Details', { habit: props.habit });
-          }}
+          onPress={() =>
+            navigation.navigate('Statistic.Details', { id: props.habit.id })
+          }
         >
-          <Text
-            style={{
-              lineHeight: CAPTION_HEIGHT,
-              color: SECOND_BLACK_COLOR,
-              marginRight: 3,
-            }}
-          >
-            {repeateToString(props.habit.repeatOption)}
+          <Text style={styles.repeat}>
+            {repeateToString(props.habit.repeatOption, text)}
           </Text>
           <BICon
             name="right"
             style={{
               lineHeight: CAPTION_HEIGHT,
-              color: SECOND_BLACK_COLOR,
+              color: colors.token.textSecondary,
             }}
           />
         </TouchableOpacity>
       </View>
       <View style={{ flexDirection: 'row' }}>
         {days.map((d, i) => (
-          <View key={i} style={styles.dayComponentContainer}>
-            <View style={styles.dayNameContainer}>
-              <Text style={styles.dayName}>{d}</Text>
-            </View>
-            <View
-              style={[
-                styles.dayValueContainer,
-                data[i].status && styles.dayValueContainerActived,
-              ]}
-            >
-              {data[i].status && <BICon style={styles.dayValue} name="check" />}
+          <View key={d} style={{ flex: 1 }}>
+            <Text style={styles.dayName}>{d}</Text>
+            <View style={[styles.dot, marked[i] && styles.dotMarked]}>
+              {marked[i] && (
+                <BICon
+                  name="check"
+                  style={{
+                    textAlign: 'center',
+                    color: colors.token.textOnAccent,
+                  }}
+                />
+              )}
             </View>
           </View>
         ))}
@@ -181,5 +181,3 @@ const HabitWeekView = (props: { habit: Habit; color: ColorValue, start?: Date, e
     </View>
   );
 };
-
-

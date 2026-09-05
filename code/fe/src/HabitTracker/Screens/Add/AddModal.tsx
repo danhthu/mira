@@ -29,7 +29,7 @@ export const AddModal = ({ route, navigation }) => {
   const style = useStyle();
   const theme = useTheme();
   const colors = useTheme();
-  const [data, setData, habitRef] = useStateData({ ...new Habit(), name: 'New Habit' });
+  const [data, setData, habitRef] = useStateData({ ...new Habit(), name: '' });
 
   const update = (updated) => {
     setData((prevHabit) => ({ ...prevHabit, ...updated }));
@@ -50,7 +50,7 @@ export const AddModal = ({ route, navigation }) => {
     <ScrollView
       style={[{ backgroundColor: theme.background }, commonStyle.modalScreen]}
     >
-      <Header title='' right={{ text: text.save || 'Save', onTouch: save }} />
+      <Header title={text.screen_add} right={{ text: text.save, onTouch: save }} />
       <View style={[{
         alignSelf: 'center', marginTop: 10, marginBottom: 10, padding: 10, borderRadius: 10,
         backgroundColor: theme.background
@@ -64,7 +64,7 @@ export const AddModal = ({ route, navigation }) => {
         ></BImageIConSet>
       </View>
       <View style={style.sectionContainer}>
-        <B.TextBox label={text.habit_name || 'Tên thói quen'}
+        <B.TextBox label={text.habit_name}
           inputStyle={{ textAlign: 'center', }}
           viewStyle={{ borderBottomWidth: 0 }}
           value={data.name}
@@ -98,7 +98,7 @@ export const AddModal = ({ route, navigation }) => {
       <View style={[style.sectionContainer]}>
         <B.TextBox dataType="date"
           icon={'calendar-end'}
-          label={text.batdau || 'Chọn thời gian kết thúc'}
+          label={text.end_date}
           value={data.endDate} onChanged={val => update({ endDate: val })} />
       </View>
       {/*ghi chú */}
@@ -125,7 +125,7 @@ const useStyle = () => {
         marginBottom: 15,
 
         paddingLeft: 20,
-        backgroundColor: '#fff'
+        backgroundColor: colors.token.surface
       },
 
     }),

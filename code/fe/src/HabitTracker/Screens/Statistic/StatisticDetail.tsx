@@ -1,58 +1,66 @@
-import { View } from 'react-native';
-
-
 import { useState } from 'react';
-
-import { GroupTitle } from '../../../../libs/components/GroupTitle';
-import { getLogger } from '../../../Common';
-
+import { ScrollView, View } from 'react-native';
 import { DateData } from 'react-native-calendars';
+import { GroupTitle } from '../../../../libs/components/GroupTitle';
+import { useTheme } from '../../../../theme';
 import { useAsyncAction } from '../../../Common/Hooks';
 import { useCommonStyle } from '../../../Common/Styles';
 import { DataMonth } from '../../Components/DataMonth';
 import { DataRecord } from '../../Components/DataRecord';
 import { Header } from '../../Components/Header';
-import { habitRepository } from '../../Entities';
+import { Habit, habitRepository } from '../../Entities';
 import { useText } from '../../Text';
-const logger = getLogger('StatisticScreen');
-
 
 export const StatisticDetailScreen = ({ route }) => {
-  console.log('detail statistic');
   const commonStyle = useCommonStyle();
+  const colors = useTheme();
   const text = useText();
   const [date, setDate] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
   } as DateData);
 
-  //filter by route
-  const habit = useAsyncAction(async () => {
-    console.log(route.params);
-    return await habitRepository.findOne(h => h.id == route.params?.id);
-    // return hs
-  }, [route.params]);
-  if (!habit) return <View></View>;
-  return (
-    <View style={[commonStyle.screen, { backgroundColor: '#ddd', flex: 1 }]}>
-      <Header
-        title={habit.name}
-      />
-      <View>
+  const habit = useAsyncAction(
+    async () => await habitRepository.findOne((h) => h.id == route.params?.id),
+    [route.params],
+    null as Habit,
+  );
+
+  if (!habit) {
+    return (
+      <View
+        style={[
+          commonStyle.screen,
+          { flex: 1, backgroundColor: colors.token.background },
+        ]}
+      >
+        <Header title={text.screen_detail} />
       </View>
-      <GroupTitle label={text.for('Data in month')} actionText="" />
-      <DataMonth
-        habits={[habit]}
-        hideTextComponent={true}
-        onMonthChanged={setDate}
-      />
-      <GroupTitle label={text.for('Record')} actionText="" />
-      <DataRecord
-        habits={[habit]}
-        hideTextComponent={true}
-        month={date.month - 1}
-        year={date.year}
-      />
+    );
+  }
+
+  return (
+    <View
+      style={[
+        commonStyle.screen,
+        { backgroundColor: colors.token.background, flex: 1 },
+      ]}
+    >
+      <Header title={habit.name} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <GroupTitle label={text.month_view} actionText="" />
+        <DataMonth
+          habits={[habit]}
+          hideTextComponent={true}
+          onMonthChanged={setDate}
+        />
+        <GroupTitle label={text.record_view} actionText="" />
+        <DataRecord
+          habit={habit}
+          month={date.month - 1}
+          year={date.year}
+        />
+      </ScrollView>
     </View>
   );
 };

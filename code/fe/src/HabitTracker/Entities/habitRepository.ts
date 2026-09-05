@@ -347,54 +347,25 @@ class HabitTrackerRepository extends BaseRepo<HabitTracker> {
     );
   };
 
-  public getRecord = async (
-    habits: Array<Habit>,
+  /**
+   * Ba con số đếm được, không có tỷ lệ và không có khái niệm "ngày hoàn hảo".
+   *
+   * Bản Batify cũ (`getRecord`) trả thêm `successRate`, `monthlyRate` và
+   * `perfect` — số ngày người dùng làm đủ *mọi* thói quen. Cả ba đều là cách nói
+   * "bạn đạt bao nhiêu phần trăm", tức là chấm điểm, đúng thứ ràng buộc #3 cấm.
+   * Ở đây chỉ còn số lần đã ghi: một sự thật, không kèm mẫu số để so.
+   */
+  public getTotals = async (
     month: number,
     year: number,
-  ) => {
-    const logger = getLogger('getRecord');
-    const chkDayInMonth = (d) =>
-      new Date(d).getMonth() == month && new Date(d).getFullYear() == year;
-    //lấy record, group by date
-    const _trackers = await this.list();
-    const _habits = await habitRepository.list();
-    const records = groupBy(_trackers, (tr) => tr.day).map((d) => ({
-      ...d,
-      status:
-        d.data.length ==
-          _getListHabitByDate(_trackers, _habits, new Date(d.key)).length &&
-          d.data.filter((h) => h.status != 'DONE').length == 0
-          ? 'COMPLETED'
-          : 'MAKE',
-    }));
-    records.sort(sortBy('day'));
-
-    const firstDayMonth = new Date(getCurrentDay().getFullYear(), month, 1);
-    const endDayMonth = moment(
-      new Date(getCurrentDay().getFullYear(), month + 1, 1),
-    ).add(-1, 'day');
-    const dayList = [...new Set(records.map((h) => h.key))] as Array<number>;
-    const dayInSecond = 24 * 3600 * 1000;
-    const totalDays = (dayList[dayList.length - 1] - dayList[0]) / dayInSecond;
-    const totalDoneMonth = [
-      ...new Set(
-        records
-          .filter(
-            (h) =>
-              chkDayInMonth(h.key) && new Date(h.key).getFullYear() == year,
-          )
-          .map((d) => d.key),
-      ),
-    ].length;
+  ): Promise<{ totalMarks: number; daysMarked: number; marksThisMonth: number }> => {
+    const trackers = (await this.list()).filter((t) => t.status == 'DONE');
+    const inMonth = (day: number) =>
+      new Date(day).getMonth() == month && new Date(day).getFullYear() == year;
     return {
-      perfect: records.filter((d) => d.status == 'COMPLETED').length,
-      total: dayList.length,
-      totalDoneMonth,
-      overallRate: dayList.length / totalDays,
-      monthlyRate:
-        totalDoneMonth / endDayMonth.diff(moment(firstDayMonth), 'days'),
-      successRate: dayList.length / totalDays,
-      completedHabits: dayList.length,
+      totalMarks: trackers.length,
+      daysMarked: new Set(trackers.map((t) => t.day)).size,
+      marksThisMonth: trackers.filter((t) => inMonth(t.day)).length,
     };
   };
 }
@@ -403,170 +374,3 @@ export const habitTrackerRepository = new HabitTrackerRepository(
   'habit_tracker',
 );
 export const habitRepository = new Repository('habits');
-
-interface WeekScore {
-  weekStart: Date;
-  weekEnd: Date;
-  score: number;
-  maxScore: number; // Số lượng ngôi sao (1 - 3)
-}
-// Hàm tính điểm theo từng tuần trong khoảng thời gian từ startDate đến endDate
-
-const weekScoreCache: { [key: string]: WeekScore } = {}; // Store older week scores
-
-const dailyCache: { [key: string]: { date: Date; totalScore: number, maxScore: number, data: Array<Habit> } } = {}; // Store older week scores
-
-
-
-
-// Hàm lazy load để lấy điểm theo tuần, duyệt ngược từ hiện tại về quá khứ
-export async function getWeeklyScores(
-  page: number = 1,       // Trang hiện tại (mặc định là trang 1)
-  pageSize: number = 3    // Số tuần sẽ tải mỗi lần (mặc định là 3 tuần)
-): Promise<Array<WeekScore>> {
-  const result: Array<WeekScore> = [];
-  const trackers = await habitTrackerRepository.list();
-
-  // Nếu không có trackers, trả về mảng rỗng
-  if (trackers.length === 0) return result;
-
-  // Sắp xếp lại trackers theo ngày
-  trackers.sort((a, b) => a.day - b.day);
-
-  // Lấy thời điểm hiện tại làm mốc
-  const endDate = new Date(trackers[0].day);  // Ngày cuối cùng trong trackers
-  const currentDate = moment().endOf('isoWeek').toDate();       // Kết thúc của tuần hiện tại
-
-  // Tính toán thời điểm tuần đầu tiên cần tính toán trong trang hiện tại
-  const startWeekOffset = (page - 1) * pageSize;
-  const startWeekDate = moment(currentDate).subtract(startWeekOffset, 'weeks').startOf('isoWeek').toDate();
-
-  // Duyệt ngược từ `startWeekDate` qua các tuần trước đó
-  let currentWeekNumber = moment(startWeekDate).isoWeek();
-  let weekStart = startWeekDate;
-  let weeklyScore = 0;
-  let weeklyMaxScore = 0;
-
-  for (let weekIndex = 0; weekIndex < pageSize; weekIndex++) {
-    // Nếu `weekStart` đã lùi về trước thời điểm `endDate` (quá khứ xa nhất), dừng vòng lặp
-    if (weekStart.getTime() < endDate.getTime()) break;
-
-    // Lấy các ngày trong tuần hiện tại
-    for (let i = 0; i < 7; i++) {
-      const dateKey = moment(weekStart).add(i, 'days').format('YYYY-MM-DD');
-
-
-      if (dailyCache[dateKey] !== undefined) {
-        const { totalScore: dailyScore, maxScore: dailyMaxScore } = dailyCache[dateKey];
-        weeklyScore += dailyScore;
-        weeklyMaxScore += dailyMaxScore;
-      } else {
-        const trackersForDay = await habitTrackerRepository.filter(h => moment(weekStart).add(i, 'days').diff(moment(new Date(h.day)), 'day') === 0);
-        const habitsForDay = await habitRepository.getListByDate(moment(weekStart).add(i, 'days').toDate());
-
-        const { totalScore: dailyScore, maxScore: dailyMaxScore } = getDailyScore(trackersForDay, habitsForDay, moment(weekStart).add(i, 'days').toDate());
-        weeklyScore += dailyScore;
-        weeklyMaxScore += dailyMaxScore;
-      }
-    }
-
-    // Đẩy tuần hiện tại vào `result`
-    result.push({
-      weekStart: new Date(weekStart),
-      weekEnd: moment(weekStart).endOf('isoWeek').toDate(),
-      score: weeklyScore,
-      maxScore: weeklyMaxScore,
-    });
-
-    // Reset điểm số cho tuần mới
-    weeklyScore = 0;
-    weeklyMaxScore = 0;
-
-    // Cập nhật tuần tiếp theo (lùi ngược lại)
-    weekStart = moment(weekStart).subtract(1, 'weeks').startOf('isoWeek').toDate();
-    currentWeekNumber = moment(weekStart).isoWeek();
-  }
-
-  return result;
-}
-
-
-
-
-export function getDailyScore(
-  trackers: HabitTracker[],
-  habits: Habit[],
-  date: Date
-): { date: Date; totalScore: number, maxScore: number, data: Habit[] } {
-  const results: { date: Date; totalScore: number, maxScore: number, data: Habit[] }[] = [];
-  const dateKey = moment(date).format('YYYY-MM-DD');
-  if (dailyCache[dateKey] !== undefined) return dailyCache[dateKey];
-  let currentDay = moment(date);
-  const finalDay = moment(date);
-
-  while (currentDay.isSameOrBefore(finalDay)) {
-    let totalScore = 0;
-
-    // Duyệt qua các trackers và tính điểm cho ngày hiện tại
-    trackers.forEach((tracker) => {
-      const trackerDate = moment(new Date(tracker.day));
-      if (trackerDate.isSame(currentDay, 'day') && tracker.status) {
-        const habit = habits.find((h) => h.id === tracker.hid);
-        if (habit) {
-          totalScore += habit.score || 20;
-        }
-      }
-    });
-
-    // Lưu kết quả cho ngày vào mảng
-    results.push({
-      date: currentDay.toDate(),
-      totalScore: totalScore,
-      maxScore: habits.map(h => h.score || 20).reduce((h1, h2) => h1 + h2, 0),
-      data: habits
-    });
-
-    // Chuyển sang ngày tiếp theo
-    currentDay = currentDay.add(1, 'day');
-  }
-  dailyCache[dateKey] = results.length == 0 ? { date: currentDay.toDate(), totalScore: 0, maxScore: 0, data: [] } : results[0];
-  return dailyCache[dateKey];
-}
-
-export function getMonthlyScore(
-  trackers: HabitTracker[],
-  habits: Habit[],
-  startMonth: string,
-  endMonth: string,
-): { month: string; totalScore: number }[] {
-  const results: { month: string; totalScore: number }[] = [];
-  let currentMonth = moment(startMonth).startOf('month');
-  const finalMonth = moment(endMonth).endOf('month');
-
-  while (currentMonth.isSameOrBefore(finalMonth)) {
-    let totalScore = 0;
-
-    // Duyệt qua các trackers và tính điểm cho tháng hiện tại
-    trackers.forEach((tracker) => {
-      const trackerMonth = moment(new Date(tracker.day));
-      if (trackerMonth.isSame(currentMonth, 'month') && tracker.status) {
-        const habit = habits.find((h) => h.id === tracker.hid);
-        if (habit) {
-          totalScore += habit.score;
-        }
-      }
-    });
-
-    // Lưu kết quả tháng vào mảng
-    results.push({
-      month: currentMonth.format('YYYY-MM'),
-      totalScore: totalScore,
-    });
-
-    // Chuyển sang tháng tiếp theo
-    currentMonth = currentMonth.add(1, 'month').startOf('month');
-  }
-
-  return results;
-}
-

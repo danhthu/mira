@@ -1,104 +1,146 @@
-import { useText as useCommonText } from '../../../lang';
+/**
+ * Toàn bộ chuỗi hiển thị của module Thói quen.
+ *
+ * Giọng theo `docs/00-vision.md`: sentence case, không "nên/phải/hãy", không dấu
+ * chấm than, không bao giờ nói người dùng làm chưa đủ. Bỏ một ngày là một sự
+ * thật trung tính, không phải thất bại — nên mọi câu ở đây chỉ mô tả trạng thái
+ * và luôn kèm được một hành động.
+ *
+ * Kiểu trả về là bảng chuỗi tường minh (không `any`) để chỗ gọi sai key thì hỏng
+ * lúc biên dịch chứ không im lặng ra `undefined` rồi rơi vào chuỗi tiếng Anh dự
+ * phòng — đó là cách các câu Batify cũ sống sót qua nhiều đợt dọn.
+ */
 
-export const useText = () => {
-  const text = useCommonText();
-  return {
-    Name: 'Tên',
-    Description: 'Mô tả',
-    DoDate: 'Ngày bắt đầu',
-    EndDate: 'Ngày kết thúc',
-    IsMandatory: 'Bắt buộc',
-    Estimated: 'Dự kiến',
-    Reminder: 'Nhắc',
+export type HabitTextKey =
+  | 'screen_home'
+  | 'screen_statistic'
+  | 'screen_add'
+  | 'screen_edit'
+  | 'screen_detail'
+  | 'today'
+  | 'save'
+  | 'add'
+  | 'edit'
+  | 'delete'
+  | 'cancel'
+  | 'keep_history'
+  | 'drop_history'
+  | 'delete_question'
+  | 'habit_name'
+  | 'end_date'
+  | 'note'
+  | 'add_own'
+  | 'add_own_hint'
+  | 'pick_one'
+  | 'tab_suggested'
+  | 'tab_all'
+  | 'tab_week'
+  | 'tab_overall'
+  | 'week_of'
+  | 'marked_today'
+  | 'marked_none_today'
+  | 'total_marked'
+  | 'total_days'
+  | 'days_this_month'
+  | 'volume_this_month'
+  | 'volume_total'
+  | 'volume_daily'
+  | 'month_view'
+  | 'record_view'
+  | 'select_habit'
+  | 'empty_habit'
+  | 'empty_habit_action'
+  | 'empty_week'
+  | 'empty_week_action'
+  | 'empty_overall'
+  | 'empty_overall_action'
+  | 'empty_record'
+  | 'empty_template'
+  | 'future_day'
+  | 'unit_day'
+  | 'unit_time'
+  | 'repeat_daily'
+  | 'repeat_weekly'
+  | 'repeat_monthly'
+  | 'no_repeat'
+  | 'mon'
+  | 'tue'
+  | 'wed'
+  | 'thu'
+  | 'fri'
+  | 'sat'
+  | 'sun';
 
-    mn_home: 'Tổng quan',
-    mn_listwork: 'Danh sách thói quen',
-    mn_schedule: 'Lịch',
-    mn_settings: 'Thiết lập',
-    mn_statistic: 'Thống kê',
+const vi: Record<HabitTextKey, string> = {
+  screen_home: 'Thói quen',
+  screen_statistic: 'Nhìn lại',
+  screen_add: 'Thêm thói quen',
+  screen_edit: 'Sửa thói quen',
+  screen_detail: 'Chi tiết',
 
-    add_habit: 'Thêm thói quen',
-    Add_my_own: 'Tự thêm',
-    add_my_own: 'Tự thêm',
-    click_create_to_add_a_custom_habit: 'Nhấn "tạo" để thêm một thói quen của riêng bạn',
-    Popular_collections: 'Bộ sưu tập phổ biến',
-    popular: 'Phổ biến',
-    pick_a_new_one: 'Chọn một cái mới',
-    No_results: 'Không có kết quả',
-    Monitor_that_you_have_unsaved_changes: 'Còn thay đổi chưa lưu',
+  today: 'Hôm nay',
+  save: 'Lưu',
+  add: 'Thêm',
+  edit: 'Sửa',
+  delete: 'Xoá thói quen này',
+  cancel: 'Bỏ qua',
+  keep_history: 'Xoá, giữ lại lịch sử',
+  drop_history: 'Xoá cả lịch sử',
+  delete_question: 'Bạn muốn giữ lại lịch sử đã ghi của thói quen này chứ',
 
-    All: 'Tất cả',
-    all: 'Tất cả',
-    Today: 'Hôm nay',
-    Weekly: 'Hàng tuần',
-    Statistic: 'Thống kê',
-    Summary: 'Tóm tắt:',
-    summary: 'Tóm tắt:',
-    overall: 'Tổng thể',
-    successRate: 'Tỷ lệ hoàn thành',
-    totalDaysDone: 'Số ngày đã làm',
-    totalDone: 'Tổng đã làm',
-    perfectDays: 'Ngày làm đủ',
-    completedHabits: 'Thói quen đã xong',
-    deleted: 'Đã xóa',
-    done: 'Xong',
-    edit: 'Sửa',
-    save: 'Lưu',
-    chinhsua: 'Chỉnh sửa',
-    chon: 'Chọn thói quen',
-    ghichu: 'Ghi chú',
-    lienket: 'Liên kết',
-    LinkActionSheet: 'Chọn liên kết',
-    LinkActionSheetCancel: 'Hủy',
-    LinkActionTypeHabit: 'Liên kết thói quen',
-    LinkActionTypeWork: 'Liên kết công việc',
-    batdau: 'Chọn thời gian kết thúc',
+  habit_name: 'Tên thói quen',
+  end_date: 'Ngày kết thúc',
+  note: 'Ghi chú',
 
-    // Câu ghép ở ScoreComponent: {your} {daily_habits} {are} {habits_are_completed}
-    // hoặc {your} {daily_habits} {are_not_completed}. Bản cũ nói "are not
-    // completed" kèm màu đỏ — đúng thứ ràng buộc #3 cấm. Bản này chỉ mô tả trạng
-    // thái, không kèm phán xét.
-    your: 'Thói quen',
-    daily_habits: 'hàng ngày',
-    are: 'đã',
-    habits_are_completed: 'xong.',
-    are_not_completed: 'còn đang mở.',
-    completed: 'Đã xong',
+  add_own: 'Tự đặt một thói quen',
+  add_own_hint: 'Chạm dấu cộng để thêm ngay, sửa lại sau cũng được',
+  pick_one: 'Chọn một thói quen',
+  tab_suggested: 'Gợi ý',
+  tab_all: 'Tất cả',
 
-    // Một key dùng cho cả trường hợp tăng và giảm (lỗi có sẵn của Batify), nên
-    // câu phải đọc xuôi ở cả hai chiều.
-    your_habits_score_dropped: 'Thói quen hôm nay chênh',
-    compared_to_yesterday: 'so với hôm qua.',
+  tab_week: 'Tuần này',
+  tab_overall: 'Tổng thể',
+  week_of: 'Tuần',
 
-    Ohno: 'Ghi nhận',
-    error_completed_habit: 'Thói quen của hôm nay đang ở đây',
+  marked_today: 'đã ghi hôm nay',
+  marked_none_today: 'chưa ghi gì hôm nay',
+  total_marked: 'Lần đã ghi',
+  total_days: 'Số ngày có ghi',
+  days_this_month: 'Ngày có ghi trong tháng',
+  volume_this_month: 'Khối lượng trong tháng',
+  volume_total: 'Khối lượng cộng dồn',
+  volume_daily: 'Trung bình mỗi ngày',
 
-    no_habit: 'Chưa có thói quen nào.',
-    no_habit_callaction: 'Nhấn dấu cộng để thêm thói quen đầu tiên.',
-    no_habit_tracker: 'Chưa có dữ liệu cho khoảng thời gian này.',
-    no_habit_statistic: 'Chưa đủ dữ liệu để vẽ thống kê. Đánh dấu vài ngày rồi quay lại đây.',
+  month_view: 'Theo tháng',
+  record_view: 'Số liệu',
+  select_habit: 'Chọn thói quen',
 
-    // Trục ngày của biểu đồ chỉ đủ chỗ cho một ký tự. Bản cũ dùng M T W T F S S
-    // nên hai cặp trùng key; ở đây mỗi thứ một key riêng.
-    d_mon: '2',
-    d_tue: '3',
-    d_wed: '4',
-    d_thu: '5',
-    d_fri: '6',
-    d_sat: '7',
-    d_sun: 'C',
+  empty_habit: 'Chưa có thói quen nào ở đây',
+  empty_habit_action: 'Thêm thói quen đầu tiên',
+  empty_week: 'Tuần này chưa có thói quen nào để nhìn lại',
+  empty_week_action: 'Thêm một thói quen',
+  empty_overall: 'Chưa có ngày nào được ghi',
+  empty_overall_action: 'Về danh sách thói quen',
+  empty_record: 'Chưa có số liệu cho khoảng thời gian này',
+  empty_template: 'Chưa có gợi ý nào ở nhóm này',
 
-    Mon: 'T2',
-    Tue: 'T3',
-    Web: 'T4',
-    Thu: 'T5',
-    Fri: 'T6',
-    Sat: 'T7',
-    Sun: 'CN',
+  future_day: 'Ngày này chưa tới, bạn ghi lại sau nhé',
 
-    for: text.for,
-    translate: text.translate,
-  } as {
-    [Key: string]: any;
-  };
+  unit_day: 'ngày',
+  unit_time: 'lần',
+
+  repeat_daily: 'Mỗi ngày',
+  repeat_weekly: 'ngày mỗi tuần',
+  repeat_monthly: 'ngày mỗi tháng',
+  no_repeat: 'Không lặp lại',
+
+  mon: 'T2',
+  tue: 'T3',
+  wed: 'T4',
+  thu: 'T5',
+  fri: 'T6',
+  sat: 'T7',
+  sun: 'CN',
 };
+
+export const useText = (): Record<HabitTextKey, string> => vi;
