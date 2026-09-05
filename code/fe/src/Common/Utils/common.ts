@@ -1,7 +1,10 @@
 import moment from 'moment';
 import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
-export const uuid = () => uuidv4();
+import { uuidv7 } from './uuidv7';
+
+// Đổi v4 -> v7 ngày 2026-09-05 theo hợp đồng đồng bộ: id do client sinh phải sắp
+// được theo thời gian. Id v4 đã lưu từ trước vẫn là chuỗi hợp lệ, server nhận TEXT.
+export const uuid = () => uuidv7();
 export const getDateFormat = (date: number) => {
   return new Date(date).toISOString();
 };

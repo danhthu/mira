@@ -103,13 +103,34 @@ done
 [ "$cycles" -eq 0 ] && echo "  sạch"
 
 echo ""
-echo "== 5. code/be: luật tầng (giữ nguyên, be không bị đụng trong đợt reset) =="
-be_bad=$(grep -rnE "from ['\"](\.\./)*(entities|database)/" code/be/src/shared 2>/dev/null || true)
-if [ -n "$be_bad" ]; then
-  echo "$be_bad"
-  count=$(echo "$be_bad" | wc -l)
-  violations=$((violations + count))
-  echo "  -> $count vi phạm"
+echo "== 5. code/be: luật tầng (thêm tầng http/ ngày 2026-09-05) =="
+# Thứ tự tầng: shared <- entities <- database <- http. Mũi tên chỉ được đi xuống.
+# http/ là tầng ngoài cùng: nó gọi shared/ và database/, không ai được gọi ngược lên nó.
+# Hai ngoại lệ import type (entities -> shared/types/enums, database -> entities)
+# đã ghi trong code/CLAUDE.md nên không nằm trong các mẫu soi bên dưới.
+be_total=0
+soi_be_layer() {
+  local layer="$1"
+  local forbidden="$2"
+  local dir="code/be/src/$layer"
+  [ -d "$dir" ] || return 0
+  local hits
+  hits=$(grep -rnE "from ['\"](\.\./)*($forbidden)/" "$dir" 2>/dev/null || true)
+  if [ -n "$hits" ]; then
+    echo "$hits"
+    local count
+    count=$(echo "$hits" | wc -l)
+    be_total=$((be_total + count))
+    echo "  $layer -> $count vi phạm (cấm import: $forbidden)"
+  fi
+}
+
+soi_be_layer "shared" "entities|database|http"
+soi_be_layer "entities" "database|http"
+soi_be_layer "database" "http"
+
+if [ "$be_total" -gt 0 ]; then
+  violations=$((violations + be_total))
 else
   echo "  sạch"
 fi

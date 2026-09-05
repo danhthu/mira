@@ -1,20 +1,51 @@
 import { copyJson } from '../../../libs/jsonUtils';
 import { base } from '../Entities/base';
 import { AsyncStorageProvider } from './AsyncStorageProvider';
+import { emitLocalChange } from './ChangeSink';
 import { DbProvider } from './DbProvider';
 
 
 
 
-let DefaultDbProvider = new AsyncStorageProvider();
+let DefaultDbProvider: DbProvider = new AsyncStorageProvider();
 
 export function SetDefaultDbProvider(provider: DbProvider) {
   DefaultDbProvider = provider;
 }
 
+/** Tầng đồng bộ dùng chung đúng kho lưu trữ với dữ liệu nghiệp vụ. */
+export function getDefaultDbProvider(): DbProvider {
+  return DefaultDbProvider;
+}
+
+/** Cột sổ sách của `base`, không thuộc dữ liệu nghiệp vụ nên không gửi lên server. */
+const BOOKKEEPING_FIELDS = new Set<string>([
+  'id',
+  'created_date',
+  'created_by',
+  'modified_date',
+  'modified_by',
+  'deleted',
+  'deleted_date',
+]);
+
+function businessData<TEnty extends base>(entity: TEnty): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  Object.keys(entity).forEach((key) => {
+    if (!BOOKKEEPING_FIELDS.has(key)) {
+      out[key] = (entity as unknown as Record<string, unknown>)[key];
+    }
+  });
+  return out;
+}
+
 export class Repository<TEnty extends base> {
   private name: string;
   protected _data?: Array<TEnty>;
+  /** Id đã đổi kể từ lần `save()` trước, gom lại để một lần ghi chỉ vào hàng đợi một lần. */
+  private _dirtyIds = new Set<string>();
+  /** Bản ghi bị xoá cứng khỏi mảng — phải giữ lại bản sao để còn gửi bia mộ lên server. */
+  private _tombstones = new Map<string, TEnty>();
   constructor(x: string) {
     this.name = x;
     this._init();
@@ -50,7 +81,52 @@ export class Repository<TEnty extends base> {
   }
   public async empty() {
     this._data = [];
+    // Cố ý không sinh bia mộ: `empty()` là xoá sạch kho cục bộ (cài lại app, chạy
+    // Setup/clean, dựng lại dữ liệu mẫu), không phải người dùng xoá bản ghi. Nếu
+    // đẩy bia mộ lên thì mỗi lần cài lại app sẽ xoá luôn dữ liệu trên server.
+    this._dirtyIds.clear();
+    this._tombstones.clear();
     await this.save();
+  }
+
+  private markDirty(entity: TEnty | undefined) {
+    if (entity && entity.id) this._dirtyIds.add(entity.id);
+  }
+
+  /**
+   * Đẩy các thay đổi vừa ghi sang tầng đồng bộ. Gọi đồng bộ và không await:
+   * ghi cục bộ không bao giờ chờ mạng, và lỗi bên hàng đợi không được làm hỏng
+   * thao tác ghi đã thành công.
+   */
+  private flushLocalChanges() {
+    if (this._dirtyIds.size === 0 && this._tombstones.size === 0) return;
+
+    const rows = this._data || [];
+    this._dirtyIds.forEach((id) => {
+      const entity = rows.filter((e) => e.id === id)[0];
+      if (!entity) return;
+      emitLocalChange({
+        table: this.name,
+        id,
+        updatedAt: entity.modified_date || entity.created_date || Date.now(),
+        deletedAt: entity.deleted
+          ? entity.deleted_date || entity.modified_date || Date.now()
+          : null,
+        data: businessData(entity),
+      });
+    });
+    this._dirtyIds.clear();
+
+    this._tombstones.forEach((entity, id) => {
+      emitLocalChange({
+        table: this.name,
+        id,
+        updatedAt: Date.now(),
+        deletedAt: entity.deleted_date || Date.now(),
+        data: businessData(entity),
+      });
+    });
+    this._tombstones.clear();
   }
   protected convert(json: TEnty): TEnty {
     return json;
@@ -91,6 +167,7 @@ export class Repository<TEnty extends base> {
         (validatorResult.length > 1 ? validatorResult[1] : ''),
       );
     }
+    this.markDirty(entity);
     return this._data.push(entity);
   }
   public async adds(entities: TEnty[]) {
@@ -104,6 +181,7 @@ export class Repository<TEnty extends base> {
         validatorResult.map((v) => (v.length > 1 ? v[1] : '')).join(';'),
       );
     }
+    entities.forEach((e) => this.markDirty(e));
     return this._data.push(...entities);
   }
 
@@ -137,6 +215,13 @@ export class Repository<TEnty extends base> {
     await this._init();
     const index = this._data.indexOf(entity);
     if (index > -1) {
+      // Kho cục bộ xoá cứng, nhưng hợp đồng đồng bộ đòi xoá mềm — giữ lại bản sao
+      // để `flushLocalChanges` còn gửi được bia mộ (`deletedAt`) lên server.
+      if (entity.id) {
+        entity.deleted_date = entity.deleted_date || new Date().getTime();
+        this._tombstones.set(entity.id, entity);
+        this._dirtyIds.delete(entity.id);
+      }
       // only splice array when item is found
       this._data.splice(index, 1); // 2nd parameter means remove one item only
     }
@@ -156,6 +241,7 @@ export class Repository<TEnty extends base> {
       old.forEach((o) => {
         updated(o);
         o.modified_date = new Date().getTime();
+        this.markDirty(o);
       });
     }
 
@@ -165,6 +251,7 @@ export class Repository<TEnty extends base> {
     data.forEach((d) => {
       const old = this._data.filter((h) => h.id == d.id)[0];
       copyJson(d, old);
+      this.markDirty(old);
     });
     await this.save();
   }
@@ -173,7 +260,11 @@ export class Repository<TEnty extends base> {
     updated: (arg: TEnty) => void,
   ) {
     const old = await this.filter(exp);
-    old.forEach((s) => updated(s));
+    old.forEach((s) => {
+      updated(s);
+      s.modified_date = new Date().getTime();
+      this.markDirty(s);
+    });
     ///updated(old)
     await this.save();
   }
@@ -181,6 +272,7 @@ export class Repository<TEnty extends base> {
   public async save(noFireEvent?: boolean) {
     await this._init();
     await DefaultDbProvider.setItem(this.name, JSON.stringify(this._data));
+    this.flushLocalChanges();
     if (!noFireEvent) {
       this._events.map((h) => h());
     }

@@ -6,7 +6,7 @@ Trạng thái: ⬜ chưa làm · 🟨 đang làm · ✅ xong.
 
 ## Quyết định đã chốt (không hỏi lại)
 
-- **Không sync FE↔BE ở V1.** Ràng buộc cứng #5 "local-first, không gửi gì lên server ở V1" đã có sẵn trong `code/CLAUDE.md` từ trước đợt reset — Batify hiện dùng `AsyncStorage` cục bộ, đúng hướng, không cần nối `code/be`. `code/be` tiếp tục xây song song, không chặn V1 (quyết định cũ, xem `PROJECT.yaml` → `ghi_chu_quyet_dinh`).
+- ~~**Không sync FE↔BE ở V1.**~~ **Đảo ngược 2026-09-05.** Ràng buộc cứng #5 đổi thành "offline-first, sync tuỳ chọn" — xem `PROJECT.yaml` → `ghi_chu_quyet_dinh` và `docs/09-sync-contract.md`. `code/be` từ ngoài phạm vi thành phần của V1: thêm tầng HTTP (Hono) + endpoint đồng bộ, chạy trên Postgres 18 local (`mira_dev`, đã có đủ 13 bảng). Xem nhóm F bên dưới.
 - **Offline mode**: app vốn đã offline-first vì mọi dữ liệu qua `AsyncStorage`, không gọi API nghiệp vụ nào. Việc cần làm là đảm bảo hai chỗ gọi mạng hiện có (Sentry, `expo-updates` OTA check) không làm app treo/lỗi khi mất mạng — không phải xây offline mode từ đầu.
 - **PWA**: `npm run web:build` đã chạy được, sinh `manifest.webmanifest` + `sw.js` + icon 192/512 (xác nhận 2026-08-27). Việc còn lại là xác nhận phục vụ qua tunnel không lỗi, không phải xây lại.
 - **Sentry**: tắt hẳn cho V1 (không phải xoá code — comment lại, giải thích lý do, dễ bật lại khi cần).
@@ -48,6 +48,30 @@ Trạng thái: ⬜ chưa làm · 🟨 đang làm · ✅ xong.
 |---|---|---|
 | E1 | Chạy `tsc`/`jest`/build web lần cuối, cập nhật `code/CLAUDE.md` mục nợ kỹ thuật | ✅ |
 | E2 | Viết tài liệu giới thiệu tổng kết cho chủ dự án xem lại | ✅ |
+
+## F · Đồng bộ offline-first (mở 2026-09-05)
+
+Hợp đồng: [`docs/09-sync-contract.md`](docs/09-sync-contract.md). Hai phía làm song song theo cùng một hợp đồng.
+
+| Mã | Việc | Trạng thái |
+|---|---|---|
+| F1 | BE: tầng HTTP Hono + `GET /health` | ✅ |
+| F2 | BE: `SyncRepository` tổng quát cho 13 bảng (không viết 13 repository riêng) | ✅ |
+| F3 | BE: `POST /sync/push` — upsert theo `updatedAt`, transaction cả batch, idempotent | ✅ |
+| F4 | BE: `GET /sync/pull` — watermark, trả cả bản xoá mềm, phân trang | ✅ |
+| F5 | FE: hàng đợi gửi đi (outbox) móc vào `Repo.ts`, ghi cục bộ không chờ mạng | ✅ |
+| F6 | FE: vòng sync push→pull, backoff, chạy khi mở app/foreground/sau ghi | ✅ |
+| F7 | FE: công tắc bật/tắt + trạng thái đồng bộ (không màu đỏ) | ✅ |
+| F8 | Kiểm chứng đầu-cuối FE↔BE với Postgres thật | ✅ |
+| F9 | PWA: xác nhận offline thật trên Chrome (pane review chặn service worker) | ⬜ |
+
+**F8 — kết quả kiểm chứng 2026-09-05** (chạy tay, server BE thật + Postgres thật, 12/12 đạt): đẩy 2 bản ghi có khoá ngoại · máy thứ hai kéo về đủ · tiếng Việt có dấu không hỏng · số nguyên không thành chuỗi · boolean giữ kiểu · watermark không kéo lại bản đã có · sửa ở máy B thì máy A thấy · bia mộ lan sang máy kia kèm `deletedAt` · gửi lại không nhân đôi.
+
+**Nợ đã biết, không được quên:**
+- Định danh mới chỉ là header `X-User-Id`, **chưa phải xác thực thật** — bắt buộc thay trước khi mở ra ngoài localhost.
+- Phân trang pull thiếu tiebreaker `(updated_at, id)`: nếu số bản ghi trùng y hệt một `updatedAt` vượt `limit` thì hoặc mất bản ghi hoặc lặp vô hạn. BE đang vá bằng cách trả trọn nhóm cùng mốc (chấp nhận vượt `limit`) — đúng nhưng chưa phải lời giải sạch.
+- Mỗi vòng sync kéo về đúng thứ client vừa đẩy lên (server không loại trừ thay đổi của chính client). Vô hại vì LWW bỏ qua, nhưng tốn mạng.
+- `Common/Screens/Profile.tsx:185` điều hướng tới route `'SettingScreen'` trong khi `Container.tsx` đăng ký tên `'Setting'` — lỗi có sẵn, chưa sửa.
 
 ## Câu hỏi còn mở (không chặn V1, ghi lại để quyết sau)
 

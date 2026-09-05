@@ -12,6 +12,7 @@ import { clean as app_clean } from './AppSetup/clean'
 import { initialize as app_initialize } from './AppSetup/initialize'
 import { sample as app_sample } from './AppSetup/sample'
 import { useAsyncAction, useSettings } from './src/Common/Hooks'
+import { startSync } from './src/Common/Sync'
 
 if (typeof global !== 'undefined') {
   global.AsyncStorage = AsyncStorage
@@ -89,6 +90,9 @@ function App2() {
       await app_clean()
       await app_initialize()
       await app_sample()
+      // Sau khi kho cục bộ dựng xong. Không await lỗi mạng ở đây: `startSync` chỉ
+      // cắm móc và hẹn vòng đầu, màn hình không chờ nó.
+      await startSync()
       return true
     },
     [],

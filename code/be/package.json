@@ -4,14 +4,19 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
     "test": "vitest run",
     "migrate": "ts-node src/database/migrations/runner.ts",
     "seed": "ts-node src/database/seeds/runner.ts"
   },
   "dependencies": {
+    "@hono/node-server": "^2.1.1",
     "dotenv": "^16.4.5",
+    "hono": "^4.13.7",
     "pg": "^8.13.0",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.2",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

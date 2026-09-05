@@ -156,7 +156,7 @@ Mỗi feature folder **phải có** `HANDOFF.md` với format:
 2. **Giờ vàng không có giá**: tỷ giá đời chỉ áp cho chi tiêu và công việc. Tuyệt đối không quy đổi thời gian với con/bố mẹ/bạn đời ra tiền.
 3. **Không streak, không badge, không thông báo gây tội lỗi.** Không dùng màu đỏ để báo người dùng làm chưa đủ.
 4. **Đồng hồ cát mặc định TẮT.** Chỉ bật khi người dùng chủ động chọn. Khi hiển thị, luôn kèm một hành động cụ thể.
-5. **Local-first.** Dữ liệu nằm trên máy. Không gửi gì lên server ở V1.
+5. **Offline-first, sync tuỳ chọn** (sửa 2026-09-05, thay cho "local-first, không gửi gì lên server ở V1"). Mọi thao tác ghi vào máy trước và **không bao giờ chờ mạng**. Đồng bộ lên server là lớp phụ chạy nền, tắt được, và app phải dùng đủ tính năng khi tắt. Không tính năng nào được đòi online mới chạy. Dữ liệu vẫn không bán/chia sẻ cho bên thứ ba. Hợp đồng đồng bộ: [`../docs/09-sync-contract.md`](../docs/09-sync-contract.md).
 6. **Không kết nối API ngân hàng.** Chi tiêu lấy từ SMS/notification, người dùng xác nhận 1 chạm.
 
 ---
