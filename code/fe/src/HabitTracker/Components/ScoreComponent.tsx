@@ -14,7 +14,7 @@ export const ScoreComponent = ({ score = 0, isCompleted = false, habits = [] }: 
             <CircleSegmentsWithBorders strokeWidth={40} elemCenter={<View style={[{ width: 170, alignItems: 'center' }]}><View><Text style={{ fontSize: 50, fontWeight: 'bold', textAlign: 'center' }} >{score}</Text></View>
                 <View>
                     {!isCompleted && (<Text style={{ textAlign: 'center', fontSize: FONTSIZE.SMALL }}>{text.your || 'Your'} <Text style={{ fontWeight: 'bold' }}>{text.daily_habits || 'daily habits'}</Text> {text.are_not_completed || 'are not completed.'}</Text>)}
-                    {isCompleted && (<Text style={{ textAlign: 'center', fontSize: FONTSIZE.SMALL }}>{text.your || 'Your'} <Text style={{ fontWeight: 'bold' }}>{text.daily_habits || 'daily habits'}</Text> {text.are || 'are'} <Text style={{ color: 'green' }}>{text.completed || 'completed.'}</Text></Text>)}
+                    {isCompleted && (<Text style={{ textAlign: 'center', fontSize: FONTSIZE.SMALL }}>{text.your || 'Your'} <Text style={{ fontWeight: 'bold' }}>{text.daily_habits || 'daily habits'}</Text> {text.are || 'are'} <Text style={{ color: 'green' }}>{text.habits_are_completed || 'xong.'}</Text></Text>)}
                 </View></View>} gapAngle={12} radius={120} items={habits?.map(h => ({
                     size: h.score || 20,
                     elem: <B.ImageFor

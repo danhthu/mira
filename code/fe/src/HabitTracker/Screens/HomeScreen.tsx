@@ -260,7 +260,7 @@ const Body = (props: {
                 color: colors.error,
               }}
             >
-              {text.no_habit || 'Oh no, bạn chưa thiết lập thói quen.'}
+              {text.no_habit || 'Chưa có thói quen nào.'}
             </Text>
             <Link
               onPress={() => {
@@ -269,7 +269,7 @@ const Body = (props: {
               style={{ flex: 1, textAlign: 'center' }}
             >
               {text.no_habit_callaction ||
-                "Mỗi thói quen nhỏ bạn tạo hôm nay sẽ là bước tiến lớn trong tương lai. Nhấn '+' Bắt đầu ngay nào!"}
+                'Nhấn dấu cộng để thêm thói quen đầu tiên.'}
             </Link>
           </Cel>
         </Row>

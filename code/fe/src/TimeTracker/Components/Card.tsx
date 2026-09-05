@@ -36,7 +36,7 @@ const TimeTask = () => {
       <View style={style.caption_container}>
         <View style={style.caption_iconContainer}>
           <B.ICon name="clockcircleo" style={[style.caption_icon]} />
-          <Text style={style.caption_title}>{text.time || 'Time'}</Text>
+          <Text style={style.caption_title}>{text.card_time || 'Thời gian'}</Text>
         </View></View>
       <View style={[style.body_container]}>
         <View style={{ flexDirection: 'row' }}>

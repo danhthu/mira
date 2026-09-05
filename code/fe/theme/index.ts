@@ -3,6 +3,18 @@ import { configStore } from '../store/configStore';
 import { AppStyle } from './AppStyle';
 import { DarkTheme } from './DarkTheme';
 import { LightTheme } from './LightTheme';
+import {
+  ColorRole,
+  ColorTokens,
+  darkColors,
+  fontFamilyWeb,
+  fontSize,
+  fontWeight,
+  lightColors,
+  lineHeight,
+  radius,
+  space,
+} from './Tokens';
 export const getTheme = (name: string): typeof AppStyle => {
   return name.toLowerCase() == 'dark' ? DarkTheme : LightTheme;
 };
@@ -19,4 +31,17 @@ export const setTheme = (name: string) => {
 
 
 
+export const useColorToken = (): ColorTokens => useTheme().token;
+
 export { AppStyle };
+export type { ColorRole, ColorTokens };
+export {
+  darkColors,
+  fontFamilyWeb,
+  fontSize,
+  fontWeight,
+  lightColors,
+  lineHeight,
+  radius,
+  space,
+};

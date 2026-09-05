@@ -5,6 +5,8 @@
 // cho mỗi union type, thay vì định nghĩa trùng ở cả entity lẫn DTO.
 export type PersonRole = 'child' | 'parent' | 'partner' | 'friend' | 'self' | 'other';
 export type DunbarRing = 5 | 15 | 50;
-export type TimeBucket = 'work' | 'health' | 'people' | 'learn' | 'rest' | 'self';
+// 'waste' thêm 2026-09-05: mô hình ba nhóm của `08-three-pillars.md` cần nhóm LÃNG PHÍ,
+// mà sáu khoang gốc trong `02-data-model.md` không khoang nào ánh xạ được.
+export type TimeBucket = 'work' | 'health' | 'people' | 'learn' | 'rest' | 'self' | 'waste';
 export type TimeEntrySource = 'manual' | 'calendar' | 'widget';
 export type MediaType = 'photo' | 'audio';

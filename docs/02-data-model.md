@@ -20,7 +20,7 @@ desiredCadence (số lần/tháng mong muốn) · hourglassEnabled (bool, defaul
 ### timeEntry
 Một khoảng thời gian đã dùng.
 ```
-id · date · minutes · bucket (work|health|people|learn|rest|self)
+id · date · minutes · bucket (work|health|people|learn|rest|self|waste)
 personId? (null nếu không với ai) · note? · source (manual|calendar|widget)
 ```
 
@@ -32,8 +32,12 @@ id · weekStart · workMinutes · commuteMinutes · prepMinutes · recoveryMinut
 
 ### money
 Ảnh chụp tài chính. Một bản ghi mỗi tháng.
+
+> `savings` (tiết kiệm + đầu tư/tháng) thêm 2026-09-05: `08-three-pillars.md §Trụ 2` cần 5 ô nhập, bản đầu của file này chỉ khai 4. `savings` là số trừ cuối cùng của công thức bốc hơi — thiếu nó thì bốc hơi, phát hiện quan trọng nhất của trụ Tài chính, không tính được. Đã thêm vào cả FE, BE (`003_savings_and_waste.sql`) và registry đồng bộ.
+>
+> `time_entry.bucket` cùng ngày thêm khoang `waste`: mô hình ba nhóm của `08` cần nhóm LÃNG PHÍ mà sáu khoang gốc không khoang nào ánh xạ được, và công thức "giờ cần thiết = tỉnh − lãng phí − ý nghĩa" hỏng nếu thiếu.
 ```
-id · month (YYYY-MM) · netIncome · monthlyExpense · netWorth · debt
+id · month (YYYY-MM) · netIncome · monthlyExpense · netWorth · debt · savings
 ```
 
 ### expense

@@ -557,7 +557,7 @@ const NormalSection = (props: { day: Date }) => {
                 backgroundColor: '#fff3cd'
               }]}>
                 <B.ICon name='infocirlce' style={{ color: '#664d03', marginRight: 10, fontSize: 20 }}></B.ICon>
-                <Text style={{ color: '#664d03', marginRight: 16 }}>{text.no_work || 'Oh no, chưa lên lịch cho hôm nay, nhấn [+] để bắt đầu một ngày mới'}</Text>
+                <Text style={{ color: '#664d03', marginRight: 16 }}>{text.no_work_today || 'Hôm nay chưa có việc nào. Nhấn dấu cộng để thêm việc đầu tiên.'}</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -602,7 +602,7 @@ const NormalSection = (props: { day: Date }) => {
                 backgroundColor: '#fff3cd'
               }]}>
                 <B.ICon name='infocirlce' style={{ color: '#664d03', marginRight: 10, fontSize: 20 }}></B.ICon>
-                <Text style={{ color: '#664d03', marginRight: 16 }}>{text.no_work || 'Oh no, chọn ít nhất 1 việc bắt buộc trong ngày'}</Text>
+                <Text style={{ color: '#664d03', marginRight: 16 }}>{text.no_work_mandatory || 'Chưa có việc nào được đánh dấu bắt buộc. Chạm vào một việc để đánh dấu.'}</Text>
               </View>
             </TouchableOpacity>
           )}

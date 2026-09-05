@@ -70,7 +70,7 @@ const Header = (props: { style?: StyleProp<ViewStyle> }) => {
           textAlign: 'center'
         }}
       >
-        {text.title || 'Your Goals'}
+        {text.title || 'Mục tiêu của bạn'}
       </Text>
       <TouchableOpacity
         style={[
@@ -98,7 +98,7 @@ const Header = (props: { style?: StyleProp<ViewStyle> }) => {
 const Tips = (props: { style?: StyleProp<ViewStyle> }) => {
 
   const text = useText();
-  const tip = text.add_tips || 'Mục tiêu là một cơ hội tuyệt vời để bạn để bứt phá giới hạn của mình';
+  const tip = text.add_tips || 'Mục tiêu là điều bạn muốn tới, viết ra để lần sau còn nhớ mình đang đi đâu.';
   return <View>
     <Text>{tip}</Text>
   </View>;
@@ -145,7 +145,7 @@ const EmptyData = () => {
       >
         <BText style={{ textAlign: 'center' }}>
           {text.empty_row ||
-            'Chưa có thử thách nào ở đây! Nhấn \'+\' để tạo ngay thử thách cho bản thân, bắt đầu hành trình chinh phục mục tiêu mới nào.'}
+            'Chưa có mục tiêu nào. Nhấn dấu cộng để viết ra mục tiêu đầu tiên.'}
         </BText>
       </TouchableOpacity>
     </View>

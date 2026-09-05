@@ -136,6 +136,39 @@ else
 fi
 
 echo ""
+echo "== 6. code/fe/src/Core: hàm thuần, tầng đáy =="
+# Core nằm DƯỚI Common: chỉ nhận số vào, trả số ra. Không React (không render được),
+# không Repositories (không chạm lưu trữ), không feature (không biết ai gọi mình).
+# Nhờ vậy công thức của docs/08-three-pillars.md test được mà không cần dựng app.
+CORE="$FE/Core"
+fail_if_missing "$CORE"
+
+core_total=0
+soi_core() {
+  local label="$1"
+  local pattern="$2"
+  local hits
+  hits=$(grep -rnE "$pattern" "$CORE" 2>/dev/null || true)
+  if [ -n "$hits" ]; then
+    echo "$hits"
+    local count
+    count=$(echo "$hits" | wc -l)
+    core_total=$((core_total + count))
+    echo "  Core -> $count vi phạm ($label)"
+  fi
+}
+
+soi_core "cấm import React / react-native" "from ['\"]react(-native|-dom)?(/[a-zA-Z/.-]*)?['\"]"
+soi_core "cấm import Repositories / Sync" "from ['\"](\.\./)*(Repositories|Sync|Common)[a-zA-Z/.]*['\"]"
+soi_core "cấm import feature" "from ['\"](\.\./)+($FEATURE_RE)[a-zA-Z/.]*['\"]"
+
+if [ "$core_total" -gt 0 ]; then
+  violations=$((violations + core_total))
+else
+  echo "  sạch"
+fi
+
+echo ""
 echo "== Tổng: $violations vi phạm =="
 if [ "$violations" -gt 0 ]; then
   echo "   Trong đó ~$will_vanish sẽ tự biến mất khi cắt module theo PLAN.md."

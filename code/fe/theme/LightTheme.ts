@@ -1,3 +1,4 @@
-import { AppStyle } from './AppStyle';
+import { buildAppStyle } from './AppStyle';
+import { lightColors } from './Tokens';
 
-export const LightTheme={ ...AppStyle };
+export const LightTheme = buildAppStyle(lightColors, 'light');

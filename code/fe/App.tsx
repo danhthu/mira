@@ -11,6 +11,7 @@ import { LogBox, Platform, Text, UIManager, View } from 'react-native'
 import { clean as app_clean } from './AppSetup/clean'
 import { initialize as app_initialize } from './AppSetup/initialize'
 import { sample as app_sample } from './AppSetup/sample'
+import { shouldSeedSampleData } from './AppSetup/sampleGate'
 import { useAsyncAction, useSettings } from './src/Common/Hooks'
 import { startSync } from './src/Common/Sync'
 
@@ -87,9 +88,16 @@ function App2() {
 
   const setup = useAsyncAction(
     async () => {
-      await app_clean()
+      // `app_initialize` chỉ điền chỗ còn trống nên chạy được mọi lần mở app.
       await app_initialize()
-      await app_sample()
+      // `app_clean` xoá sạch bảy module và `app_sample` ghi lại dữ liệu ngẫu nhiên.
+      // Trước đây cả hai chạy vô điều kiện ngay tại đây, nên mọi thứ người dùng nhập
+      // hôm nay biến mất khi mở app ngày mai. Giữ lại sau cổng của người phát triển
+      // vì dựng lại kho mẫu vẫn là việc cần khi làm giao diện.
+      if (shouldSeedSampleData()) {
+        await app_clean()
+        await app_sample()
+      }
       // Sau khi kho cục bộ dựng xong. Không await lỗi mạng ở đây: `startSync` chỉ
       // cắm móc và hẹn vòng đầu, màn hình không chờ nó.
       await startSync()

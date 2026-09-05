@@ -1,3 +1,5 @@
+import { lightColors } from './Tokens'
+
 export const MARGIN = {
   GROUP: 16,
   SCREEN: 16,
@@ -23,10 +25,13 @@ export const ROUND_SMALL = 6
 export const ROUND_PADDING_BIG = 30
 export const ROUND_PADDING_NORMAL = 17
 export const ROUND_PADDING_SMALL = 12
-export const GRAY_COLOR = '#eee'
-export const BLACK_COLOR = '#000'
-export const SECOND_BLACK_COLOR = '#6D6B6C'
-export const WHITE_COLOR = '#fff'
+// Bốn hằng này là màu tĩnh, không đổi theo sáng/tối — di sản Batify, còn ~30 màn
+// import trực tiếp. Giá trị lấy từ token bảng sáng để chỉ còn một nguồn màu; đưa
+// chúng theo được theme thì phải sửa từng màn, để đợt sau.
+export const GRAY_COLOR = lightColors.surfaceMuted
+export const BLACK_COLOR = lightColors.textPrimary
+export const SECOND_BLACK_COLOR = lightColors.textSecondary
+export const WHITE_COLOR = lightColors.surface
 export const BUTTON_HEIGHT = 40
 export const CAPTION_HEIGHT = 40
 

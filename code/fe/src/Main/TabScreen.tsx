@@ -11,19 +11,16 @@ import { SheetProvider } from 'react-native-actions-sheet';
 import {
   useSafeAreaInsets
 } from 'react-native-safe-area-context';
-import { BICon } from '../../libs/components';
-import { HabitApp } from '../HabitTracker';
-import * as WorkApp from '../Work';
 import CustomModal from './CustomModal';
 import { useText } from './Text';
 const Tab = createBottomTabNavigator();
-export const TabScreen = ({ navigation, route }) => {
+// Bốn tab cũ đều dẫn về Work hoặc HabitTracker — hai module bị cắt — và "Khám phá"
+// với "Công cụ" còn trỏ trùng vào chính màn của hai module đó. Chỉ còn "Hôm nay",
+// nên thanh tab tự ẩn (`tabBarStyle.display`) và không cần chọn tab đầu theo tham số.
+export const TabScreen = () => {
   const insets = useSafeAreaInsets();
-  console.log('tabscreen');
   const theme = useTheme();
   const text = useText();
-  const initialRouteName = route.params.screen || 'Tools';
-  console.log(initialRouteName);
   return (
     <View
       style={[{
@@ -45,7 +42,7 @@ export const TabScreen = ({ navigation, route }) => {
               tabBarActiveTintColor: theme.primary,
               tabBarInactiveTintColor: 'black',
             })}
-            initialRouteName={initialRouteName}
+            initialRouteName="HomeScreen"
           >
             <Tab.Screen
               name="HomeScreen"
@@ -64,55 +61,6 @@ export const TabScreen = ({ navigation, route }) => {
 
               }}
             />
-            <Tab.Screen
-              name="WorkApp"
-              component={WorkApp.Screens.Container}
-              options={{
-                headerShown: false,
-                tabBarLabel: text.app_work || 'Công việc',
-                tabBarIcon: ({ color, size }) => (
-                  <FontICon name="work-outline" color={color} size={size} />
-                ),
-              }}
-            />
-
-            <Tab.Screen
-              name="Discover"
-              component={WorkApp.Screens.Container}
-              options={{
-                headerShown: false,
-                tabBarLabel: text.app_discover || 'Khám phá',
-                tabBarIcon: ({ color, size }) => (
-                  <BICon name="search" color={color} size={size} />
-                ),
-              }}
-            />
-
-            <Tab.Screen
-              name="HabitApp"
-              component={HabitApp.Screens.Container}
-              options={{
-                headerShown: false,
-                tabBarLabel: text.app_habit || 'Thói quen',
-
-                tabBarIcon: ({ color, size }) => (
-                  <BICon name="self-improvement" color={color} size={size} />
-                ),
-              }}
-            />
-
-            <Tab.Screen
-              name="H"
-              component={HabitApp.Screens.Container}
-              options={{
-                headerShown: false,
-                tabBarLabel: text.app_tools || 'Công cụ',
-                tabBarIcon: ({ color, size }) => (
-                  <BICon name="grid-outline" color={color} size={size} />
-                ),
-              }}
-            />
-
           </Tab.Navigator>
         </SheetProvider>
       </BottomSheetModalProvider>

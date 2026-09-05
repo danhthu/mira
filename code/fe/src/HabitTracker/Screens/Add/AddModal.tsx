@@ -64,7 +64,7 @@ export const AddModal = ({ route, navigation }) => {
         ></BImageIConSet>
       </View>
       <View style={style.sectionContainer}>
-        <B.TextBox label={text.name || 'Name'}
+        <B.TextBox label={text.habit_name || 'Tên thói quen'}
           inputStyle={{ textAlign: 'center', }}
           viewStyle={{ borderBottomWidth: 0 }}
           value={data.name}

@@ -98,7 +98,7 @@ const Header = (props: { style?: StyleProp<ViewStyle> }) => {
 const Tips = (props: { style?: StyleProp<ViewStyle> }) => {
 
   const text = useText();
-  const tip = text.add_tips || 'Thử thách là một cơ hội tuyệt vời để bạn để bứt phá giới hạn của mình';
+  const tip = text.add_tips || 'Thử thách là một việc bạn tự đặt cho mình trong một quãng thời gian có hạn.';
   return <View>
     <Text>{tip}</Text>
   </View>;
@@ -145,7 +145,7 @@ const EmptyData = () => {
       >
         <BText style={{ textAlign: 'center' }}>
           {text.empty_row ||
-            'Chưa có thử thách nào ở đây! Nhấn \'+\' để tạo ngay thử thách cho bản thân, bắt đầu hành trình chinh phục mục tiêu mới nào.'}
+            'Chưa có thử thách nào. Nhấn dấu cộng để tạo thử thách đầu tiên.'}
         </BText>
       </TouchableOpacity>
     </View>

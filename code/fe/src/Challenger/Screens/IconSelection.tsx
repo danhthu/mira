@@ -89,7 +89,7 @@ const EmptyData = () => {
       </View>
       <BText>
         {text.empty_row ||
-          'Chưa có thử thách nào ở đây! Nhấn \'+\' để tạo ngay thử thách cho bản thân, bắt đầu hành trình chinh phục mục tiêu mới nào.'}
+          'Chưa có thử thách nào. Nhấn dấu cộng để tạo thử thách đầu tiên.'}
       </BText>
     </TouchableOpacity>
   );

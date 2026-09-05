@@ -21,7 +21,7 @@ const BUSINESS_COLUMNS: Readonly<Record<string, readonly string[]>> = {
     'prep_minutes',
     'recovery_minutes',
   ],
-  money: ['month', 'net_income', 'monthly_expense', 'net_worth', 'debt'],
+  money: ['month', 'net_income', 'monthly_expense', 'net_worth', 'debt', 'savings'],
   expense: ['occurred_at', 'amount', 'description', 'bucket', 'source_type', 'confirmed'],
   goal: [
     'tier',

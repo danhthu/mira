@@ -101,9 +101,9 @@ export const StatisticSelection = ({ route, navigation }) => {
             <Image source={require('../Assets/no_habit.png')} style={{ width: 50, height: 50, }} />
           </View>
           <Text style={{ flex: 1, textAlign: 'center' }}>
-            {text.no_habit || 'Oh no, không có thói quen nào được thiết lập.'}</Text>
+            {text.no_habit || 'Chưa có thói quen nào.'}</Text>
           <Text style={{ flex: 1, textAlign: 'center' }}>
-            {text.no_habit_callaction || 'Mỗi thói quen nhỏ bạn tạo hôm nay sẽ là bước tiến lớn trong tương lai. Tap \'+\' Bắt đầu ngay nào!.'}
+            {text.no_habit_callaction || 'Nhấn dấu cộng để thêm thói quen đầu tiên.'}
           </Text></Cel>
       </Row>}
     </Background>

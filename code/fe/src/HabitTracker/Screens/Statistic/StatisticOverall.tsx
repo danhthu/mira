@@ -168,13 +168,13 @@ const YearItem = (props: { habit: Habit; color: string }) => {
     })),
   );
   const days = [
-    text.M || 'M',
-    text.T || 'T',
-    text.W || 'W',
-    text.T || 'T',
-    text.F || 'F',
-    text.S || 'S',
-    text.S || 'S',
+    text.d_mon || '2',
+    text.d_tue || '3',
+    text.d_wed || '4',
+    text.d_thu || '5',
+    text.d_fri || '6',
+    text.d_sat || '7',
+    text.d_sun || 'C',
   ];
 
   const navigation = useNavigation<any>();

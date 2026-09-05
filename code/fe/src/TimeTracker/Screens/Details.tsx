@@ -44,7 +44,7 @@ const Header = ({ route, navigation }) => {
   return (
     <View>
       <View >
-        <Text style={{ lineHeight: HEADER_HEIGHT, textAlign: 'center', fontSize: FONT_SIZE.PageTitle }}>{text.add_title || 'Details Time Usage'}</Text>
+        <Text style={{ lineHeight: HEADER_HEIGHT, textAlign: 'center', fontSize: FONT_SIZE.PageTitle }}>{text.detail_title || 'Thời gian sử dụng'}</Text>
       </View>
       <TouchableOpacity
         style={[

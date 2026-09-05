@@ -1,151 +1,173 @@
+import { translate } from './dictionary';
 
+export const APP_NAME = 'Mira';
+
+/**
+ * Bảng chuỗi mặc định của app — tiếng Việt. `en.ts` là bản dịch ngược sang tiếng
+ * Anh, giữ lại vì cấu trúc đa ngôn ngữ đã có sẵn trong `configStore.lang`.
+ *
+ * Giọng theo `docs/00-vision.md`: sentence case, không dấu chấm than, không dùng
+ * "nên", "phải", "hãy", và không câu nào nói người dùng làm chưa đủ. Trạng thái
+ * rỗng luôn là một câu trung tính cộng một hành động cụ thể.
+ */
 export const textString = {
+  appName: APP_NAME,
+
   common: {
     daysOfWeek: [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+      'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy', 'Chủ nhật',
     ],
-    daysOfWeekShort: [
-      'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su',
-    ],
-    daysOfWeekShort3L: [
-      'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su',
-    ],
+    daysOfWeekShort: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+    daysOfWeekShort3L: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
     priority: {
-      high: 'High',
-      normal: 'Normal',
-      low: 'Low',
-      label: 'priority'
+      high: 'Cao',
+      normal: 'Vừa',
+      low: 'Thấp',
+      label: 'mức ưu tiên',
     },
-    work: 'Work',
-    doing: 'doing',
-    status: 'Status',
-    statusText: ['notgood', 'good'],
-    habit: 'Habit',
-    challenge: 'challenge',
-    save: 'Save',
-    edit: 'Edit',
-    description: 'description',
-    color: 'color',
-    repeat: 'repeat',
-    reminder: 'reminder',
-    tool: 'tools',
-    newHabit: 'newHabit',
+    work: 'Công việc',
+    doing: 'đang làm',
+    status: 'Trạng thái',
+    statusText: ['chưa xong', 'xong'],
+    habit: 'Thói quen',
+    challenge: 'thử thách',
+    save: 'Lưu',
+    edit: 'Sửa',
+    description: 'mô tả',
+    color: 'màu',
+    repeat: 'lặp lại',
+    reminder: 'nhắc',
+    tool: 'công cụ',
+    newHabit: 'thói quen mới',
     error: {
-      habit_day_greater: ''
+      habit_day_greater: '',
     },
-    addNew: 'Add new',
-    completed: 'Completed',
-    basic_info: 'Basic info',
+    addNew: 'Thêm mới',
+    completed: 'Đã xong',
+    basic_info: 'Thông tin cơ bản',
     tabar: {
-      'profile': 'Profile',
-      'timeTracker': 'TimeTracker',
-      'habitTracker': 'Habit',
-      'challenge': 'Challenge',
-      'home': 'Home'
+      profile: 'Hồ sơ',
+      timeTracker: 'Thời gian',
+      habitTracker: 'Thói quen',
+      challenge: 'Thử thách',
+      home: 'Trang chính',
     },
-    delete: 'delete'
+    delete: 'xóa',
   },
 
+  save: 'Lưu',
+  add: 'Thêm',
+  edit: 'Sửa',
+  cancel: 'Hủy',
+  done: 'Xong',
+  day: 'ngày',
+  week: 'tuần',
+  month: 'tháng',
+  year: 'năm',
 
   plus: '+',
+
   repeat: {
-    title: 'Repeat',
-    subTitle: 'Set a cycle for your plan',
-    weekly: 'weekly',
-    monthly: 'monthly',
-    day: 'day',
-    week: 'week',
-    month: 'month',
-    daily: 'daily',
-    repeat: 'Repeat',
-    every: 'Every',
-    endDay: 'endDay'
+    title: 'Lặp lại',
+    subTitle: 'Đặt nhịp lặp cho việc này',
+    weekly: 'hàng tuần',
+    monthly: 'hàng tháng',
+    day: 'ngày',
+    week: 'tuần',
+    month: 'tháng',
+    daily: 'hàng ngày',
+    repeat: 'Lặp lại',
+    every: 'Mỗi',
+    endDay: 'ngày kết thúc',
   },
   goal: {
-    title: 'Goal',
-    subTitle: 'Set a goal',
-    perday: 'per day'
-
+    title: 'Mục tiêu',
+    subTitle: 'Đặt một mục tiêu',
+    perday: 'mỗi ngày',
   },
   reminder: {
-    title: 'Reminder',
-    subTitle: 'Set a reminder & Stick with it',
-    des: 'Reminder me at '
+    title: 'Nhắc',
+    subTitle: 'Đặt lời nhắc cho việc này',
+    des: 'Nhắc tôi lúc ',
   },
   plan: {
-    title: 'Planning to do',
-    subTitle: 'Estimated time for the planned task',
-    des: 'Doing at '
+    title: 'Lên lịch',
+    subTitle: 'Thời gian dự kiến cho việc đã lên lịch',
+    des: 'Làm lúc ',
   },
   tag: {
-    title: 'Tag',
-    subTitle: 'Customized text input box',
+    title: 'Thẻ',
+    subTitle: 'Ô nhập tự đặt',
   },
   checkList: {
-    title: 'Checklist',
-    subTitle: 'A list of things to be checked or done',
+    title: 'Danh sách kiểm',
+    subTitle: 'Những mục cần đánh dấu khi làm xong',
   },
-  for: (text: string) => text,
+
+  for: translate,
+  translate,
+
   profile_screen: {
-    HelpAndFeedback: 'HelpAndFeedback',
-    StatusStat: 'StatusStat',
-    HabitStat: 'HabitStat',
-    TimeStat: 'TimeStat',
-    ChallengerStat: 'ChallengerStat',
-    ViewAll: 'ViewAll',
-    Caption: 'Profile',
-    help_center: 'help_center',
-    feedback: 'feedback',
-    privacy: 'privacy',
-    term: 'term',
+    HelpAndFeedback: 'Trợ giúp và góp ý',
+    StatusStat: 'Cảm xúc',
+    HabitStat: 'Thói quen',
+    TimeStat: 'Thời gian',
+    ChallengerStat: 'Thử thách',
+    ViewAll: 'Xem tất cả',
+    Caption: 'Hồ sơ',
+    help_center: 'Trung tâm trợ giúp',
+    feedback: 'Góp ý',
+    privacy: 'Chính sách riêng tư',
+    term: 'Điều khoản',
   },
 
   welcome_Q: {
-    'title': 'Have you ever encountered the following issues?',
-    'questions': [
-      { 'title': 'Feel that life is complicated and moments of happiness are rather fleeting?', 'answer': true },
-      { 'title': 'Often feel pressure or stress?', 'answer': true },
-      { 'title': 'Feel like each day, week, or month goes by without accomplishing much?', 'answer': true },
-      { 'title': 'Have difficulty establishing good habits to develop yourself?', 'answer': true },
-      { 'title': 'Feel overwhelmed or out of control with the amount of daily work you have?', 'answer': true },
-      { 'title': 'Had difficulty setting and maintaining personal or professional goals?', 'answer': true }
-    ]
+    title: 'Có điều nào dưới đây quen với bạn không',
+    questions: [
+      { title: 'Cuộc sống nhiều việc quá, những lúc thấy vui thì trôi qua rất nhanh', answer: true },
+      { title: 'Thường xuyên thấy căng thẳng', answer: true },
+      { title: 'Hết ngày, hết tuần, hết tháng mà nhìn lại không rõ mình đã làm gì', answer: true },
+      { title: 'Muốn giữ một thói quen tốt nhưng khó duy trì', answer: true },
+      { title: 'Khối lượng việc mỗi ngày nhiều hơn sức mình xoay', answer: true },
+      { title: 'Đặt mục tiêu cho bản thân rồi để đó', answer: true },
+    ],
   },
 
   welcome_Recomments: {
-    'title': 'Based on your sharing, we suggest the following activies',
-    'array': [
+    title: 'Từ những gì bạn vừa chia sẻ, đây là vài việc có thể hợp',
+    array: [
       {
-        'title': 'Light exercise upon waking up for about 15 minutes to warm up the body.', 'enable': true, id: 1,
-        params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} }
+        title: 'Vận động nhẹ khoảng 15 phút sau khi thức dậy để cơ thể ấm lên.', enable: true, id: 1,
+        params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} },
       },
       {
-        'title': 'Check and organize tasks for the new day at {$.wakeup.minut+15>60?$.wakeup.hour+1:$.wakeup.hour}: {($.wakeup.minut+15)>=60?($.wakeup.minut+15)-60:($.wakeup.minut+15)}.', 'enable': true, id: 1,
-        params: { repeat: { kind: 'weekly', repeat: 1 }, plan: { time: '$.wakeup.minut+15' }, reminder: {} }
+        title: 'Xem và sắp xếp việc cho ngày mới lúc {$.wakeup.minut+15>60?$.wakeup.hour+1:$.wakeup.hour}: {($.wakeup.minut+15)>=60?($.wakeup.minut+15)-60:($.wakeup.minut+15)}.', enable: true, id: 1,
+        params: { repeat: { kind: 'weekly', repeat: 1 }, plan: { time: '$.wakeup.minut+15' }, reminder: {} },
       },
-      { 'title': 'Evaluate periods where you feel wasted.', 'enable': true, id: 1, params: { repeat: { kind: 'weekly' }, reminder: {} } },
+      { title: 'Nhìn lại những quãng thời gian bạn thấy trôi đi vô ích.', enable: true, id: 1, params: { repeat: { kind: 'weekly' }, reminder: {} } },
       {
-        'title': 'A {$.sleep.minut}, relax 15 minutes before bed: meditation, yoga, reading, listening to music, or any activity you enjoy.', 'enable': true,
-        id: 1, params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} }
+        title: 'Lúc {$.sleep.minut}, dành 15 phút thư giãn trước khi ngủ: thiền, yoga, đọc sách, nghe nhạc, hay bất cứ thứ gì bạn thích.', enable: true,
+        id: 1, params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} },
       },
-      { 'title': 'Schedule 45-60 minutes of exercise every day.', 'enable': true, id: 1, params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} } }
-    ]
+      { title: 'Dành 45 đến 60 phút vận động mỗi ngày.', enable: true, id: 1, params: { repeat: { kind: 'daily', repeat: 1 }, reminder: {} } },
+    ],
   },
+
   welcome_finish: {
-    'title': 'Everything is ready for you!',
-    'content': 'If anything falls short of your expectations in the app, please don\'t hesitate to share your experience with us. We are always willing to listen and improve. Wishing you success in every step ahead!'
+    title: 'Mọi thứ đã sẵn sàng',
+    content:
+      'Có chỗ nào trong app chưa vừa ý, bạn kể cho tụi mình nghe. Tụi mình đọc hết và sửa dần.',
   },
+
   smart_goal: {
-    'desc': `<p>To create successful goals, we recommend using the SMART method to set your goals</p>
+    desc: `<p>Một mục tiêu dễ theo thường có đủ năm phần, gọi tắt là SMART</p>
         <ul>
-        <li><b>Specific:</b> Well defined, clear, and unambiguous</li>
-        <li><b>Measurable:</b> With specific criteria that measure your progress toward the accomplishment of the goal</li>
-        <li><b>Achievable:</b> Attainable and not impossible to achieve</li>
-        <li><b>Realistic:</b> Within reach, realistic, and relevant to your life purpose</li>
-        <li><b>Timely:</b> With a clearly defined timeline, including a starting date and a target date. The purpose is to create urgency.</li>
+        <li><b>Cụ thể:</b> nói rõ ra, không mập mờ</li>
+        <li><b>Đo được:</b> có con số để biết mình đang ở đâu</li>
+        <li><b>Trong tầm với:</b> vừa sức, không phải chuyện bất khả thi</li>
+        <li><b>Gắn với đời mình:</b> thật sự liên quan tới thứ bạn quan tâm</li>
+        <li><b>Có mốc thời gian:</b> ngày bắt đầu và ngày muốn đạt</li>
         </ul>
-        `
-  }
-
-
+        `,
+  },
 };

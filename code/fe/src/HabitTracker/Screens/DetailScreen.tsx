@@ -111,9 +111,9 @@ export const DetailScreen = ({ route, navigation }) => {
   const completed = async () => {
     if (day > getCurrentDay().getTime()) {
       showMessage({
-        message: text.Ohno || 'Oh no!!!',
+        message: text.Ohno || 'Ghi nhận',
         type: 'warning',
-        description: text.error_completed_habit || 'Let\'s focus on your today\'s habit',
+        description: text.error_completed_habit || 'Thói quen của hôm nay đang ở đây',
       });
     } else {
       await habitTrackerRepository.doneTracker(
@@ -127,9 +127,9 @@ export const DetailScreen = ({ route, navigation }) => {
   const setDid = async (val) => {
     if (day > getCurrentDay().getTime()) {
       showMessage({
-        message: text.Ohno || 'Oh no!!!',
+        message: text.Ohno || 'Ghi nhận',
         type: 'warning',
-        description: text.error_completed_habit || 'Let\'s focus on your today\'s habit',
+        description: text.error_completed_habit || 'Thói quen của hôm nay đang ở đây',
       });
     } else {
       await habitTrackerRepository.setDid(habit.id, new Date(day), {

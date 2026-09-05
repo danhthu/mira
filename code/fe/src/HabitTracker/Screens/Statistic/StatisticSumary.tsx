@@ -86,7 +86,7 @@ export const StatisticSumary = ({ route, navigation }) => {
       {/**body */}
       <View style={{ backgroundColor: '#fff', borderColor: colors.outlineVariant, borderWidth: 1, marginTop: 20, borderTopWidth: 10, borderTopColor: colors.secondary }}>
         <Row style={{ paddingLeft: 16, paddingRight: 16 }}>
-          <Cel style={{ flex: 1 }}><Text style={{ fontSize: FONT_SIZE.ListItem, fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.name || 'Ngày'}</Text></Cel>
+          <Cel style={{ flex: 1 }}><Text style={{ fontSize: FONT_SIZE.ListItem, fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.col_day || 'Ngày'}</Text></Cel>
           <Cel style={{ width: 50 }}><Text style={{ fontSize: FONT_SIZE.ListItem, fontWeight: FONT_WEIGHT.SEMIBOLD }}>{text.done || 'Done'}</Text></Cel>
         </Row>
         {/**data */}
@@ -115,8 +115,8 @@ export const StatisticSumary = ({ route, navigation }) => {
                 <Image source={require('../Assets/no_habit_tracker.png')} style={{ width: 50, height: 50 }} />
               </View>
               <Text style={{ flex: 1, textAlign: 'center', color: colors.errorColors[200], marginBottom: 10 }}>
-                {text.no_habit_tracker || 'Oh no, không thấy dữ liệu thời gian này.'}</Text>
-              <Link onPress={() => navigation.goBack()} style={{ flex: 1, textAlign: 'center', marginBottom: 10 }}>{text.no_habit_tracker || 'Mỗi ngày là một cơ hội để cải thiện bản thân. Cố gắng nha bạn của tôi !'}</Link>
+                {text.no_habit_tracker || 'Chưa có dữ liệu cho khoảng thời gian này.'}</Text>
+              <Link onPress={() => navigation.goBack()} style={{ flex: 1, textAlign: 'center', marginBottom: 10 }}>{text.no_habit_statistic || 'Chọn một khoảng thời gian khác'}</Link>
             </Cel>
           </Row>
         }

@@ -81,7 +81,7 @@ const Tips = () => {
   const text = useText();
   const style = useCommonStyle();
   const tips = text.tips || {
-    title: 'Tips: Cách thiết lập thử thách hợp lý ?', //hử thách là một cơ hội tuyệt vời để bạn để bứt phá giới hạn của mình.Tạo ra các thử thách cho bản thân không quá khó
+    title: 'Cách viết một mục tiêu rõ ràng', //hử thách là một cơ hội tuyệt vời để bạn để bứt phá giới hạn của mình.Tạo ra các thử thách cho bản thân không quá khó
   };
   return <View
     style={[style.tips.text_container]}

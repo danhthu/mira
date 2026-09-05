@@ -73,6 +73,29 @@ Hợp đồng: [`docs/09-sync-contract.md`](docs/09-sync-contract.md). Hai phía
 - Mỗi vòng sync kéo về đúng thứ client vừa đẩy lên (server không loại trừ thay đổi của chính client). Vô hại vì LWW bỏ qua, nhưng tốn mạng.
 - `Common/Screens/Profile.tsx:185` điều hướng tới route `'SettingScreen'` trong khi `Container.tsx` đăng ký tên `'Setting'` — lỗi có sẵn, chưa sửa.
 
+## G · Đưa app từ 5,4 lên trên 9 điểm (mở 2026-09-05)
+
+Bảng điểm và lý do: artifact "Chấm điểm màn hình" + "Lên chín điểm". Chia hai đợt, agent trong cùng đợt chạy song song và **sở hữu tập file rời nhau**; đợt sau cần đợt trước xong.
+
+### Đợt 1 — nền móng
+
+| Mã | Agent sở hữu | Việc | Trạng thái |
+|---|---|---|---|
+| G1 | `src/Core/**`, `src/Common/Entities/**`, `Repositories/index.ts`, `scripts/soi-cau-truc.sh` | Tầng hàm thuần có test (công thức 03 + 08) · entity `Person`/`Money`/`TimeEntry` theo `02-data-model.md` · `MetricState` 3 trạng thái · luật kiến trúc cho `Core/` | 🟨 |
+| G2 | `App.tsx`, `AppSetup/**`, `src/Main/**` | Gỡ vòng tự huỷ dữ liệu · bỏ đăng ký Work/Habit/Challenger/Trading khỏi navigator · dọn tab giả | 🟨 |
+| G3 | `theme/**`, `lang/**`, `src/*/Text/**` | Design token không có đỏ/cam · gom chuỗi về tiếng Việt · rà giọng theo `00-vision.md` · script soi màu viết cứng | 🟨 |
+
+### Đợt 2 — tính năng (cần đợt 1)
+
+| Mã | Agent sở hữu | Việc | Trạng thái |
+|---|---|---|---|
+| G4 | `src/Person/**`, `src/Welcome/**` | Onboarding 4 bước theo `05-v1-spec.md` · màn người quan trọng | ⬜ |
+| G5 | `src/Home/**` | Màn Hôm nay = 4 con số, không biểu đồ · ghi giờ ý nghĩa 1 chạm · ghi lãng phí 1 chạm · ô khoảnh khắc | ⬜ |
+| G6 | `src/Money/**` | 5 ô nhập/tháng · bốc hơi · 4 nấc giàu · quy đổi giờ đời | ⬜ |
+| G7 | `src/Hourglass/**`, `src/Common/Screens/{SettingScreen,Container}.tsx` | Đồng hồ cát opt-in mặc định tắt · Cài đặt đủ 7 mục theo spec | ⬜ |
+
+**Cổng chín điểm — 12 ô, thiếu một ô là chưa chín.** Xem artifact "Lên chín điểm". Ô số 12 (≥30% của 50 người còn ghi ở tuần 4) không thuộc phạm vi agent — cần người dùng thật.
+
 ## Câu hỏi còn mở (không chặn V1, ghi lại để quyết sau)
 
 - `Reminder/Screens/Home.tsx` rỗng 0 byte — có thuộc scope V1 không.
