@@ -1,65 +1,88 @@
-import { FlatList, ScrollView, TouchableOpacity, View,StyleSheet, Image } from 'react-native';
-import { Background } from '../Components/Background';
-import { useCommonStyle } from '../../Common/Styles';
 import { useNavigation } from '@react-navigation/native';
-import { useText } from '../Text';
-import { useTheme } from '../../../theme';
-import { FONTSIZE, FONT_SIZE } from '../../../theme/Constraints';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import { B, BText as Text } from '../../../libs/components';
-import { useState } from 'react';
+import { useTheme } from '../../../theme';
+import { FONT_SIZE } from '../../../theme/Constraints';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
-import { habitRepository } from '../../HabitTracker/Entities';
-export const HabitSelection = ({ route, navigation }) => {
+import { useCommonStyle } from '../../Common/Styles';
+import { Habit, habitRepository } from '../../HabitTracker/Entities';
+import { Background } from '../Components/Background';
+import { useText } from '../Text';
+
+export const HabitSelection = ({ route }) => {
   const style = useCommonStyle();
+  const text = useText();
   return (
     <Background style={style.modalScreen}>
-      <Header route={route} />
-      <Body route={route}/>
+      <SelectionHeader title={text.screen_habit_selection} />
+      <Body route={route} />
     </Background>
   );
 };
 
-const Header = ( { route }) => {
+export const SelectionHeader = (props: { title: string }) => {
   const navigation = useNavigation();
-  const text = useText();
-  const colors = useTheme();
   const style = useCommonStyle();
   return (
     <View>
-      <View >
-        <Text style={style.header.title}>{text.habitSelectionTitle||'Chọn thói quen'}</Text>
-      </View>
+      <Text style={style.header.title}>{props.title}</Text>
       <TouchableOpacity
-        style={[style.header.leftButton]}
+        style={style.header.leftButton}
         onPress={navigation.goBack}
       >
-        <B.ICon
-          name="return-up-back"
-          style={{ fontSize: FONT_SIZE.PageTitle }}
-        />
+        <B.ICon name="return-up-back" style={{ fontSize: FONT_SIZE.PageTitle }} />
       </TouchableOpacity>
-
     </View>
   );
 };
 
 const Body = ({ route }) => {
-  const onItemPress =  route.params.onGoback|| (item=>{});
   const colors = useTheme();
+  const text = useText();
   const nav = useNavigation();
-  const data = useAsyncAction(async()=>{
-    const hids = (route.params.data||[])  as Array<string>;
-    console.log('Body Habit');
-    console.log(hids);
-    console.log((await habitRepository.filter(h=>hids.length==0|| !hids.includes(h.id))).map(h=>h.id));
-    return await habitRepository.filter(h=>hids.length==0|| hids.indexOf(h.id)==-1);
-  },[route,useDectectDataChanged(habitRepository)]);
-  return <FlatList
-    data={data}
-    renderItem={({ item,index })=><TouchableOpacity style={{ paddingTop:10,paddingBottom:10 }} onPress={()=>{onItemPress(item); nav.goBack();}}>
-      <Text style={{ fontSize:FONT_SIZE.ListItem }}>{item.name}</Text>
-    </TouchableOpacity>}
-    ItemSeparatorComponent={()=><View style={{ borderBottomWidth:1, borderBottomColor:colors.outline }}></View>}
-  />;
-};
+  const onItemPress: (item: Habit) => void = route.params.onGoback;
+  const data = useAsyncAction<Habit[]>(
+    async () => {
+      const chosen = (route.params.data || []) as string[];
+      return habitRepository.filter((h) => chosen.indexOf(h.id) === -1);
+    },
+    [route, useDectectDataChanged(habitRepository)],
+    [],
+  );
 
+  if (data.length === 0)
+    return (
+      <Text style={{ color: colors.token.textMuted, paddingTop: 20 }}>
+        {text.empty_selection}
+      </Text>
+    );
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={{ paddingTop: 12, paddingBottom: 12 }}
+          onPress={() => {
+            onItemPress(item);
+            nav.goBack();
+          }}
+        >
+          <Text
+            style={{
+              fontSize: FONT_SIZE.ListItem,
+              color: colors.token.textPrimary,
+            }}
+          >
+            {item.name}
+          </Text>
+        </TouchableOpacity>
+      )}
+      ItemSeparatorComponent={() => (
+        <View
+          style={{ borderBottomWidth: 1, borderBottomColor: colors.token.border }}
+        />
+      )}
+    />
+  );
+};

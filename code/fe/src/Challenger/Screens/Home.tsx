@@ -1,162 +1,139 @@
-import { useCallback, useEffect } from 'react';
-import {
-  FlatList,
-  ScrollView,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-  Image,
-  TouchableOpacity
-} from 'react-native';
-import { B, BText as Text, BText, BICon } from '../../../libs/components';
-import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
-import { Challenge, challengeRepository } from '../Entities';
-import moment from 'moment';
+import { useNavigation } from '@react-navigation/native';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { B, BText as Text } from '../../../libs/components';
+import { AddButtonBottom } from '../../../libs/components/AddButtonBottom';
+import { Router } from '../../../Router';
+import { useTheme } from '../../../theme';
 import {
   FONT_SIZE,
   FONT_WEIGHT,
   HEADER_HEIGHT,
   ICON_TOUCH_WIDTH,
 } from '../../../theme/Constraints';
-import { Router } from '../../../Router';
-import { useNavigation } from '@react-navigation/native';
-import { useText } from '../Text';
-import { useTheme } from '../../../theme';
-import { Background } from '../Components/Background';
-
-
-import { AddButtonBottom } from '../../../libs/components/AddButtonBottom';
+import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { useCommonStyle } from '../../Common/Styles';
-import { debugStyle } from '../../../libs/components/debugStyle';
+import { Background } from '../Components/Background';
 import { RowItem } from '../Components/RowItem';
+import { Challenge, challengeRepository } from '../Entities';
+import { challengeState } from '../Models/challengeState';
+import { useText } from '../Text';
+
+/** Đang diễn ra và sắp bắt đầu lên trước; đã đạt và đã khép lại xuống dưới. */
+const STATE_ORDER = { doing: 0, upcoming: 1, reached: 2, closed: 3 } as const;
 
 export const Home = ({ navigation }) => {
-  const colors = useTheme();
   const commonStyle = useCommonStyle();
   return (
     <Background style={commonStyle.screen}>
-      <Header style={{ marginBottom: 10, }} />
-      <ScrollView>
-        <Tips style={{ marginBottom: 10, backgroundColor: colors.primary }} />
-        <Body style={{ marginBottom: 10, }} />
-
+      <Header />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Body />
       </ScrollView>
-      <View>
-        <AddButtonBottom
-          onPlusClick={() => {
-            Router.Open(navigation, 'ChallengerApp', { screen: 'Add' });
-          }}
-        ></AddButtonBottom>
-      </View>
+      <AddButtonBottom
+        onPlusClick={() =>
+          Router.Open(navigation, 'ChallengerApp', { screen: 'Add' })
+        }
+      />
     </Background>
   );
 };
 
-const Header = (props: { style?: StyleProp<ViewStyle> }) => {
+const Header = () => {
   const text = useText();
   const colors = useTheme();
   const navigation = useNavigation();
   return (
-    <View style={[{ height: HEADER_HEIGHT }, props.style]}>
+    <View style={{ height: HEADER_HEIGHT, marginBottom: 8 }}>
       <Text
         style={{
-          flex: 1,
-          color: colors.primary,
+          color: colors.token.textPrimary,
           fontSize: FONT_SIZE.PageTitle,
           fontWeight: FONT_WEIGHT.SEMIBOLD,
           height: HEADER_HEIGHT,
           lineHeight: HEADER_HEIGHT,
-          textAlign: 'center'
+          textAlign: 'center',
         }}
       >
-        {text.title || 'Your challenges'}
+        {text.screen_home}
       </Text>
       <TouchableOpacity
-        style={[
-          {
-            width: ICON_TOUCH_WIDTH,
-            height: HEADER_HEIGHT,
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            position: 'absolute',
-            top: 0,
-            left: 0
-          }
-        ]}
+        style={{
+          width: ICON_TOUCH_WIDTH,
+          height: HEADER_HEIGHT,
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
         onPress={navigation.goBack}
       >
-        <B.ICon
-          name="return-up-back"
-          style={{ fontSize: FONT_SIZE.PageTitle }}
-        />
+        <B.ICon name="return-up-back" style={{ fontSize: FONT_SIZE.PageTitle }} />
       </TouchableOpacity>
     </View>
   );
 };
 
-const Tips = (props: { style?: StyleProp<ViewStyle> }) => {
-
-  const text = useText();
-  const tip = text.add_tips || 'Thử thách là một việc bạn tự đặt cho mình trong một quãng thời gian có hạn.';
-  return <View>
-    <Text>{tip}</Text>
-  </View>;
-};
-
-const Body = (props: { style?: StyleProp<ViewStyle> }) => {
-  const text = useText();
-  const style = useStyle();
+const Body = () => {
   const colors = useTheme();
-  const navigation = useNavigation();
-  const data = useAsyncAction(
+  const text = useText();
+  const now = new Date();
+  const data = useAsyncAction<Challenge[]>(
     async () => {
-      return (await challengeRepository.list()).map((c) => ({
-        ...c,
-        percentage: 0,
-        total: moment(c.end).diff(c.start, 'days'),
-      }));
+      const challenges = await challengeRepository.list();
+      return [...challenges].sort(
+        (a, b) =>
+          STATE_ORDER[challengeState(a, now)] -
+          STATE_ORDER[challengeState(b, now)],
+      );
     },
     [useDectectDataChanged(challengeRepository)],
     [],
   );
 
-  if (data.length == 0) return <EmptyData />;
+  if (data.length === 0) return <EmptyData />;
   return (
-    <View style={{ marginTop:20 }}>
-      {data.map((challenge, index) => <RowItem touchToDetail key={index} challenge={challenge} />)}
+    <View>
+      <Text
+        style={{
+          color: colors.token.textMuted,
+          fontSize: 13,
+          marginBottom: 16,
+        }}
+      >
+        {text.home_hint}
+      </Text>
+      {data.map((challenge) => (
+        <RowItem touchToDetail key={challenge.id} challenge={challenge} />
+      ))}
     </View>
   );
 };
 
 const EmptyData = () => {
   const text = useText();
+  const colors = useTheme();
   const navigation = useNavigation();
   return (
-    <View style={debugStyle}>
-      <View style={{ alignItems: 'center', marginBottom: 10 }}>
-        <Image source={require('../Assets/no_challenge.png')} style={{ width: 80, height: 80 }} />
-      </View>
+    <View style={{ paddingTop: 60, alignItems: 'center' }}>
+      <Text
+        style={{
+          textAlign: 'center',
+          color: colors.token.textSecondary,
+          marginBottom: 12,
+        }}
+      >
+        {text.empty_title}
+      </Text>
       <TouchableOpacity
-
         onPress={() =>
-          Router.Open(navigation, 'ChallengerAppModal', { screen: 'Add' })
+          Router.Open(navigation, 'ChallengerApp', { screen: 'Add' })
         }
       >
-        <BText style={{ textAlign: 'center' }}>
-          {text.empty_row ||
-            'Chưa có thử thách nào. Nhấn dấu cộng để tạo thử thách đầu tiên.'}
-        </BText>
+        <Text style={{ textAlign: 'center', color: colors.token.accent }}>
+          {text.empty_action}
+        </Text>
       </TouchableOpacity>
     </View>
   );
-};
-
-const useStyle = () => {
-  const colors = useTheme();
-  return StyleSheet.create({
-    item_container: { padding: 15, borderRadius: 15, backgroundColor: '#fff' },
-    item_left: {},
-    item_left_image: {},
-  });
 };

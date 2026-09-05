@@ -23,9 +23,12 @@ NON_FEATURES="Assets Common Controls Core Me"
 # Composition root: việc của nó LÀ ghép các feature lại, nên được phép import feature.
 ROOTS="Main Home"
 
-# Nhóm module bị cắt theo PLAN.md — vi phạm dính tới chúng sẽ tự biến mất khi cắt,
-# nên đếm riêng để không lẫn với nợ thật sự phải sửa tay.
-CUT="HabitTracker Work Challenger Trading"
+# Trống từ 2026-09-05: bốn module Habit · Work · Challenger · Trading từng nằm trong
+# danh sách cắt, nhưng chủ dự án đã chốt chúng là tính năng chính và cần thiết kế lại
+# chứ không gỡ. Không còn module nào chờ cắt, nên mọi vi phạm dưới đây là nợ thật —
+# giữ biến để không phải sửa logic bên dưới, nhưng đừng điền lại tên vào đây trừ khi
+# thật sự có module sắp bị gỡ.
+CUT=""
 
 FEATURE_RE=$(echo "$FEATURES $ROOTS" | tr ' ' '|')
 CUT_RE=$(echo "$CUT" | tr ' ' '|')
@@ -70,7 +73,8 @@ if [ -n "$common_up" ]; then
   echo "$common_up"
   count=$(echo "$common_up" | wc -l)
   violations=$((violations + count))
-  vanish=$(echo "$common_up" | grep -cE "\.\./\.\./($CUT_RE)" || true)
+  vanish=0
+  [ -n "$CUT" ] && vanish=$(echo "$common_up" | grep -cE "\.\./\.\./($CUT_RE)" || true)
   will_vanish=$((will_vanish + vanish))
   echo "  -> $count vi phạm (trong đó $vanish sẽ tự mất khi cắt module)"
 else
@@ -86,7 +90,8 @@ for m in $FEATURES; do
   hits=$(grep -rnoE "from '\.\./\.\./($FEATURE_RE)[a-zA-Z/.]*'" "$FE/$m" 2>/dev/null || true)
   if [ -n "$hits" ]; then
     count=$(echo "$hits" | wc -l)
-    vanish=$(echo "$hits" | grep -cE "\.\./\.\./($CUT_RE)" || true)
+    vanish=0
+    [ -n "$CUT" ] && vanish=$(echo "$hits" | grep -cE "\.\./\.\./($CUT_RE)" || true)
     # Vi phạm cũng tự mất nếu chính module nguồn nằm trong danh sách cắt.
     if echo "$CUT" | grep -qw "$m"; then vanish=$count; fi
     cross_total=$((cross_total + count))
@@ -195,8 +200,8 @@ fi
 
 echo ""
 echo "== Tổng: $violations vi phạm =="
-if [ "$violations" -gt 0 ]; then
-  echo "   Trong đó ~$will_vanish sẽ tự biến mất khi cắt module theo PLAN.md."
-  echo "   Nợ thật sự phải sửa tay: ~$((violations - will_vanish))"
+if [ "$violations" -gt 0 ] && [ "$will_vanish" -gt 0 ]; then
+  echo "   Trong đó ~$will_vanish dính tới module trong \$CUT, sẽ mất khi gỡ module đó."
+  echo "   Nợ phải sửa tay: ~$((violations - will_vanish))"
 fi
 exit $((violations > 0 ? 1 : 0))

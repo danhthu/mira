@@ -2,36 +2,31 @@ import moment from 'moment';
 import { getDay } from '../../Common/Utils/common';
 import { Work, workRepository } from '../Entities';
 
-export async function sample() {
-  console.log('init work sample');
-  let startDate = moment(getDay(new Date())).add(-1, 'years').toDate();
-  const endDate = getDay(new Date());
-  const data = [] as Work[];
-  await workRepository.empty();
-  while (startDate.getTime() < endDate.getTime()) {
-    startDate = moment(startDate).add(1, 'days').toDate();
-    const rand = randomIntFromInterval(4, 10);
-    for (let i = 0; i < rand; i++) {
-      data.push({
-        ...new Work, name: 'Working ' + (i + moment(endDate).diff(startDate, 'days')),
-        mandatory: randomIntFromInterval(0, 1) == 1,
-        created_date: startDate.getTime(),
-        startDate: startDate,
-        finishDate: endDate,
-        endDate: moment(startDate).add(2, 'days').toDate(),
-        focus: randomIntFromInterval(0, 1) == 1,
-        status: 'DONE',
-        timeCatId: 'Working',
-        did: 45
-      });
-    }
-  }
+const names = [
+  'gọi cho bố mẹ',
+  'gửi báo cáo tuần',
+  'đặt lịch khám răng',
+  'trả sách thư viện',
+  'dọn hộp thư đến',
+  'chuẩn bị bữa tối',
+];
 
+/**
+ * Dữ liệu để xem thử màn hình, chỉ chạy khi có người gọi `AppSetup/sample`.
+ *
+ * Bản Batify sinh 365 ngày × 4–10 bản ghi tên `"Working 12"`, mỗi bản gán ngẫu
+ * nhiên cờ bắt buộc và `did: 45`. Hai trường đó không có control nhập nào, nên
+ * mọi con số trong màn thống kê đều đến từ đây chứ không từ người dùng.
+ */
+export async function sample() {
+  await workRepository.empty();
+  const today = getDay(new Date());
+  const data = names.map((name, index) => ({
+    ...new Work(),
+    name,
+    startDate: getDay(moment(today).add(index % 3, 'days').toDate()),
+    status: index % 3 == 0 ? 'DONE' : 'PLAN',
+  } as Work));
   await workRepository.adds(data);
   await workRepository.save();
-  console.log('init work complete');
-}
-
-function randomIntFromInterval(min, max) { // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
 }

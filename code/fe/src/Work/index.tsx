@@ -1,5 +1,5 @@
-import * as Screens from './Screens';
-import * as Components from './Components';
 import * as Entity from './Entities';
-export { Screens,Components,Entity };
-export const WorkApp = { Screens,Components,Entity };
+import * as Screens from './Screens';
+
+export { Entity, Screens };
+export const WorkApp = { Entity, Screens };

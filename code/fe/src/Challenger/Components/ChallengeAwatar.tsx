@@ -1,35 +1,30 @@
-import { View, ViewStyle, Image, StyleProp } from 'react-native';
+import { Image, StyleProp, View, ViewStyle } from 'react-native';
+import { useTheme } from '../../../theme';
 import Assets from '../Assets';
 
 export const ChallengeAwatar = (props: {
-  src: string
+  src?: string
   style?: StyleProp<ViewStyle>
-  size?
+  size?: number
 }) => {
+  const colors = useTheme();
   const size = props.size || 80;
+  const src = props.src;
+  const source = !src
+    ? Assets['item-icon-default'].uri
+    : src.startsWith('assets')
+      ? Assets[src.replace('assets/', '')]?.uri ||
+        Assets['item-icon-default'].uri
+      : { uri: src };
+
   return (
-    <View style={[{ shadowColor: '#fff' }, props.style]}>
-      {!props.src && (
-        <Image
-          source={Assets['item-icon-default'].uri}
-          style={{ width: size, height: size, alignSelf: 'center' }}
-        />
-      )}
-      {props.src && props.src.startsWith('assets') && (
-        <Image
-          source={
-            Assets[props.src.replace('assets/', '')]?.uri ||
-            Assets['item-icon-default'].uri
-          }
-          style={{ width: size, height: size, alignSelf: 'center' }}
-        />
-      )}
-      {props.src && !props.src.startsWith('assets') && (
-        <Image
-          source={{ uri: props.src }}
-          style={{ width: size, height: size, alignSelf: 'center' }}
-        />
-      )}
+    <View
+      style={[
+        { backgroundColor: colors.token.surfaceMuted, overflow: 'hidden' },
+        props.style,
+      ]}
+    >
+      <Image source={source} style={{ width: size, height: size }} />
     </View>
   );
 };

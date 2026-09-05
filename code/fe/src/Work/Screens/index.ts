@@ -1,6 +1,6 @@
-import { Add } from './Add';
-import { Container } from './Container';
-import { Detail } from './Detail';
-import { Home } from './Home_OLD';
-
-export { Add, Container, Detail, Home };
+export { Add } from './Add';
+export { Assign } from './Assign';
+export { Container } from './Container';
+export { Detail } from './Detail';
+export { Home } from './Home';
+export { Statistic } from './Statistic';

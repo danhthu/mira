@@ -1,25 +1,10 @@
-import {
-  StyleProp,
-  TouchableOpacity,
-  View,
-  ViewStyle
-} from 'react-native';
-
-
-import { useTheme } from '../../../theme';
+import React, { Ref, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { StyleProp, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import React, {
-  ReactNode,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
 import { B } from '../../../libs/components';
-import { debugStyle } from '../../../libs/components/debugStyle';
 import { Router } from '../../../Router';
+import { useTheme } from '../../../theme';
 import { FONTSIZE } from '../../../theme/Constraints';
 import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
 import { useCommonStyle } from '../../Common/Styles';
@@ -31,6 +16,11 @@ import {
 } from '../Entities';
 import { useText } from '../Text';
 
+/**
+ * Một dòng "gắn với một thử thách" để module khác nhúng vào biểu mẫu của nó.
+ * `Work/Screens/Edit.tsx` đang dùng qua `ChallengerApp.Components.LinkTo`, nên
+ * đây là API công khai của module — không xoá được như `Components/Card.tsx`.
+ */
 export interface LinkToProp {
   table: string
   tableId: string
@@ -45,42 +35,8 @@ export interface ChallengeLinkToAction {
 
 export const LinkTo = React.forwardRef(
   (props: LinkToProp, ref: Ref<ChallengeLinkToAction>) => {
-    useImperativeHandle(
-      ref,
-      () => {
-        return {
-          save: async () => {
-            if (dataRef.current.challenge) {
-              await challengeAssociateRepository.delete2(
-                (h) =>
-                  h.tableId == dataRef.current.tableId &&
-                  h.table == dataRef.current.table,
-              );
-              await challengeAssociateRepository.add({
-                ...new ChallengeAssociate(),
-                challengeId: dataRef.current.challenge.id,
-                table: dataRef.current.table,
-                tableId: dataRef.current.tableId,
-              });
-              await challengeAssociateRepository.save();
-            } else {
-              await challengeAssociateRepository.delete2(
-                (h) =>
-                  h.tableId == dataRef.current.tableId &&
-                  h.table == dataRef.current.table,
-              );
-            }
-          },
-        };
-      },
-      [],
-    );
     const [data, setData] = useState<Challenge>();
-    const dataRef = useRef({
-      tableId: '',
-      table: '',
-      challenge: data,
-    });
+    const dataRef = useRef({ tableId: '', table: '', challenge: data });
     useEffect(() => {
       dataRef.current = {
         tableId: props.tableId,
@@ -88,16 +44,41 @@ export const LinkTo = React.forwardRef(
         challenge: data,
       };
     }, [data, props.table, props.tableId]);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        save: async () => {
+          const current = dataRef.current;
+          await challengeAssociateRepository.delete2(
+            (a) => a.tableId === current.tableId && a.table === current.table,
+          );
+          if (!current.challenge) return;
+          await challengeAssociateRepository.add({
+            ...new ChallengeAssociate(),
+            challengeId: current.challenge.id,
+            table: current.table,
+            tableId: current.tableId,
+            option: { link: current.table === 'Work' ? 'Work' : 'Habit' },
+          });
+          await challengeAssociateRepository.save();
+        },
+      }),
+      [],
+    );
+
     const text = useText();
+    const colors = useTheme();
+    const style = useCommonStyle();
+    const nav = useNavigation();
+    const rowHeight = props.rowHeight || 50;
 
     useAsyncAction(async () => {
-      const g = (await challengeAssociateRepository.list())
-        .filter((t) => t.table == props.table && t.tableId == props.tableId)
-        .map((m) => m.challengeId);
-      const data = (await challengeRepository.list()).filter(
-        (h) => g.indexOf(h.id) > -1,
-      )[0];
-      setData(data);
+      const linked = (await challengeAssociateRepository.list())
+        .filter((a) => a.table === props.table && a.tableId === props.tableId)
+        .map((a) => a.challengeId);
+      const challenges = await challengeRepository.list();
+      setData(challenges.filter((c) => linked.indexOf(c.id) > -1)[0]);
     }, [
       props.table,
       props.tableId,
@@ -105,91 +86,38 @@ export const LinkTo = React.forwardRef(
       useDectectDataChanged(challengeRepository),
     ]);
 
-    const onGoBack = (data) => {
-      setData(data);
-    };
-    const nav = useNavigation();
-    const onSelectChallengeClick = (data) => {
+    const onPress = () =>
       Router.Open(nav, 'ChallengerApp', {
         screen: 'Selection',
         multiple: true,
-        onGoBack,
-        data: data,
+        onGoBack: setData,
+        data,
         table: props.table,
         tableId: props.tableId,
       });
-    };
 
-    //if (!data || !text) return <View></View>
     return (
-      <Row
-        icon="stairs-up"
-        onPress={() => onSelectChallengeClick(data)}
-        selected={data && true}
-        showClose={data && true}
-        text={!data ? text.chonthuthach || 'Liên kết thử thách' : data.name}
-        rowHeight={props.rowHeight || 50}
-      />
+      <View style={[{ flexDirection: 'row', flex: 1 }, props.style]}>
+        <View style={{ height: rowHeight, justifyContent: 'center' }}>
+          <B.ICon
+            size={FONTSIZE.NORMAL}
+            name="stairs-up"
+            style={[
+              style.icon_wrapper,
+              { marginRight: 10 },
+              data && { color: colors.token.accent },
+            ]}
+          />
+        </View>
+        <TouchableOpacity
+          style={[style.full, { height: rowHeight, justifyContent: 'center' }]}
+          onPress={onPress}
+        >
+          <B.Text style={[data && { color: colors.token.accent }]}>
+            {data ? data.name : text.link_challenge}
+          </B.Text>
+        </TouchableOpacity>
+      </View>
     );
   },
 );
-
-const Row = (props: {
-  icon
-  selected: boolean
-  rowHeight: number
-  text: ReactNode | string
-  showClose
-  onClose?: () => void
-  onPress: () => void
-}) => {
-  const style = useCommonStyle();
-  const colors = useTheme();
-  return (
-    <View style={[{ flexDirection: 'row', flex: 1, }]}>
-      <View style={{ height: props.rowHeight, justifyContent: 'center' }}>
-        <B.ICon
-          size={FONTSIZE.NORMAL}
-          name={props.icon}
-          style={[
-            style.icon_wrapper,
-            { marginRight: 10 },
-            props.selected && { color: colors.primary },
-          ]}
-        />
-      </View>
-      <TouchableOpacity
-        style={[
-          style.full,
-          { height: props.rowHeight, justifyContent: 'center' },
-        ]}
-        onPress={props.onPress}
-      >
-        {typeof props.text === 'string' ? (
-          <B.Text style={[props.selected && { color: colors.primary }]}>
-            {props.text}
-          </B.Text>
-        ) : (
-          props.text
-        )}
-      </TouchableOpacity>
-      {props.showClose && (
-        <TouchableOpacity
-          style={[
-            style.icon_wrapper,
-            style.right,
-            { height: props.rowHeight, width: 50, alignItems: 'flex-end' },
-            debugStyle,
-          ]}
-          onPress={props.onClose}
-        >
-          <B.ICon
-            style={[{ color: colors.primary }]}
-            size={FONTSIZE.NORMAL}
-            name="close"
-          />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-};

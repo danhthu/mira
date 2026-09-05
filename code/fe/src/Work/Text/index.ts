@@ -1,69 +1,95 @@
 import { useText as useCommonText } from '../../../lang';
 
-export const useText = () => {
-  const text = useCommonText();
-  return {
-    Name: 'Tên',
-    Description: 'Mô tả',
-    DoDate: 'Ngày bắt đầu',
-    EndDate: 'Ngày kết thúc',
-    IsMandatory: 'Bắt buộc',
-    Estimated: 'Dự kiến',
-    Reminder: 'Nhắc',
+/**
+ * Bốn file trong `Common/Components` (CustomCalendarView, DateTimeBottomModal,
+ * ReminderBottomModal, RichEditorBottomModal) đọc chữ từ đây theo mẫu
+ * `text.<key> || 'chữ tiếng Việt'`. Trước đợt này không key nào trong số đó tồn
+ * tại, nên mọi câu đều rơi về nhánh fallback nằm rải trong JSX của `Common/`.
+ * Khai đủ chúng ở đây để chữ có một chỗ ở duy nhất; `Common/` nằm ngoài phạm vi
+ * sửa của đợt này nên nhánh fallback bên đó vẫn còn, chỉ là không bao giờ chạy.
+ */
+const dictionary = {
+  // màn danh sách
+  title: 'công việc',
+  today: 'hôm nay',
+  previousDay: 'hôm trước',
+  nextDay: 'hôm sau',
+  backToToday: 'về hôm nay',
+  review: 'nhìn lại',
+  composePlaceholder: 'việc gì cho hôm nay',
+  emptyDay: 'chưa có việc nào cho ngày này',
+  doneGroup: 'đã xong',
+  openWorkDetail: 'mở chi tiết',
+  moreOptions: 'thêm chi tiết',
 
-    mn_home: 'Tổng quan',
-    mn_listwork: 'Danh sách công việc',
-    mn_schedule: 'Lịch làm việc',
-    mn_settings: 'Thiết lập',
+  // màn thêm
+  addTitle: 'thêm việc',
+  name: 'tên việc',
+  startDate: 'ngày làm',
+  note: 'ghi chú',
+  repeat: 'lặp lại',
+  reminder: 'nhắc',
+  save: 'lưu',
+  cancel: 'huỷ',
 
-    congviec: 'Công việc',
-    todo: 'Công việc',
-    day: 'Việc trong ngày',
-    today: 'Trong ngày',
-    tomorrow: 'Ngày mai',
-    ngaymai: 'Ngày mai',
-    month: 'Tháng',
-    viecton: 'Tồn đọng',
-    unknow: 'Chưa sắp xếp',
-    chuasapxep: 'Chưa lên lịch',
-    scheduler: 'Sắp xếp thời gian',
-    moveToTomorrow: 'Mai làm',
-    pending: 'Khác',
-    filter: 'Tùy chỉnh thống kê',
-    chon: 'Chọn',
-    chonngay: 'Chọn',
-    chongaybatdau: 'Ngày bắt đầu',
-    ngayketthuc: 'Ngày kết thúc',
+  // màn chi tiết
+  detailTitle: 'chi tiết',
+  markDone: 'đánh dấu xong',
+  markOpen: 'mở lại',
+  moveToTomorrow: 'mai làm',
+  pickDay: 'chọn ngày khác',
+  edit: 'sửa',
+  remove: 'xoá',
+  confirmRemove: 'xoá việc này chứ',
+  removed: 'đã xoá',
+  moved: 'đã chuyển sang ngày khác',
+  done: 'đã đánh dấu xong',
+  reopened: 'đã mở lại',
+  ok: 'ok',
 
-    batbuoc: 'Bắt buộc',
-    mandatory: 'Bắt buộc',
-    xongtrongngay: 'Bắt buộc',
-    complete: 'Hoàn thành',
-    hoanthanh: 'Đã xong',
-    dunghan: 'Đúng hạn',
-    quahan: 'Sau hạn',
-    total: 'Tổng',
-    ontime: 'Việc một lần',
-    work_logan: ' một lúc một việc ',
-    trytocomplete: 'Làm xong rồi nghỉ',
-    nhiemvuhoantattronghomnay: 'Đã hoàn thành hôm nay ',
-    mandatory_completed: 'Các việc bắt buộc hôm nay đã xong',
-    daxonghetviec: 'Việc hôm nay đã xong hết',
+  // màn chọn việc cho một ngày
+  assignTitle: 'chọn việc cho ngày',
+  assignAll: 'tất cả',
+  assignUnscheduled: 'chưa có ngày',
+  assignEmpty: 'không còn việc nào chưa có ngày',
 
-    deleted: 'Xóa',
-    confirm_deleted: 'Xóa mục này chứ?',
-    xoathanhcong: 'Đã xóa công việc',
-    donesuccess: 'Đã đánh dấu xong',
-    Ok: 'Ok',
-    ok: 'Ok',
+  // màn nhìn lại
+  reviewTitle: 'nhìn lại',
+  rangeWeek: 'tuần',
+  rangeMonth: 'tháng',
+  rangeYear: 'năm',
+  countDone: 'đã xong',
+  countOpen: 'đang mở',
+  countUnscheduled: 'chưa có ngày',
+  reviewEmpty: 'chưa có việc nào trong quãng này',
 
-    no_work_today: 'Hôm nay chưa có việc nào. Nhấn dấu cộng để thêm việc đầu tiên.',
-    no_work_mandatory: 'Chưa có việc nào được đánh dấu bắt buộc. Chạm vào một việc để đánh dấu.',
+  // chữ mà Common/Components đọc qua useText của module này
+  quaylai: 'quay lại',
+  xong: 'xong',
+  hoanthanh: 'xong',
+  homnay: 'hôm nay',
+  ngaymai: 'ngày mai',
+  tuantoi: 'tuần tới',
+  cuoingay: 'cuối ngày',
+  loaibo: 'bỏ chọn',
+  ngaylam: 'ngày làm',
+  chongnay: 'chọn ngày',
+  chonngaygio: 'chọn ngày và giờ',
+  chongio: 'chọn giờ',
+  chonthoigian: 'chọn thời gian',
+  xemtruoc: 'xem trước',
+  chinhsua: 'chỉnh sửa',
+  ghichu: 'ghi chú',
+};
 
-    for: text.for,
-    translate: text.translate,
-  } as {
-    [Key: string]: any;
-    translate: (name: string, def?: string) => string
-  };
+export type WorkTextKey = keyof typeof dictionary;
+
+export type WorkText = Record<WorkTextKey, string> & {
+  for: (name: string) => string
+  translate: (name: string, def?: string) => string
+};
+
+export const useText = (): WorkText => {
+  const common = useCommonText();
+  return { ...dictionary, for: common.for, translate: common.translate };
 };

@@ -1,165 +1,179 @@
-import React, {
-  useState,
-} from 'react';
-import {
-  Alert,
-  View,
-} from 'react-native';
-import {
-  B,
-  BText as Text,
-} from '../../../libs/components';
+import moment from 'moment';
+import { useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
+import { B } from '../../../libs/components';
+import { useTheme } from '../../../theme';
+import { DescriptionCtrl } from '../../Common/FormControls/DescriptionCtrl';
+import { ReminderCtrl } from '../../Common/FormControls/ReminderCtrl';
+import { RepeatCtrl } from '../../Common/FormControls/RepeatCtrl';
+import { useAsyncAction } from '../../Common/Hooks';
+import { getCurrentDay } from '../../Common/Utils/common';
+import { DayPicker } from '../Components/DayPicker';
 import { Work, workRepository } from '../Entities';
 import { useText } from '../Text';
 
-import moment from 'moment';
-import { showMessage } from 'react-native-flash-message';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { useTheme } from '../../../theme';
-import { SegmentPercentage } from '../../Common/FormControls/SegmentPercentage';
-import { useAsyncAction, useDectectDataChanged } from '../../Common/Hooks';
-import { useCommonStyle } from '../../Common/Styles';
-import { getCurrentDay } from '../../Common/Utils/common';
-
-{/**focust view */ }
-
+/**
+ * Xem và sửa một việc trong cùng một màn. Batify tách `Detail` (chỉ xem, kèm
+ * thanh phần trăm ghi vào `did` mà không màn nào đọc) và `Edit` (biểu mẫu gần
+ * trùng `Add`); hai màn cộng lại vẫn thiếu chỗ sửa tên nếu vào từ danh sách.
+ */
 export const Detail = ({ route, navigation }) => {
   const text = useText();
-  const colors = useTheme();
-  const style = useCommonStyle();
-  const [datePickerVisible, setDatePickerVisibility] = useState(false);
-  const [data, setData] = useState(null as Work);
-  useAsyncAction(async () => {
-    setData(await workRepository.findOne((w) => w.id == route.params.id));
-  }, [route.params, useDectectDataChanged(workRepository)]);
+  const style = useStyle();
+  const [data, setData] = useState<Work>(null);
 
-  if (!data) return <View></View>;
+  useAsyncAction(async () => {
+    setData(await workRepository.findById(route.params.id));
+  }, [route.params]);
+
+  if (!data) return <View style={style.screen} />;
+
+  const isDone = data.status == 'DONE';
+
+  const save = async () => {
+    await workRepository.addOrUpdate(data);
+    navigation.goBack();
+  };
+
+  const toggleDone = async () => {
+    if (isDone) {
+      await workRepository.unDone(data);
+      showMessage({ type: 'info', message: text.reopened });
+    } else {
+      await workRepository.done(data);
+      showMessage({ type: 'success', message: text.done });
+    }
+    navigation.goBack();
+  };
+
+  const moveToTomorrow = async () => {
+    await workRepository.setDayWillDo(
+      data,
+      moment(getCurrentDay()).add(1, 'days').toDate(),
+    );
+    showMessage({ type: 'info', message: text.moved });
+    navigation.goBack();
+  };
+
+  const remove = () => {
+    Alert.alert(text.confirmRemove, null, [
+      {
+        text: text.ok,
+        onPress: async () => {
+          await workRepository.delete(data);
+          showMessage({ type: 'info', message: text.removed });
+          navigation.goBack();
+        },
+      },
+    ]);
+  };
 
   return (
-    <View>
-      <Text style={[style.center, { marginBottom: 20 }]}>{data.name}</Text>
-      <View style={[style.sectionContainer]}>
-        <B.Html>{data.description}</B.Html>
+    <View style={style.screen}>
+      <View style={style.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={style.link}>{text.cancel}</Text>
+        </TouchableOpacity>
+        <Text style={style.title}>{text.detailTitle}</Text>
+        <TouchableOpacity onPress={save}>
+          <Text style={style.link}>{text.save}</Text>
+        </TouchableOpacity>
       </View>
-      {/**segment percentage */}
-      <View style={[style.sectionContainer, { paddingRight: 20 }]}>
-        <SegmentPercentage
-          value={data.did || 0}
-          segment={4}
-          onChanged={async (val) => {
-            await workRepository.update(
-              (w) => w.id == data.id,
-              (w) => {
-                w.did = val;
-              },
-            );
-          }}
-        />
-      </View>
-      {/** action */}
-      <View style={[style.sectionContainer, { paddingRight: 20 }]}>
-        <B.Button
-          containerStyle={{ backgroundColor: colors.primaryContainer }}
-          textStyle={{ color: colors.onPrimaryContainer }}
-          onPress={async () => {
-            await workRepository.update(
-              (w) => w.id == data.id,
-              (w) => (w.status = 'DONE'),
-            );
-            navigation.goBack();
-            showMessage({
-              type: 'success',
-              message: text.donesuccess || 'Đã hoàn thành công việc',
-            });
-          }}
-        >
-          {text.complete || 'Hoàn thành'}
-        </B.Button>
-      </View>
-      <View style={[style.sectionContainer, { paddingRight: 20 }]}>
-        <View style={{ flexDirection: 'row' }}>
-          <B.Button
-            containerStyle={{ flex: 1, marginRight: 10, backgroundColor: colors.errorContainer }}
-            textStyle={{ color: colors.error }}
-            onPress={() => {
-              Alert.alert(
-                text.confirm_deleted || 'Bạn có chắc muốn xóa ?',
-                null,
-                [
-                  {
-                    text: text.Ok || 'Ok',
-                    onPress: async () => {
-                      await workRepository.delete(data);
-                      navigation.goBack();
-                      showMessage({
-                        type: 'warning',
-                        message:
-                          text.xoathanhcong || 'Xóa công việc thành công',
-                      });
-                    },
-                  },
-                ],
-              );
-            }}
-          >
-            {text.deleted || 'Xóa'}
-          </B.Button>
-          <B.Button
-            containerStyle={{ flex: 1, marginLeft: 10, backgroundColor: colors.secondaryContainer }}
-            textStyle={{ color: colors.onSecondaryContainer }}
-            onPress={async () => {
-              await workRepository.update(
-                (w) => w.id == data.id,
-                (w) => {
-                  w.startDate = moment(getCurrentDay()).add(1, 'days').toDate();
-                },
-              );
-              navigation.goBack();
-              showMessage({
-                type: 'success',
-                message: text.dadichuyen || 'Đã di chuyển việc qua ngày mai',
-              });
-            }}
-          >
-            {text.moveToTomorrow || 'Mai làm'}
-          </B.Button>
-        </View>
-      </View>
-      <View style={[style.sectionContainer, { paddingRight: 20 }]}>
-        <View>
-          <B.Button
-            containerStyle={{ backgroundColor: colors.tertiaryContainer }}
-            textStyle={{ color: colors.onTertiaryContainer }}
-            onPress={() => {
-              setDatePickerVisibility(true);
-            }}
-          >
-            {text.scheduler || 'Sắp xếp thời gian'}
-          </B.Button>
-        </View>
-      </View>
-      <DateTimePickerModal
-        date={moment(data.startDate || new Date).toDate()}
-        isVisible={datePickerVisible}
-        mode={'datetime'}
-        onConfirm={async (d) => {
 
-          await workRepository.update(
-            (w) => w.id == data.id,
-            (w) => (w.startDate = d),
-          );
-          setDatePickerVisibility(false);
-          //
-          showMessage({
-            type: 'success',
-            message: text.dadichuyen || 'Đã cập nhật công việc',
-          });
-          navigation.goBack();
-        }}
-        onCancel={() => {
-          setDatePickerVisibility(false);
-        }}
-      />
+      <ScrollView contentContainerStyle={style.body}>
+        <View style={style.field}>
+          <B.TextBox
+            label={text.name}
+            value={data.name || ''}
+            onChanged={(val) => setData({ ...data, name: val })}
+          />
+        </View>
+        <View style={style.field}>
+          <DayPicker
+            value={data.startDate}
+            onChanged={(val) => setData({ ...data, startDate: val })}
+          />
+        </View>
+        <View style={style.field}>
+          <DescriptionCtrl
+            value={data.description}
+            onChanged={(val) => setData({ ...data, description: val })}
+          />
+        </View>
+        <View style={style.field}>
+          <RepeatCtrl
+            value={data.repeatOption}
+            onChanged={(val) => setData({ ...data, repeatOption: val })}
+          />
+        </View>
+        <View style={style.field}>
+          <ReminderCtrl
+            value={data.reminderOption}
+            onChanged={(val) => setData({ ...data, reminderOption: val })}
+          />
+        </View>
+
+        <TouchableOpacity style={style.primaryAction} onPress={toggleDone}>
+          <Text style={style.primaryActionText}>
+            {isDone ? text.markOpen : text.markDone}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={style.secondaryAction} onPress={moveToTomorrow}>
+          <Text style={style.secondaryActionText}>{text.moveToTomorrow}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={style.removeAction} onPress={remove}>
+          <Text style={style.removeActionText}>{text.remove}</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
+};
+
+const useStyle = () => {
+  const theme = useTheme();
+  const c = theme.token;
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background, padding: theme.space.lg },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingBottom: theme.space.md,
+    },
+    title: { fontSize: theme.fontSize.subtitle, color: c.textPrimary },
+    link: { fontSize: theme.fontSize.body, color: c.accent },
+    body: { paddingBottom: theme.space.xxl },
+    field: {
+      backgroundColor: c.surface,
+      borderRadius: theme.radius.normal,
+      borderWidth: 1,
+      borderColor: c.border,
+      paddingHorizontal: theme.space.md,
+      marginBottom: theme.space.sm,
+    },
+    primaryAction: {
+      backgroundColor: c.accent,
+      borderRadius: theme.radius.normal,
+      paddingVertical: theme.space.md,
+      alignItems: 'center',
+      marginTop: theme.space.lg,
+    },
+    primaryActionText: { color: c.textOnAccent, fontSize: theme.fontSize.body },
+    secondaryAction: {
+      backgroundColor: c.accentSurface,
+      borderRadius: theme.radius.normal,
+      paddingVertical: theme.space.md,
+      alignItems: 'center',
+      marginTop: theme.space.sm,
+    },
+    secondaryActionText: { color: c.textPrimary, fontSize: theme.fontSize.body },
+    removeAction: {
+      paddingVertical: theme.space.md,
+      alignItems: 'center',
+      marginTop: theme.space.lg,
+    },
+    // `destructive` là token duy nhất được phép "nặng", dành riêng cho xoá vĩnh viễn.
+    removeActionText: { color: c.destructive, fontSize: theme.fontSize.body },
+  });
 };
