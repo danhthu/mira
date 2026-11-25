@@ -3,7 +3,7 @@
 Repo tách hai nhánh việc, mỗi nhánh có `CLAUDE.md` riêng với luật chi tiết:
 
 - **`code/`** — sản phẩm (app di động + backend). Đọc [`code/CLAUDE.md`](code/CLAUDE.md) trước khi chạm vào `code/fe/` hoặc `code/be/`.
-- **`growth/`** — blog, landing page, content, thương hiệu, đo lường. Chưa có CLAUDE.md riêng — theo giọng và ràng buộc mô tả trong `docs/00-vision.md` và `growth/content/HANDOFF.md`.
+- **`growth/`** — blog, landing page, content, thương hiệu, đo lường. Chưa có CLAUDE.md riêng — theo giọng và ràng buộc mô tả trong `docs/00-vision.md` và `growth/content/HANDOFF.md`. Hệ vận hành tăng trưởng (agent, skill, task, báo cáo) ở [`growth/os/`](growth/os/README.md); quy ước cho agent ở `growth/os/docs/AGENT_BRIEF.md`.
 
 Spec sản phẩm dùng chung cho cả hai nhánh nằm ở [`docs/`](docs/) (không thuộc riêng `code/` hay `growth/`): `00-vision.md` → `08-three-pillars.md`.
 
@@ -17,6 +17,9 @@ code/
   CLAUDE.md           ← luật kiến trúc + anti-AI rules cho fe/be
 
 growth/
+  os/                 ← Growth OS: CLI + SQLite + memory + scheduler cho mục tiêu 1.000 người dùng/90 ngày.
+                        Đọc growth/os/README.md và growth/os/memory/PROJECT_CONTEXT.md trước khi làm việc growth.
+                        Agent ở .claude/agents/, skill ở .claude/skills/. Mọi ghi dữ liệu qua `node growth/os/bin/os.mjs`.
   site/               ← (chưa tách) landing + calculator — hiện đang chung trong growth/blog/
   blog/               ← Astro blog site
   content/            ← bài viết .md + content-queue.json + HANDOFF.md (tách khỏi code)

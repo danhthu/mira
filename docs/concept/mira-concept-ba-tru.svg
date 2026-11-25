@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="1120" viewBox="0 0 1380 1120" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <clipPath id="ph1"><rect x="56" y="200" width="390" height="844" rx="38"/></clipPath>
+    <clipPath id="ph2"><rect x="495" y="200" width="390" height="844" rx="38"/></clipPath>
+    <clipPath id="ph3"><rect x="934" y="200" width="390" height="844" rx="38"/></clipPath>
+  </defs>
+
+  <rect width="1380" height="1120" fill="#F7F2EA"/>
+
+  <text x="56" y="76" font-size="38" font-weight="700" fill="#1C1917">Mira — concept ba trụ</text>
+  <text x="56" y="112" font-size="19" fill="#6B6257">Thời gian · Tài chính · Mục tiêu. Mira tìm chỗ rò rỉ, rồi chuyển nó thành thứ bạn muốn.</text>
+  <text x="56" y="150" font-size="16" fill="#8A8075">Không streak · không điểm · không huy hiệu · không màu đỏ báo thiếu · giờ vàng không có giá</text>
+
+  <g clip-path="url(#ph1)">
+    <rect x="56" y="200" width="390" height="844" fill="#EADDCA"/>
+    <text x="88" y="268" font-size="15" fill="#8A8075">Thứ Hai, 23/11</text>
+    <text x="88" y="306" font-size="29" font-weight="700" fill="#1C1917">Tuần này của bạn</text>
+
+    <rect x="88" y="340" width="326" height="150" rx="20" fill="#FFFFFF"/>
+    <text x="112" y="376" font-size="15" fill="#6B6257">GIỜ Ý NGHĨA</text>
+    <text x="112" y="428" font-size="48" font-weight="700" fill="#16908A">11,5<tspan font-size="22" font-weight="400" fill="#6B6257">&#160;giờ / tuần</tspan></text>
+    <rect x="112" y="450" width="278" height="8" rx="4" fill="#E6E1D8"/>
+    <rect x="112" y="450" width="104" height="8" rx="4" fill="#16908A"/>
+    <text x="112" y="478" font-size="14" fill="#8A8075">11% giờ tỉnh · tuần trước 9,5 giờ</text>
+
+    <rect x="88" y="506" width="326" height="124" rx="20" fill="#FFFFFF"/>
+    <text x="112" y="542" font-size="15" fill="#6B6257">TỶ GIÁ ĐỜI</text>
+    <text x="112" y="590" font-size="44" font-weight="700" fill="#1C1917">115.000<tspan font-size="20" font-weight="400" fill="#6B6257">&#160;đ/giờ</tspan></text>
+    <text x="112" y="616" font-size="14" fill="#8A8075">30 triệu chia 60 giờ thật mỗi tuần</text>
+
+    <rect x="88" y="646" width="326" height="124" rx="20" fill="#FFFFFF"/>
+    <text x="112" y="682" font-size="15" fill="#6B6257">VỐN TỰ DO</text>
+    <text x="112" y="730" font-size="44" font-weight="700" fill="#1C1917">11,7<tspan font-size="20" font-weight="400" fill="#6B6257">&#160;tháng</tspan></text>
+    <text x="112" y="756" font-size="14" fill="#8A8075">Sống được chừng đó mà không cần làm</text>
+
+    <rect x="88" y="788" width="326" height="92" rx="20" fill="#F2781F"/>
+    <text x="112" y="824" font-size="16" fill="#FFF3E6">Hôm nay còn 2 việc chưa ghi</text>
+    <text x="112" y="856" font-size="20" font-weight="600" fill="#FFFFFF">Ghi nhanh — 40 giây</text>
+
+    <rect x="56" y="944" width="390" height="100" fill="#F6EFE4"/>
+    <text x="118" y="1000" font-size="15" font-weight="600" fill="#F2781F">Hôm nay</text>
+    <text x="222" y="1000" font-size="15" fill="#8A8075">Thời gian</text>
+    <text x="330" y="1000" font-size="15" fill="#8A8075">Tiền</text>
+    <text x="398" y="1000" font-size="15" fill="#8A8075">Tôi</text>
+  </g>
+  <rect x="56" y="200" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="56" y="1084" font-size="17" font-weight="600" fill="#1C1917">1 · Hôm nay — ba con số, không bảng xếp hạng</text>
+
+  <g clip-path="url(#ph2)">
+    <rect x="495" y="200" width="390" height="844" fill="#EADDCA"/>
+    <text x="527" y="268" font-size="15" fill="#8A8075">168 giờ một tuần</text>
+    <text x="527" y="306" font-size="29" font-weight="700" fill="#1C1917">Tuần của bạn đi đâu</text>
+
+    <rect x="527" y="340" width="326" height="26" rx="13" fill="#E6E1D8"/>
+    <rect x="527" y="340" width="96" height="26" rx="13" fill="#C8906B"/>
+    <rect x="623" y="340" width="74" height="26" fill="#16908A"/>
+    <rect x="697" y="340" width="156" height="26" rx="13" fill="#D9D3C7"/>
+    <text x="527" y="392" font-size="14" fill="#8A8075">LÃNG PHÍ 21g · Ý NGHĨA 11,5g · CẦN THIẾT 79,5g</text>
+
+    <rect x="527" y="416" width="326" height="116" rx="20" fill="#FFFFFF"/>
+    <text x="551" y="452" font-size="15" fill="#6B6257">LÃNG PHÍ · chỗ rò rỉ lớn nhất</text>
+    <text x="551" y="492" font-size="30" font-weight="700" fill="#C8906B">Lướt vô định 8,2 giờ</text>
+    <text x="551" y="518" font-size="14" fill="#8A8075">= 943.000đ theo tỷ giá đời của bạn</text>
+
+    <rect x="527" y="548" width="326" height="116" rx="20" fill="#FFFFFF"/>
+    <text x="551" y="584" font-size="15" fill="#6B6257">Ý NGHĨA · tăng so với tuần trước</text>
+    <text x="551" y="624" font-size="30" font-weight="700" fill="#16908A">Với con 4,0 giờ</text>
+    <text x="551" y="650" font-size="14" fill="#8A8075">Giờ này không quy ra tiền. Không bao giờ.</text>
+
+    <rect x="527" y="680" width="326" height="150" rx="20" fill="#F6EFE4"/>
+    <text x="551" y="716" font-size="15" fill="#6B6257">CHUYỂN HOÁ</text>
+    <text x="551" y="754" font-size="21" font-weight="600" fill="#1C1917">Nếu cắt 2 giờ lướt mỗi tuần</text>
+    <text x="551" y="788" font-size="17" fill="#6B6257">thêm 104 giờ với con trong năm</text>
+    <text x="551" y="814" font-size="14" fill="#8A8075">Bạn chọn đổi sang đâu, Mira không chọn thay.</text>
+
+    <rect x="527" y="852" width="326" height="64" rx="18" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="551" y="892" font-size="17" fill="#6B6257">Ghi 1 chạm · hôm nay còn 2</text>
+
+    <rect x="495" y="944" width="390" height="100" fill="#F6EFE4"/>
+    <text x="557" y="1000" font-size="15" fill="#8A8075">Hôm nay</text>
+    <text x="661" y="1000" font-size="15" font-weight="600" fill="#F2781F">Thời gian</text>
+    <text x="769" y="1000" font-size="15" fill="#8A8075">Tiền</text>
+    <text x="837" y="1000" font-size="15" fill="#8A8075">Tôi</text>
+  </g>
+  <rect x="495" y="200" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="495" y="1084" font-size="17" font-weight="600" fill="#1C1917">2 · Thời gian — ba nhóm, chỗ rò rỉ thành lựa chọn</text>
+
+  <g clip-path="url(#ph3)">
+    <rect x="934" y="200" width="390" height="844" fill="#EADDCA"/>
+    <text x="966" y="268" font-size="15" fill="#8A8075">Tỷ giá đời</text>
+    <text x="966" y="306" font-size="29" font-weight="700" fill="#1C1917">Một giờ của bạn</text>
+
+    <rect x="966" y="340" width="326" height="132" rx="20" fill="#1C1917"/>
+    <text x="990" y="378" font-size="15" fill="#B5ADA1">THU NHẬP THẬT THEO GIỜ</text>
+    <text x="990" y="432" font-size="46" font-weight="700" fill="#FFFFFF">115.000<tspan font-size="20" font-weight="400" fill="#B5ADA1">&#160;đ</tspan></text>
+    <text x="990" y="458" font-size="14" fill="#8A8075">Không phải 170.000đ như cách chia 8 tiếng</text>
+
+    <text x="966" y="514" font-size="15" fill="#6B6257">GIỜ LÀM THẬT MỖI TUẦN</text>
+    <rect x="966" y="530" width="326" height="22" rx="11" fill="#E6E1D8"/>
+    <rect x="966" y="530" width="196" height="22" rx="11" fill="#1C1917"/>
+    <rect x="1162" y="530" width="54" height="22" fill="#8A8075"/>
+    <rect x="1216" y="530" width="40" height="22" fill="#C7BCA8"/>
+    <rect x="1256" y="530" width="36" height="22" rx="11" fill="#D9D3C7"/>
+    <text x="966" y="580" font-size="14" fill="#6B6257">Làm 44g · kẹt xe 6g · chuẩn bị 4g · hồi sức 6g = 60g</text>
+
+    <rect x="966" y="606" width="326" height="138" rx="20" fill="#FFFFFF"/>
+    <text x="990" y="642" font-size="15" fill="#6B6257">QUY ĐỔI MỘT MÓN ĐỒ</text>
+    <text x="990" y="686" font-size="27" font-weight="700" fill="#1C1917">Điện thoại 25 triệu</text>
+    <text x="990" y="722" font-size="23" font-weight="600" fill="#F2781F">= 217 giờ đời bạn</text>
+
+    <rect x="966" y="760" width="326" height="120" rx="20" fill="#F6EFE4"/>
+    <text x="990" y="796" font-size="15" fill="#6B6257">VỐN TỰ DO</text>
+    <text x="990" y="836" font-size="21" fill="#1C1917">Mỗi 18 triệu để dành</text>
+    <text x="990" y="864" font-size="19" font-weight="600" fill="#16908A">= mua thêm 1 tháng tự do</text>
+
+    <rect x="934" y="944" width="390" height="100" fill="#F6EFE4"/>
+    <text x="996" y="1000" font-size="15" fill="#8A8075">Hôm nay</text>
+    <text x="1100" y="1000" font-size="15" fill="#8A8075">Thời gian</text>
+    <text x="1208" y="1000" font-size="15" font-weight="600" fill="#F2781F">Tiền</text>
+    <text x="1276" y="1000" font-size="15" fill="#8A8075">Tôi</text>
+  </g>
+  <rect x="934" y="200" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="934" y="1084" font-size="17" font-weight="600" fill="#1C1917">3 · Tiền — quy ra giờ, không quy giờ vàng ra tiền</text>
+</svg>

@@ -8,3 +8,11 @@ ios/
 android/
 .DS_Store
 *.log
+
+# Growth OS: DB SQLite + log chạy không commit; state có bản snapshot JSON/MD ở dashboard/
+growth/os/db/*.sqlite*
+growth/os/logs/*.log
+growth/os/analytics/imports/*.csv
+
+# Cache cua Astro: sinh ra luc build, khong phai ma nguon.
+.astro/

@@ -2,10 +2,31 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "Mira App (web)",
+      "name": "Mira web (vite)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "code"],
+      "port": 5173
+    },
+    {
+      "name": "Mira API (be)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:be", "--prefix", "code"],
+      "port": 8787
+    },
+    {
+      "name": "Mira App (expo, cũ)",
       "runtimeExecutable": "powershell",
-      "runtimeArgs": ["-Command", "Set-Location 'D:\\Danh Thu\\github\\trady360\\mira\\code\\fe'; & './node_modules/.bin/expo.cmd' start --web --port 8081"],
+      "runtimeArgs": [
+        "-Command",
+        "Set-Location 'D:\\Danh Thu\\github\\danhthu\\mira\\code\\fe'; & './node_modules/.bin/expo.cmd' start --web --port 8081"
+      ],
       "port": 8081
+    },
+    {
+      "name": "Growth site widgets (static)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8099", "--directory", "growth/site"],
+      "port": 8099
     }
   ]
 }

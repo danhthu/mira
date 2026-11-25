@@ -1,0 +1,746 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Mira — Bản chốt tính năng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+/* Layout: một cột 1080px, dải điện thoại tràn viền trượt ngang, các khối ngăn bằng chỉ mảnh. */
+:root {
+  --bg: #F7F6F3;
+  --surface: #FFFFFF;
+  --sunk: #EFEDE8;
+  --fg: #16202E;
+  --muted: #5E6B7E;
+  --faint: #8A95A5;
+  --line: #E2E6EB;
+  --accent: #0A7D58;
+  --warn: #A8690A;
+  --salt: #4A6E90;
+  --purple: #5B3FC4;
+  --sugar: #C8840F;
+
+  --display: "Lora", Georgia, "Times New Roman", serif;
+  --body: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121823;
+    --surface: #1A2432;
+    --sunk: #161E2A;
+    --fg: #E8EEF6;
+    --muted: #93A3B8;
+    --faint: #70809A;
+    --line: #27323F;
+    --accent: #2BBF8E;
+    --warn: #E0A92E;
+    --salt: #7FA6C9;
+    --purple: #9A86F0;
+    --sugar: #F0A92E;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121823;
+  --surface: #1A2432;
+  --sunk: #161E2A;
+  --fg: #E8EEF6;
+  --muted: #93A3B8;
+  --faint: #70809A;
+  --line: #27323F;
+  --accent: #2BBF8E;
+  --warn: #E0A92E;
+  --salt: #7FA6C9;
+  --purple: #9A86F0;
+  --sugar: #F0A92E;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 16px/1.6 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.1rem, 5.5vw, 3.2rem); line-height: 1.1; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 3.2vw, 2rem); line-height: 1.2; letter-spacing: -0.01em; }
+h3 { font-size: 1.12rem; line-height: 1.3; }
+p { margin: 0; }
+a { color: var(--accent); }
+
+.eyebrow {
+  font-family: var(--body); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint);
+}
+
+/* ---------- mở đầu ---------- */
+header.hero {
+  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+  padding-top: calc(env(safe-area-inset-top, 0px) + 4.5rem);
+  padding-bottom: 3rem;
+  background: var(--sunk);
+  border-bottom: 1px solid var(--line);
+}
+.hero-in { display: flex; flex-direction: column; gap: 1.1rem; }
+.lead { font-size: clamp(1.05rem, 2.2vw, 1.25rem); color: var(--muted); max-width: 60ch; }
+.lead strong { color: var(--fg); font-weight: 600; }
+.metarow {
+  display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+  font-size: 0.82rem; color: var(--faint); margin-top: 0.4rem;
+}
+.metarow span { display: inline-flex; gap: 0.45rem; align-items: baseline; }
+.metarow b { color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+section { padding-block: 3.4rem; }
+section + section { border-top: 1px solid var(--line); }
+.shead { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; max-width: 62ch; }
+.shead p { color: var(--muted); }
+
+/* ---------- dải điện thoại ---------- */
+.rail {
+  display: flex; gap: 28px;
+  overflow-x: auto; scroll-snap-type: x proximity;
+  padding-block: 4px 20px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  scrollbar-width: thin;
+}
+.rail > figure { margin: 0; scroll-snap-align: start; flex: none; width: 390px; }
+.rail figcaption { margin-top: 0.9rem; }
+.rail figcaption .n { font-family: var(--display); font-size: 1.05rem; font-weight: 600; }
+.rail figcaption .d { font-size: 0.86rem; color: var(--muted); margin-top: 0.2rem; }
+.railhint { font-size: 0.8rem; color: var(--faint); margin-top: 0.4rem; }
+
+/* ---------- khung điện thoại (màu cố định: đây là ảnh sản phẩm) ---------- */
+.phone {
+  --navy: #18202E; --deep: #1E3A5F; --pgreen: #0D9E6E; --pred: #D94452;
+  --pamber: #C97F00; --ppurple: #6D4ED8; --psugar: #F0A92E; --psalt: #5B7FA3;
+  --pline: #E8EDF4; --pmuted: #8A93A3; --pdim: #6B7A91;
+  width: 390px; height: 844px;
+  background: #F2F0EC; color: var(--navy);
+  border: 1px solid rgba(120,135,160,.45); border-radius: 38px;
+  overflow: hidden; display: flex; flex-direction: column;
+  font: 400 15px/1.45 var(--body);
+  box-shadow: 0 18px 44px rgba(10,18,32,.16);
+}
+.phone * { box-sizing: border-box; margin: 0; padding: 0; }
+.phone .body { flex: 1; padding: 26px 28px; overflow: hidden; }
+.phone .card { background: #fff; border-radius: 16px; padding: 18px 20px; }
+.phone .lbl { font-size: 11px; font-weight: 600; color: var(--pmuted); letter-spacing: 1px; }
+.phone .big { font-size: 26px; font-weight: 700; line-height: 1.15; }
+.phone .sm { font-size: 12px; color: var(--pmuted); }
+.phone .btw { display: flex; align-items: center; justify-content: space-between; }
+.phone .date { font-size: 25px; font-weight: 700; }
+.phone .head { display: flex; align-items: flex-start; justify-content: space-between; }
+.phone .badge { font-size: 11px; font-weight: 700; color: var(--pgreen); background: rgba(13,158,110,.14); border-radius: 12px; padding: 5px 11px; }
+.phone .ava { width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 16px; }
+.phone .insight { background: var(--navy); color: #fff; border-radius: 16px; padding: 14px 18px; }
+.phone .insight .lbl { color: #7B8AA3; }
+.phone .insight p { font-style: italic; font-size: 17px; margin-top: 8px; line-height: 1.4; font-family: var(--display); }
+.phone .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.phone .bar { height: 5px; border-radius: 3px; background: var(--pline); margin-top: 10px; }
+.phone .bar > i { display: block; height: 100%; border-radius: 3px; }
+.phone .cd { width: 16px; height: 10px; border-radius: 6px; background: var(--psugar); flex: none; }
+.phone .st { width: 10px; height: 10px; border-radius: 2px; background: var(--psalt); flex: none; }
+.phone .jar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 11px; max-width: 160px; }
+.phone .dot { width: 11px; height: 11px; border-radius: 50%; }
+.phone .inp { background: #fff; border: 1.5px solid #D7DFE9; border-radius: 15px; padding: 13px 17px; margin-top: 7px; display: flex; align-items: center; }
+.phone .caret { width: 2px; height: 20px; background: var(--navy); margin-right: 3px; }
+.phone .ph { font-size: 16px; color: #A6B0BE; }
+.phone .pick { display: flex; gap: 12px; margin-top: 9px; }
+.phone .pick > div { flex: 1; background: #fff; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px 15px; display: flex; align-items: center; gap: 11px; font-weight: 600; font-size: 15px; }
+.phone .pick > div.on { border-color: var(--navy); background: var(--navy); color: #fff; }
+.phone .hint { font-size: 13px; color: var(--pdim); margin-top: 9px; line-height: 1.5; }
+.phone .hint b { color: var(--navy); }
+.phone .dwrap { position: relative; width: 148px; height: 148px; flex: none; }
+.phone .donut { width: 148px; height: 148px; border-radius: 50%; -webkit-mask: radial-gradient(circle, transparent 43px, #000 44px); mask: radial-gradient(circle, transparent 43px, #000 44px); }
+.phone .dmid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.phone .legend { flex: 1; display: flex; flex-direction: column; gap: 12px; padding-left: 11px; }
+.phone .legend .ln { display: flex; align-items: center; gap: 8px; font-size: 13.5px; white-space: nowrap; }
+.phone .legend .v { margin-left: auto; font-weight: 600; }
+.phone .pills { display: flex; gap: 8px; }
+.phone .pills > span { background: #fff; border-radius: 17px; padding: 8px 17px; font-size: 14px; color: #6B7280; }
+.phone .pills > span.on { background: var(--navy); color: #fff; font-weight: 600; }
+.phone .strip { background: rgba(13,158,110,.12); border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.phone .split { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 12px; }
+.phone .split > i { display: block; height: 100%; }
+.phone .tx { display: flex; align-items: center; gap: 13px; margin-top: 9px; }
+.phone .txi { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; }
+.phone .statrow { display: flex; margin-top: 11px; }
+.phone .statrow > div { flex: 1; text-align: center; }
+.phone .statrow > div + div { border-left: 1px solid var(--pline); }
+.phone .statrow .n { font-size: 20px; font-weight: 700; }
+.phone .flag { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 12px; background: rgba(201,127,0,.14); color: var(--pamber); display: inline-block; }
+.phone .flag.ok { background: rgba(13,158,110,.14); color: var(--pgreen); }
+.phone .tabs { height: 90px; background: #FAF9F7; display: flex; align-items: center; border-top: 1px solid #EAE7E1; }
+.phone .tabs > div { flex: 1; text-align: center; font-size: 11px; color: #9AA0A8; }
+.phone .tabs .ic { font-size: 19px; opacity: .45; display: block; margin-bottom: 4px; }
+.phone .tabs .on { color: var(--navy); font-weight: 600; }
+.phone .tabs .on .ic { opacity: 1; }
+
+/* ---------- thẻ vai trò ---------- */
+.roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.role { background: var(--surface); padding: 1.4rem 1.3rem; display: flex; flex-direction: column; gap: 0.9rem; min-width: 0; }
+.role .rh { display: flex; flex-direction: column; gap: 0.3rem; }
+.role .idx { font-family: var(--display); font-size: 1.8rem; font-weight: 600; color: var(--faint); line-height: 1; }
+.role .owns { font-size: 0.86rem; color: var(--sugar); font-weight: 600; line-height: 1.45; }
+.role ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.role li { font-size: 0.88rem; line-height: 1.45; padding-left: 1rem; position: relative; color: var(--muted); }
+.role li::before { content: "—"; position: absolute; left: 0; color: var(--faint); }
+.role .no li { color: var(--faint); }
+.role .no li::before { content: "\00D7"; }
+.block > .t { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--faint); margin-bottom: 0.5rem; }
+.block + .block { margin-top: 0.9rem; }
+
+/* ---------- danh sách ràng buộc ---------- */
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.9rem; list-style: none; padding: 0; margin: 0; }
+.rules li { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: 10px; padding: 0.95rem 1.1rem; font-size: 0.92rem; line-height: 1.5; min-width: 0; }
+.rules b { display: block; font-weight: 600; margin-bottom: 0.15rem; }
+.rules span { color: var(--muted); font-size: 0.86rem; }
+
+/* ---------- nghiên cứu ---------- */
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.6rem; }
+.findings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.95rem; }
+.findings li { display: grid; grid-template-columns: auto 1fr; gap: 0.1rem 0.8rem; align-items: baseline; min-width: 0; }
+.code { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; color: var(--faint); font-variant-numeric: tabular-nums; grid-row: span 2; }
+.findings .ft { font-weight: 600; font-size: 0.95rem; line-height: 1.4; }
+.findings .fb { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+.pillrow { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+.pill { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.7rem; border-radius: 999px; }
+.pill.ok { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.pill.vs { background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); }
+
+.note { background: var(--sunk); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.3rem; margin-top: 1.8rem; }
+.note .t { font-family: var(--display); font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }
+.note p { color: var(--muted); font-size: 0.93rem; }
+
+/* ---------- bảng đối thủ ---------- */
+.tscroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table { border-collapse: collapse; width: 100%; min-width: 580px; font-size: 0.89rem; background: var(--surface); }
+th, td { text-align: left; padding: 0.72rem 0.95rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); font-weight: 700; background: var(--sunk); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.tag { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 5px; white-space: nowrap; }
+.tag.game { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); }
+.tag.tower { background: color-mix(in srgb, var(--purple) 18%, transparent); color: var(--purple); }
+.tag.budget { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.tag.dead { background: color-mix(in srgb, var(--faint) 22%, transparent); color: var(--faint); }
+
+.rival { border: 1px solid var(--line); border-left: 3px solid var(--salt); background: var(--surface); border-radius: 12px; padding: 1.4rem 1.4rem; margin-top: 1.8rem; }
+.rival h3 { margin-bottom: 0.5rem; }
+.rival .quote { font-family: var(--display); font-style: italic; font-size: 1.1rem; color: var(--fg); margin: 0.7rem 0 1rem; }
+.cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin-top: 1rem; }
+.cmp h4 { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin: 0 0 0.5rem; font-family: var(--body); font-weight: 700; }
+.cmp ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+.cmp li { font-size: 0.87rem; line-height: 1.45; color: var(--muted); padding-left: 1rem; position: relative; }
+.cmp li::before { content: "·"; position: absolute; left: 0.25rem; color: var(--faint); }
+
+/* ---------- câu hỏi treo ---------- */
+.open { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; counter-reset: q; }
+.open li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem 1.2rem 1.1rem 3.3rem; position: relative; min-width: 0; }
+.open li::before {
+  counter-increment: q; content: counter(q);
+  position: absolute; left: 1.1rem; top: 1.05rem;
+  font-family: var(--display); font-size: 1.25rem; font-weight: 600; color: var(--faint); line-height: 1;
+}
+.open .qt { font-weight: 600; margin-bottom: 0.3rem; }
+.open .qb { font-size: 0.89rem; color: var(--muted); line-height: 1.55; }
+
+footer { padding-block: 2.6rem 3.4rem; border-top: 1px solid var(--line); color: var(--faint); font-size: 0.82rem; }
+footer p + p { margin-top: 0.4rem; }
+</style>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <div class="eyebrow">Mira · bản chốt 24/11/2026</div>
+    <h1>Bốn màn, bốn vai</h1>
+    <p class="lead">
+      Mỗi màn ghi rõ nó <strong>đo gì</strong>, <strong>quan tâm gì</strong>, và <strong>cố tình không làm gì</strong>.
+      Khuôn hình dựng lại từ Batify; nội dung bám ba trụ Thời gian — Tài chính — Mục tiêu,
+      cộng một lớp khoảnh khắc nằm ngay trang chủ.
+    </p>
+    <div class="metarow">
+      <span>Ràng buộc cứng <b>6</b></span>
+      <span>Phát hiện nghiên cứu <b>N-200 → N-217</b></span>
+      <span>App đã rà <b>16</b></span>
+      <span>Câu hỏi còn treo <b>5</b></span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap shead">
+    <h2>Bốn màn</h2>
+    <p>Hai lớp trên màn Thời gian không đụng nhau: donut trả lời <em>tuần rồi tôi làm gì</em>, thanh dưới trả lời <em>bao nhiêu trong đó là đời tôi</em>. Lớp trên người dùng nhập, lớp dưới Mira tự tính.</p>
+  </div>
+
+  <div class="rail">
+
+    <!-- 1 · THỜI GIAN -->
+    <figure>
+      <div class="phone"><div class="body">
+        <div class="btw"><div class="date">Thời gian</div><div class="sm">Tuần này</div></div>
+        <div class="pills" style="margin-top:16px"><span>Hôm nay</span><span class="on">Tuần này</span><span>Tháng</span></div>
+
+        <div style="display:flex;align-items:center;margin-top:16px">
+          <div class="dwrap">
+            <div class="donut" style="background:conic-gradient(var(--deep) 0 45%,var(--pgreen) 45% 65%,var(--ppurple) 65% 88%,var(--pamber) 88% 100%)"></div>
+            <div class="dmid"><div style="font-size:23px;font-weight:700">112h</div><div class="sm" style="margin-top:2px">giờ tỉnh</div></div>
+          </div>
+          <div class="legend">
+            <div class="ln"><span class="dot" style="background:var(--deep)"></span>Công việc<span class="v">45%</span></div>
+            <div class="ln"><span class="dot" style="background:var(--pgreen)"></span>Gia đình<span class="v">20%</span></div>
+            <div class="ln"><span class="dot" style="background:var(--ppurple)"></span>Cá nhân<span class="v">23%</span></div>
+            <div class="ln"><span class="dot" style="background:var(--pamber)"></span>Lãng phí<span class="v">12%</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="lbl">TRONG GIỜ GIA ĐÌNH</div>
+          <div class="split">
+            <i style="width:42%;background:var(--pgreen)"></i>
+            <i style="width:58%;background:#CBE2D8"></i>
+          </div>
+          <div class="btw" style="margin-top:12px">
+            <div style="font-size:15px;font-weight:600">Giờ vàng 9h 20m</div>
+            <div style="font-size:15px;color:var(--pdim)">Còn lại 12h 40m</div>
+          </div>
+          <div class="sm" style="margin-top:9px">Giờ vàng là giờ thật sự có mặt, không phải giờ ở cùng nhà</div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <span class="flag ok">SO VỚI TUẦN TRƯỚC</span>
+          <div style="font-size:20px;font-weight:700;margin-top:12px">Giờ gia đình nhiều hơn 3 giờ</div>
+          <div style="font-size:14px;color:#6B7280;margin-top:8px;line-height:1.5">Lãng phí giảm 2 giờ. Công việc gần như không đổi.</div>
+          <div class="statrow">
+            <div><div class="n">112h</div><div class="sm">Giờ tỉnh</div></div>
+            <div><div class="n" style="color:var(--pgreen)">22h</div><div class="sm">Gia đình</div></div>
+            <div><div class="n" style="color:var(--pamber)">14h</div><div class="sm">Lãng phí</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div><span class="ic">🏠</span>Nhà</div><div class="on"><span class="ic">⏱️</span>Thời gian</div>
+        <div><span class="ic">💰</span>Tài chính</div><div><span class="ic">🎯</span>Mục tiêu</div><div><span class="ic">👤</span>Tôi</div>
+      </div></div>
+      <figcaption><div class="n">1 · Thời gian</div><div class="d">Catalog nhóm việc ở trên, ba nhóm Mira xếp chồng bên dưới.</div></figcaption>
+    </figure>
+
+    <!-- 2 · NHÀ -->
+    <figure>
+      <div class="phone"><div class="body">
+        <div class="head">
+          <div><div class="date">Thứ 4, 29/4</div><div class="sm" style="margin-top:3px">Ngày 47 · Mira</div></div>
+          <div style="text-align:right"><div class="badge">ACTIVE</div><div class="ava" style="margin-top:9px;margin-left:auto">M</div></div>
+        </div>
+
+        <div class="insight" style="margin-top:10px">
+          <div class="lbl">NHẬN XÉT TUẦN NÀY</div>
+          <p>Tuần này 22 trong 112 giờ tỉnh dành cho gia đình — nhiều hơn tuần trước 3 giờ.</p>
+        </div>
+
+        <div class="grid2" style="margin-top:9px">
+          <div class="card">
+            <div class="lbl">HŨ</div>
+            <div class="jar">
+              <span class="cd"></span><span class="cd"></span><span class="cd"></span><span class="st"></span>
+              <span class="cd"></span><span class="cd"></span><span class="cd"></span><span class="cd"></span>
+              <span class="st"></span><span class="cd"></span><span class="cd"></span><span class="cd"></span>
+              <span class="st"></span><span class="cd"></span><span class="cd"></span><span class="cd"></span>
+              <span class="st"></span><span class="cd"></span><span class="cd"></span><span class="cd"></span>
+              <span class="st"></span><span class="cd"></span><span class="cd"></span>
+            </div>
+            <div class="sm" style="margin-top:10px">18 kẹo · 5 muối</div>
+          </div>
+          <div class="card">
+            <div class="lbl">GIA ĐÌNH</div>
+            <div class="big" style="color:var(--pgreen);margin-top:8px">22h</div>
+            <div class="sm" style="margin-top:4px">Tuần này</div>
+            <div class="bar"><i style="width:20%;background:var(--pgreen)"></i></div>
+            <div class="sm" style="margin-top:9px">Giờ vàng 9h 20m</div>
+          </div>
+          <div class="card">
+            <div class="lbl">TÀI CHÍNH</div>
+            <div class="big" style="margin-top:8px">9,5</div>
+            <div class="sm" style="margin-top:4px">Tháng vốn tự do</div>
+            <div class="bar"><i style="width:40%;background:var(--deep)"></i></div>
+            <div class="sm" style="margin-top:9px">Mức dư 36,7%</div>
+          </div>
+          <div class="card">
+            <div class="lbl">MỤC TIÊU</div>
+            <div class="big" style="margin-top:8px">2/3</div>
+            <div class="sm" style="margin-top:4px">Nhịp tuần này</div>
+            <div style="display:flex;gap:6px;margin-top:11px">
+              <span class="dot" style="background:var(--navy)"></span>
+              <span class="dot" style="background:var(--navy)"></span>
+              <span class="dot" style="background:#D8DCE3"></span>
+            </div>
+            <div class="sm" style="margin-top:8px">Quý còn 38 ngày</div>
+          </div>
+        </div>
+
+        <div class="lbl" style="margin-top:11px">GHI LẠI KHOẢNH KHẮC</div>
+        <div class="inp"><span class="caret"></span><span class="ph">Hôm nay có gì đáng nhớ?</span></div>
+        <div class="pick">
+          <div class="on"><span class="cd"></span>Viên kẹo</div>
+          <div><span class="st"></span>Hạt muối</div>
+        </div>
+        <div class="hint">Vàng ấm là ngày vui, xanh nguội là ngày nặng. Hạt muối được hỏi lại <b>một lần</b>, sau 42 ngày.</div>
+      </div>
+      <div class="tabs">
+        <div class="on"><span class="ic">🏠</span>Nhà</div><div><span class="ic">⏱️</span>Thời gian</div>
+        <div><span class="ic">💰</span>Tài chính</div><div><span class="ic">🎯</span>Mục tiêu</div><div><span class="ic">👤</span>Tôi</div>
+      </div></div>
+      <figcaption><div class="n">2 · Nhà · hũ hạnh phúc</div><div class="d">Ô nhập đứng ngay trang chủ, không phải danh sách.</div></figcaption>
+    </figure>
+
+    <!-- 3 · TÀI CHÍNH -->
+    <figure>
+      <div class="phone"><div class="body">
+        <div class="btw"><div class="date">Tài chính</div><div class="sm">Tháng 4</div></div>
+        <div class="pills" style="margin-top:16px"><span>Tuần</span><span class="on">Tháng</span><span>Quý</span></div>
+
+        <div class="card" style="margin-top:16px;display:flex;align-items:center">
+          <div class="dwrap">
+            <div class="donut" style="background:conic-gradient(var(--pgreen) 0 51.7%,var(--pred) 51.7% 88.6%,var(--deep) 88.6% 97.6%,var(--pamber) 97.6% 100%)"></div>
+            <div class="dmid"><div style="font-size:21px;font-weight:700;color:var(--pgreen)">+2.1tr</div><div class="sm" style="margin-top:2px">tiết kiệm</div></div>
+          </div>
+          <div class="legend">
+            <div class="ln"><span class="dot" style="background:var(--pgreen)"></span>Thu nhập<span class="v" style="color:var(--pgreen)">+18.5tr</span></div>
+            <div class="ln"><span class="dot" style="background:var(--pred)"></span>Chi tiêu<span class="v" style="color:var(--pred)">−13.2tr</span></div>
+            <div class="ln"><span class="dot" style="background:var(--deep)"></span>Đầu tư<span class="v" style="color:var(--deep)">−3.2tr</span></div>
+            <div class="ln"><span class="dot" style="background:var(--pamber)"></span>Lãng phí<span class="v" style="color:var(--pamber)">−850k</span></div>
+          </div>
+        </div>
+
+        <div class="strip">
+          <div style="display:flex;align-items:center;gap:10px;font-size:15px">💰 Mức dư tháng này</div>
+          <div style="font-weight:700;color:var(--pgreen);font-size:17px">36,7%</div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="lbl">NỢ</div>
+          <div class="btw" style="margin-top:10px">
+            <div><div class="big" style="font-size:23px">240tr</div><div class="sm">còn lại</div></div>
+            <div style="text-align:center"><div class="big" style="font-size:23px;color:var(--pamber)">5tr</div><div class="sm">mỗi tháng</div></div>
+            <div style="text-align:right"><div class="big" style="font-size:23px">8/2029</div><div class="sm">trả xong</div></div>
+          </div>
+          <div class="bar" style="height:8px;margin-top:13px"><i style="width:32%;background:var(--pamber)"></i></div>
+          <div class="sm" style="margin-top:7px">Nợ đang giữ lại 3,4 tháng tự do · trả xong: 9,5 → 12,9 tháng</div>
+        </div>
+
+        <div class="lbl" style="margin-top:16px">NĂM Ô NHẬP THÁNG NÀY</div>
+        <div class="tx">
+          <div class="txi" style="background:#E8E2D4">💼</div>
+          <div style="flex:1"><div style="font-size:16px;font-weight:600">Thu nhập ròng</div><div class="sm">Đã nhập · 14/4</div></div>
+          <div style="font-weight:700;color:var(--pgreen)">18.500k</div>
+        </div>
+        <div class="tx">
+          <div class="txi" style="background:#EDEDED">🏦</div>
+          <div style="flex:1"><div style="font-size:16px;font-weight:600">Tài sản ròng</div><div class="sm">Chưa nhập tháng này</div></div>
+          <div style="font-weight:700;color:#A6B0BE;font-size:19px">?</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div><span class="ic">🏠</span>Nhà</div><div><span class="ic">⏱️</span>Thời gian</div>
+        <div class="on"><span class="ic">💰</span>Tài chính</div><div><span class="ic">🎯</span>Mục tiêu</div><div><span class="ic">👤</span>Tôi</div>
+      </div></div>
+      <figcaption><div class="n">3 · Tài chính</div><div class="d">Ô chưa nhập hiện dấu hỏi xám — không đoán hộ.</div></figcaption>
+    </figure>
+
+    <!-- 4 · MỤC TIÊU -->
+    <figure>
+      <div class="phone"><div class="body">
+        <div class="btw"><div class="date">Mục tiêu</div><div class="sm">Quý 2</div></div>
+        <div class="pills" style="margin-top:16px"><span>Dài hạn</span><span class="on">Quý</span><span>Tuần</span></div>
+
+        <div style="display:flex;align-items:center;margin-top:14px">
+          <div class="dwrap">
+            <div class="donut" style="background:conic-gradient(var(--deep) 0 44.4%,var(--pgreen) 44.4% 77.7%,var(--ppurple) 77.7% 100%)"></div>
+            <div class="dmid"><div style="font-size:23px;font-weight:700">9h</div><div class="sm" style="margin-top:2px">mỗi tuần</div></div>
+          </div>
+          <div class="legend">
+            <div class="ln"><span class="dot" style="background:var(--deep)"></span>Viết bản thảo<span class="v">4h</span></div>
+            <div class="ln"><span class="dot" style="background:var(--pgreen)"></span>Chơi với con<span class="v">3h</span></div>
+            <div class="ln"><span class="dot" style="background:var(--ppurple)"></span>Ăn tối cùng nhà<span class="v">2h</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div class="lbl">NGUYÊN LIỆU LẤY TỪ ĐÂU</div>
+          <div class="bar" style="height:12px;background:rgba(201,127,0,.3)"><i style="width:91%;background:var(--navy)"></i></div>
+          <div class="btw" style="margin-top:12px">
+            <div style="font-weight:600;font-size:15px">Lãng phí đã ghi 8,2h</div>
+            <div style="font-weight:600;font-size:15px;color:var(--pamber)">Thiếu 0,8h</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <span class="flag">KHÔNG ĐỦ NGUYÊN LIỆU</span>
+          <div style="font-size:20px;font-weight:700;margin-top:12px">Ba mục tiêu cần quá tay</div>
+          <div style="font-size:14px;color:#6B7280;margin-top:8px;line-height:1.5">Thiếu 0,8 giờ. Bỏ bớt một cái — và 2 giờ đó chuyển sang đâu?</div>
+          <div class="statrow">
+            <div><div class="n">9h</div><div class="sm">Đang cần</div></div>
+            <div><div class="n">8,2h</div><div class="sm">Đang có</div></div>
+            <div><div class="n" style="color:var(--pamber)">0,8h</div><div class="sm">Thiếu</div></div>
+          </div>
+        </div>
+
+        <div class="lbl" style="margin-top:11px">ĐANG CHẠY</div>
+        <div class="tx">
+          <div class="txi" style="background:#DCE6F5">✍️</div>
+          <div style="flex:1"><div style="font-size:16px;font-weight:600">Viết bản thảo 4h mỗi tuần</div><div class="sm">Quý · hết hạn 28/7 · lấy từ giờ lướt</div></div>
+          <div style="font-weight:600;font-size:14px">38 ngày</div>
+        </div>
+        <div class="tx">
+          <div class="txi" style="background:#E2F1EA">🍚</div>
+          <div style="flex:1"><div style="font-size:16px;font-weight:600">Ăn tối cùng nhà 4 bữa</div><div class="sm">Nhịp tuần · đã 3/4</div></div>
+          <div style="font-weight:600;font-size:14px">còn 1</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <div><span class="ic">🏠</span>Nhà</div><div><span class="ic">⏱️</span>Thời gian</div>
+        <div><span class="ic">💰</span>Tài chính</div><div class="on"><span class="ic">🎯</span>Mục tiêu</div><div><span class="ic">👤</span>Tôi</div>
+      </div></div>
+      <figcaption><div class="n">4 · Mục tiêu</div><div class="d">Mục tiêu nói bằng thứ muốn thêm, không bằng thứ muốn bớt.</div></figcaption>
+    </figure>
+
+  </div>
+  <div class="wrap"><p class="railhint">Trượt ngang để xem cả bốn màn.</p></div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Mỗi màn một vai</h2>
+      <p>Hai màn cố tình không đo gì. Hũ mà có điểm thì thành thi đua; mục tiêu mà có phần trăm thì thành danh sách việc.</p>
+    </div>
+
+    <div class="roles">
+      <div class="role">
+        <div class="rh"><div class="idx">1</div><h3>Thời gian</h3></div>
+        <div class="owns">Đo: 112 giờ tỉnh chia theo nhóm việc bạn tự đặt</div>
+        <div class="block"><div class="t">Quan tâm</div><ul>
+          <li>Donut theo nhóm việc: công việc, gia đình, cá nhân, lãng phí</li>
+          <li>Giờ vàng là lát cắt bên trong nhóm gia đình</li>
+          <li>Mẫu số là giờ tỉnh, không phải 24 giờ</li>
+        </ul></div>
+        <div class="block no"><div class="t">Không làm</div><ul>
+          <li>Không gộp mọi nhóm thành một con số duy nhất</li>
+          <li>Không chấm điểm ngày, không chuỗi ngày</li>
+        </ul></div>
+      </div>
+
+      <div class="role">
+        <div class="rh"><div class="idx">2</div><h3>Nhà · hũ hạnh phúc</h3></div>
+        <div class="owns">Đo: không đo gì — đây là nơi ghi, không phải nơi chấm</div>
+        <div class="block"><div class="t">Quan tâm</div><ul>
+          <li>Một hạt chỉ có: chữ · ngày · kẹo hay muối</li>
+          <li>Ô nhập đứng ngay trang chủ, không phải danh sách</li>
+          <li>Hai trạng thái, hai hình, hai nhiệt độ màu</li>
+        </ul></div>
+        <div class="block no"><div class="t">Không làm</div><ul>
+          <li>Không gắn tên người, không gắn nhãn, không phân loại</li>
+          <li>Không hỏi tâm trạng 1–5, không xếp hạng tháng</li>
+        </ul></div>
+      </div>
+
+      <div class="role">
+        <div class="rh"><div class="idx">3</div><h3>Tài chính</h3></div>
+        <div class="owns">Đo: Vốn tự do = tài sản ròng ÷ chi tiêu tháng</div>
+        <div class="block"><div class="t">Quan tâm</div><ul>
+          <li>Năm ô nhập một tháng, ba mươi giây là xong</li>
+          <li>Nợ quy ra số tháng tự do nó đang giữ lại</li>
+          <li>Ô chưa nhập hiện dấu hỏi xám, không đoán hộ</li>
+        </ul></div>
+        <div class="block no"><div class="t">Không làm</div><ul>
+          <li>Không nối API ngân hàng, không bóc hoá đơn</li>
+          <li>Không ngân sách sáu khoang</li>
+        </ul></div>
+      </div>
+
+      <div class="role">
+        <div class="rh"><div class="idx">4</div><h3>Mục tiêu</h3></div>
+        <div class="owns">Đo: không có số riêng — mục tiêu là cầu nối giữa hai trụ</div>
+        <div class="block"><div class="t">Quan tâm</div><ul>
+          <li>Ba tầng có trần: dài hạn 3 · quý 2 · nhịp tuần 3–5</li>
+          <li>Nói bằng thứ muốn thêm, không nói bằng thứ muốn bớt</li>
+          <li>Khai nguồn từng mục tiêu một, ngay lúc tạo nó</li>
+          <li>Bỏ bớt luôn có bước hai: giờ đó chuyển sang đâu</li>
+        </ul></div>
+        <div class="block no"><div class="t">Không làm</div><ul>
+          <li>Không phần trăm hoàn thành, không huy hiệu</li>
+          <li>Không nhắc, không hỏi vì sao bạn bỏ một tuần</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Sáu ràng buộc cứng</h2>
+      <p>Không có ngoại lệ, kể cả khi một tính năng rất hay đòi phá. Mỗi lần muốn phá, ghi vào HANDOFF thay vì tự quyết.</p>
+    </div>
+    <ul class="rules">
+      <li><b>Dưới 60 giây mỗi ngày</b><span>Mọi màn ghi phải xong trong một phút. Chi phí nhập liệu là nguyên nhân bỏ app số một.</span></li>
+      <li><b>Không định giá giờ vàng</b><span>Giờ với người thân không bao giờ bị quy ra tiền.</span></li>
+      <li><b>Không chuỗi, không huy hiệu, không điểm</b><span>Và không dùng màu đỏ cho “chưa đủ”. Đỏ chỉ dành cho chi tiêu trong donut.</span></li>
+      <li><b>Đồng hồ cát mặc định tắt</b><span>Đếm ngược đời là rủi ro số một: nó có thể làm tê liệt thay vì thúc đẩy.</span></li>
+      <li><b>Local-first ở V1</b><span>Không gửi gì lên server. Đây là thứ đối thủ gần nhất không thể bắt chước.</span></li>
+      <li><b>Không nối API ngân hàng</b><span>Năm ô nhập tay mỗi tháng. Đổi lại: không xin quyền, không giữ gì của ai.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Nghiên cứu nói gì</h2>
+      <p>Chín phát hiện từ tài liệu học thuật, mã N-200 → N-208. Bốn chỗ đỡ cho thiết kế hiện tại, ba chỗ nói ngược lại nó.</p>
+    </div>
+
+    <div class="two">
+      <div>
+        <div class="pillrow"><span class="pill ok">Có nền</span></div>
+        <ul class="findings">
+          <li><span class="code">N-201</span><span class="ft">Luật khai nguồn là kế hoạch nếu–thì</span><span class="fb">Gollwitzer &amp; Sheeran gộp 94 phép thử, d ≈ 0,65. Nên hỏi thêm một bước: không chỉ <em>lấy từ đâu</em> mà <em>lấy vào lúc nào</em>.</span></li>
+          <li><span class="code">N-206</span><span class="ft">Trần số mục tiêu</span><span class="fb">Mô hình pha loãng: một phương tiện phục vụ càng nhiều mục tiêu thì cảm nhận hiệu lực cho từng cái càng giảm.</span></li>
+          <li><span class="code">N-202</span><span class="ft">Ghi tay, ghi thành vật</span><span class="fb">Harkin 2016: tác động của theo dõi tiến độ mạnh hơn khi tiến độ được ghi lại thành vật.</span></li>
+          <li><span class="code">N-207</span><span class="ft">Nhịp tuần và quý 90 ngày</span><span class="fb">Mốc thời gian mở ra một kỳ kế toán tinh thần mới. Cũng là lý do hũ nên đóng theo tháng.</span></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="pillrow"><span class="pill vs">Nói ngược</span></div>
+        <ul class="findings">
+          <li><span class="code">N-203</span><span class="ft">Mục tiêu né tránh kém hơn mục tiêu hướng tới</span><span class="fb">Đã sửa: “Giảm giờ lướt” thành “Viết bản thảo 4h”. Cùng con số, cùng luật khai nguồn, khác mặt chữ.</span></li>
+          <li><span class="code">N-206</span><span class="ft">Khai nguồn gộp một lượt làm giảm cam kết</span><span class="fb">Dalton &amp; Spiller: lập kế hoạch cho nhiều mục tiêu cùng lúc khiến người ta nhìn thẳng vào độ khó. Đã sửa: tách từng mục tiêu.</span></li>
+          <li><span class="code">N-205</span><span class="ft">Buông mà không có chỗ chuyển sang thì vô ích</span><span class="fb">Wrosch: chỉ <em>khả năng chuyển sang</em> mới gắn với cảm xúc dương. Đã sửa: màn bỏ bớt hỏi hai câu.</span></li>
+          <li><span class="code">N-204</span><span class="ft">Thất bại lặp lại không làm người ta bỏ cuộc</span><span class="fb">Hy vọng hão: họ đặt lại mục tiêu to hơn. Nên màn “Đã qua” phải cho thấy lịch sử, không được giấu.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="t">Một cái giá phải thừa nhận</div>
+      <p>Yếu tố điều tiết thứ hai của Harkin là <em>công khai</em> — kết quả được cho người khác thấy. Mira cố tình local-first, không bạn bè, không chia sẻ. Nghĩa là Mira tự nguyện bỏ một nửa hiệu lực đã đo được để đổi lấy riêng tư. Đó là lựa chọn đúng với sản phẩm này, nhưng nên ghi thẳng ra chứ đừng giả vờ không mất gì.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Ai đã làm rồi</h2>
+      <p>Mười sáu app đã rà. Thị trường chia hai cực và không có ở giữa: cực đông chạy bằng game hoá, cực kia nghiêm túc nhưng nhỏ và trả phí.</p>
+    </div>
+
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>App</th><th>Lượt cài</th><th>Mô hình</th><th>Concept</th></tr></thead>
+        <tbody>
+          <tr><td>Fabulous</td><td class="num">10M+</td><td><span class="tag game">Game hoá</span></td><td>Huấn luyện viên, hành trình, nghi thức buổi sáng</td></tr>
+          <tr><td>TickTick</td><td class="num">10M+</td><td><span class="tag game">Game hoá</span></td><td>To-do list cộng thói quen, nghiêng về công việc</td></tr>
+          <tr><td>Habitica</td><td class="num">5M+</td><td><span class="tag game">Game hoá</span></td><td>Game nhập vai, điểm kinh nghiệm, mất máu khi bỏ</td></tr>
+          <tr><td>HabitNow</td><td class="num">5M+</td><td><span class="tag game">Game hoá</span></td><td>Thói quen cộng chuỗi ngày</td></tr>
+          <tr><td>Habitify</td><td class="num">500K+</td><td><span class="tag game">Game hoá</span></td><td>Thói quen tối giản, đa nền tảng</td></tr>
+          <tr><td>GoalsOnTrack</td><td class="num">68 USD/năm</td><td><span class="tag tower">Tháp mục đích</span></td><td>SMART, mục tiêu con, kế hoạch hành động</td></tr>
+          <tr><td>Lifetick</td><td class="num">—</td><td><span class="tag tower">Tháp mục đích</span></td><td>Đã xoay sang đội nhóm và trường học</td></tr>
+          <tr><td>Griply</td><td class="num">1K+</td><td><span class="tag tower">Tháp mục đích</span></td><td>Vision → Life Areas → Goals → Projects → Tasks</td></tr>
+          <tr><td>FocusOKR</td><td class="num">—</td><td><span class="tag dead">Đã chết</span></td><td>Domain rao bán; bài tổng hợp 2026 vẫn giới thiệu</td></tr>
+          <tr><td>Untime</td><td class="num">100+</td><td><span class="tag budget">Ngân sách giờ</span></td><td>Ngân sách giờ theo tuần, mục tiêu Grow hoặc Reduce</td></tr>
+          <tr><td>Beyond Time</td><td class="num">29,99 USD/năm</td><td><span class="tag budget">Ngân sách giờ</span></td><td>Khối 15 phút, bốn nhóm, thư AI cuối ngày</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <div class="t">Tháp mục đích chết ở đâu</div>
+      <p>Cái tháp phải được bảo trì. Chi phí dựng ban đầu khổng lồ, phần thưởng hoãn vô thời hạn. Griply làm đủ năm tầng, tích hợp cả lịch — và có 1K+ lượt cài. Lifetick không nuôi nổi bằng người dùng lẻ nên bán cho công ty và trường học. Ba tầng của Mira cũng là một cái tháp nhỏ; thứ cứu nó là trần số lượng, hạn 90 ngày, và không có wizard thiết lập.</p>
+    </div>
+
+    <div class="rival">
+      <h3>Beyond Time — đối thủ gần nhất</h3>
+      <p class="quote">“your time is limited. spend it where it matters.”</p>
+      <p style="color:var(--muted);font-size:0.92rem">Khối 15 phút, 96 khối mỗi ngày trong đó 64 khối thức. Bốn nhóm Work · Life · Health · Sleep. Chọn 1–3 mục tiêu mỗi sáng. Hai phút sáng, hai phút tối. Web và iOS, 29,99 USD một năm.</p>
+      <div class="cmp">
+        <div>
+          <h4>Trùng với Mira</h4>
+          <ul>
+            <li>Câu chuyện thời gian hữu hạn</li>
+            <li>Catalog bốn nhóm việc</li>
+            <li>Trần 1–3 mục tiêu</li>
+            <li>Lá thư AI cuối kỳ — M12 của Mira, dự kiến V4</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Họ làm, Mira cấm</h4>
+          <ul>
+            <li>Chấm điểm 1–10 cho health, life, work mỗi tối</li>
+            <li>AI đọc dữ liệu — nên không thể local-first</li>
+            <li>Đồng hồ cát đặt lên widget màn khoá</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Họ không có</h4>
+          <ul>
+            <li>Trụ tài chính</li>
+            <li>Hũ, và chỗ ghi ngày nặng</li>
+            <li>Tiếng Việt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead">
+      <h2>Còn treo</h2>
+      <p>Năm câu chưa trả lời. Không câu nào chặn việc dựng, nhưng cả năm đều đổi hướng nếu trả lời khác đi.</p>
+    </div>
+    <ul class="open">
+      <li>
+        <div class="qt">Khoảng trống của Mira không nằm ở thời gian — vậy V1 có đúng không?</div>
+        <div class="qb">Roadmap đặt V1 = Thời gian + Khoảnh khắc. Nghĩa là ra mắt bằng đúng sân mạnh nhất của Beyond Time, trong khi giữ lại chính thứ làm nên khác biệt: trụ tài chính.</div>
+      </li>
+      <li>
+        <div class="qt">Lá thư Chủ nhật AI có nên giữ không?</div>
+        <div class="qb">Nằm ở V4, đã bị chiếm, và mâu thuẫn với lời hứa local-first. Bản người dùng tự viết — app chỉ đưa số liệu — vừa rẻ hơn vừa giữ được lời hứa.</div>
+      </li>
+      <li>
+        <div class="qt">Enum <code>bucket</code> chốt theo bản nào?</div>
+        <div class="qb"><b>Đã chốt và đã vào mã.</b> Catalog gom về bốn nhóm <code>work · family · personal · waste</code> trong migration <code>002_catalog_and_moments.sql</code>, có remap dữ liệu cũ. Còn lại: câu “chỉ ba nhóm, không phải sáu” trong <code>08-three-pillars.md</code> và enum sáu khoang trong <code>02-data-model.md</code> vẫn chưa sửa theo.</div>
+      </li>
+      <li>
+        <div class="qt">Vì sao Untime không sống?</div>
+        <div class="qb">Phát hành 18/6/2026, mới năm tháng, chưa đủ đánh giá để Play hiện sao. 100+ lượt cài không phải bằng chứng concept hỏng — nhưng cũng không phải bằng chứng có nhu cầu. Đây là ô trống, không phải câu trả lời.</div>
+      </li>
+      <li>
+        <div class="qt">Cơ chế hỏi lại hạt muối sau 42 ngày dựa trên gì?</div>
+        <div class="qb">Chưa tìm thấy bằng chứng nào cho hay chống. Cần một vòng riêng về expressive writing và affect labeling trước khi dựng.</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Nguồn trong repo: <code>docs/concept/mira-chot-tinh-nang.png</code> · <code>docs/nguon/nghien-cuu/2026-11-24-muc-tieu.md</code> · <code>docs/nguon/nghien-cuu/2026-11-24-doi-thu-muc-tieu.md</code></p>
+    <p>Lượt cài đọc trực tiếp từ Google Play ngày 24/11/2026; dải lượt cài, không phải số người đang dùng. Trần số mục tiêu là quy ước phổ biến trong giới OKR cá nhân, không phải phát minh của Mira.</p>
+  </div>
+</footer>

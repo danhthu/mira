@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="1210" viewBox="0 0 1380 1210" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <clipPath id="s1"><rect x="56" y="232" width="390" height="844" rx="38"/></clipPath>
+    <clipPath id="s2"><rect x="495" y="232" width="390" height="844" rx="38"/></clipPath>
+    <clipPath id="s3"><rect x="934" y="232" width="390" height="844" rx="38"/></clipPath>
+    <clipPath id="jarA"><path d="M150 452 h124 a10 10 0 0 1 10 10 v78 a26 26 0 0 1 -26 26 h-92 a26 26 0 0 1 -26 -26 v-78 a10 10 0 0 1 10 -10 z"/></clipPath>
+    <clipPath id="jarB"><path d="M1010 404 h172 a12 12 0 0 1 12 12 v116 a32 32 0 0 1 -32 32 h-132 a32 32 0 0 1 -32 -32 v-116 a12 12 0 0 1 12 -12 z"/></clipPath>
+  </defs>
+
+  <rect width="1380" height="1210" fill="#F7F2EA"/>
+
+  <text x="56" y="78" font-size="37" font-weight="700" fill="#1C1917">Hũ đường · hũ muối — trang chủ Mira</text>
+  <text x="56" y="116" font-size="19" fill="#6B6257">Thu gom hạnh phúc bằng hạt đường, ghi khó khăn bằng hạt muối. Cùng một hũ.</text>
+  <text x="56" y="150" font-size="15" fill="#8A8075">Đặt lên M5 Khoảnh khắc đã có trong V1 · docs/05-v1-spec.md màn 1 và 3 · docs/01-modules.md “hũ hạnh phúc”</text>
+  <text x="56" y="182" font-size="15" fill="#16908A">Không đếm điểm · không chuỗi ngày · không hũ nào “đúng” · muối không tô đỏ</text>
+
+  <!-- ============ MÀN 1 · HÔM NAY ============ -->
+  <g clip-path="url(#s1)">
+    <rect x="56" y="232" width="390" height="844" fill="#EADDCA"/>
+    <text x="88" y="292" font-size="15" fill="#8A8075">Thứ Hai, 23/11</text>
+    <text x="88" y="336" font-size="27" font-weight="700" fill="#1C1917">Hôm nay bạn có</text>
+    <text x="88" y="374" font-size="40" font-weight="700" fill="#16908A">2 giờ vàng<tspan font-size="19" font-weight="400" fill="#6B6257"> · 2 người</tspan></text>
+
+    <circle cx="106" cy="412" r="17" fill="#CFC0A6"/>
+    <text x="106" y="418" font-size="14" font-weight="600" fill="#5A5248" text-anchor="middle">L</text>
+    <text x="132" y="411" font-size="15" fill="#1C1917">Linh</text>
+    <text x="132" y="429" font-size="13" fill="#8A8075">95 phút</text>
+    <circle cx="246" cy="412" r="17" fill="#CFC0A6"/>
+    <text x="246" y="418" font-size="14" font-weight="600" fill="#5A5248" text-anchor="middle">N</text>
+    <text x="272" y="411" font-size="15" fill="#1C1917">Bé Nghé</text>
+    <text x="272" y="429" font-size="13" fill="#8A8075">30 phút</text>
+
+    <!-- hu -->
+    <rect x="88" y="452" width="326" height="214" rx="20" fill="#FFFFFF"/>
+    <path d="M150 452 h124 a10 10 0 0 1 10 10 v78 a26 26 0 0 1 -26 26 h-92 a26 26 0 0 1 -26 -26 v-78 a10 10 0 0 1 10 -10 z" fill="#F4EEE4"/>
+    <g clip-path="url(#jarA)">
+      <circle cx="162" cy="548" r="5" fill="#E8B44A"/><circle cx="178" cy="552" r="5" fill="#E8B44A"/>
+      <circle cx="194" cy="546" r="5" fill="#E8B44A"/><circle cx="210" cy="553" r="5" fill="#7E96A8"/>
+      <circle cx="226" cy="547" r="5" fill="#E8B44A"/><circle cx="242" cy="552" r="5" fill="#E8B44A"/>
+      <circle cx="258" cy="548" r="5" fill="#7E96A8"/>
+      <circle cx="170" cy="536" r="5" fill="#E8B44A"/><circle cx="186" cy="538" r="5" fill="#E8B44A"/>
+      <circle cx="202" cy="534" r="5" fill="#E8B44A"/><circle cx="218" cy="539" r="5" fill="#E8B44A"/>
+      <circle cx="234" cy="535" r="5" fill="#7E96A8"/><circle cx="250" cy="538" r="5" fill="#E8B44A"/>
+      <circle cx="178" cy="524" r="5" fill="#E8B44A"/><circle cx="194" cy="522" r="5" fill="#E8B44A"/>
+      <circle cx="210" cy="526" r="5" fill="#E8B44A"/><circle cx="226" cy="523" r="5" fill="#E8B44A"/>
+      <circle cx="242" cy="525" r="5" fill="#7E96A8"/>
+      <circle cx="196" cy="511" r="5" fill="#E8B44A"/><circle cx="212" cy="513" r="5" fill="#E8B44A"/>
+      <circle cx="228" cy="510" r="5" fill="#E8B44A"/>
+    </g>
+    <path d="M150 452 h124 a10 10 0 0 1 10 10 v78 a26 26 0 0 1 -26 26 h-92 a26 26 0 0 1 -26 -26 v-78 a10 10 0 0 1 10 -10 z" fill="none" stroke="#D8CDBA" stroke-width="2"/>
+    <rect x="156" y="444" width="112" height="12" rx="6" fill="#D8CDBA"/>
+
+    <text x="212" y="600" font-size="15" fill="#6B6257" text-anchor="middle">Tháng 11 của bạn</text>
+    <circle cx="140" cy="626" r="6" fill="#E8B44A"/>
+    <text x="154" y="632" font-size="17" font-weight="600" fill="#1C1917">18 đường</text>
+    <circle cx="258" cy="626" r="6" fill="#7E96A8"/>
+    <text x="272" y="632" font-size="17" font-weight="600" fill="#1C1917">5 muối</text>
+
+    <rect x="88" y="690" width="326" height="76" rx="20" fill="#F2781F"/>
+    <text x="251" y="737" font-size="21" font-weight="600" fill="#FFFFFF" text-anchor="middle">Bắt đầu</text>
+
+    <rect x="88" y="780" width="155" height="60" rx="18" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="165" y="817" font-size="16" fill="#6B6257" text-anchor="middle">Ghi nhanh</text>
+    <rect x="259" y="780" width="155" height="60" rx="18" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="336" y="817" font-size="16" fill="#6B6257" text-anchor="middle">Xem hũ</text>
+
+    <rect x="88" y="862" width="326" height="62" rx="18" fill="#FFFFFF"/>
+    <text x="112" y="900" font-size="16" fill="#A79D90">Hôm nay có gì đáng nhớ?</text>
+    <circle cx="390" cy="893" r="15" fill="#E8B44A"/>
+    <text x="390" y="899" font-size="16" font-weight="700" fill="#FFFFFF" text-anchor="middle">+</text>
+
+    <rect x="56" y="986" width="390" height="90" fill="#F6EFE4"/>
+    <text x="118" y="1040" font-size="15" font-weight="600" fill="#F2781F" text-anchor="middle">Hôm nay</text>
+    <text x="222" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Hũ</text>
+    <text x="326" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Người</text>
+    <text x="414" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Tôi</text>
+  </g>
+  <rect x="56" y="232" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="56" y="1120" font-size="17" font-weight="600" fill="#1C1917">1 · Hôm nay — giờ vàng ở trên, hũ ở giữa</text>
+  <text x="56" y="1150" font-size="14" fill="#8A8075">Hũ chung cho cả hai loại hạt. Không biểu đồ, không phần trăm.</text>
+  <text x="56" y="1176" font-size="14" fill="#8A8075">Ô ghi luôn hiện — gõ và enter là xong, đúng spec màn 1.</text>
+
+  <!-- ============ MÀN 2 · GHI MỘT HẠT ============ -->
+  <g clip-path="url(#s2)">
+    <rect x="495" y="232" width="390" height="844" fill="#EADDCA"/>
+    <rect x="495" y="232" width="390" height="300" fill="#DED0BA"/>
+    <text x="527" y="292" font-size="15" fill="#8A8075">Thứ Hai, 23/11 · 20:14</text>
+    <text x="527" y="336" font-size="25" font-weight="700" fill="#1C1917">Hôm nay có gì đáng nhớ?</text>
+    <rect x="527" y="360" width="326" height="92" rx="18" fill="#FFFFFF"/>
+    <text x="551" y="396" font-size="18" fill="#1C1917">Bé Nghé tự xúc cơm được</text>
+    <text x="551" y="426" font-size="18" fill="#1C1917">nguyên bữa, không ai dỗ.</text>
+    <text x="527" y="486" font-size="15" fill="#6B6257">Đây là hạt gì?</text>
+
+    <rect x="527" y="506" width="158" height="150" rx="20" fill="#FFFFFF" stroke="#E8B44A" stroke-width="3"/>
+    <circle cx="592" cy="556" r="7" fill="#E8B44A"/><circle cx="608" cy="562" r="7" fill="#E8B44A"/>
+    <circle cx="620" cy="550" r="7" fill="#E8B44A"/>
+    <text x="606" y="604" font-size="19" font-weight="700" fill="#1C1917" text-anchor="middle">Hạt đường</text>
+    <text x="606" y="630" font-size="14" fill="#8A8075" text-anchor="middle">Chuyện lành</text>
+
+    <rect x="695" y="506" width="158" height="150" rx="20" fill="#FFFFFF" stroke="#E6DFD2" stroke-width="2"/>
+    <circle cx="760" cy="556" r="7" fill="#7E96A8"/><circle cx="776" cy="562" r="7" fill="#7E96A8"/>
+    <circle cx="788" cy="550" r="7" fill="#7E96A8"/>
+    <text x="774" y="604" font-size="19" font-weight="700" fill="#6B6257" text-anchor="middle">Hạt muối</text>
+    <text x="774" y="630" font-size="14" fill="#8A8075" text-anchor="middle">Chuyện khó</text>
+
+    <text x="527" y="700" font-size="15" fill="#6B6257">Có ai cùng không?</text>
+    <rect x="527" y="716" width="118" height="46" rx="23" fill="#1C1917"/>
+    <text x="586" y="745" font-size="15" fill="#FFFFFF" text-anchor="middle">Bé Nghé</text>
+    <rect x="655" y="716" width="92" height="46" rx="23" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="701" y="745" font-size="15" fill="#6B6257" text-anchor="middle">Linh</text>
+    <rect x="757" y="716" width="96" height="46" rx="23" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="805" y="745" font-size="15" fill="#6B6257" text-anchor="middle">+ thêm</text>
+
+    <rect x="527" y="790" width="158" height="60" rx="18" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="606" y="827" font-size="16" fill="#6B6257" text-anchor="middle">Thêm ảnh</text>
+    <rect x="695" y="790" width="158" height="60" rx="18" fill="#F2781F"/>
+    <text x="774" y="827" font-size="17" font-weight="600" fill="#FFFFFF" text-anchor="middle">Bỏ vào hũ</text>
+
+    <text x="690" y="898" font-size="14" fill="#8A8075" text-anchor="middle">Không hỏi tâm trạng. Không chấm điểm. 15 giây.</text>
+
+    <rect x="495" y="986" width="390" height="90" fill="#F6EFE4"/>
+    <text x="557" y="1040" font-size="15" font-weight="600" fill="#F2781F" text-anchor="middle">Hôm nay</text>
+    <text x="661" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Hũ</text>
+    <text x="765" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Người</text>
+    <text x="853" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Tôi</text>
+  </g>
+  <rect x="495" y="232" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="495" y="1120" font-size="17" font-weight="600" fill="#1C1917">2 · Bỏ một hạt — một dòng, một lựa chọn</text>
+  <text x="495" y="1150" font-size="14" fill="#8A8075">Đường hay muối — câu hỏi duy nhất, không thang 1–5.</text>
+  <text x="495" y="1176" font-size="14" fill="#8A8075">Muối viền xám, không đỏ — ghi chuyện khó không phải là lỗi.</text>
+
+  <!-- ============ MÀN 3 · HŨ THÁNG NÀY ============ -->
+  <g clip-path="url(#s3)">
+    <rect x="934" y="232" width="390" height="844" fill="#EADDCA"/>
+    <text x="966" y="292" font-size="15" fill="#8A8075">Hũ của bạn</text>
+    <text x="966" y="332" font-size="27" font-weight="700" fill="#1C1917">Tháng 11</text>
+
+    <path d="M1010 404 h172 a12 12 0 0 1 12 12 v116 a32 32 0 0 1 -32 32 h-132 a32 32 0 0 1 -32 -32 v-116 a12 12 0 0 1 12 -12 z" fill="#F4EEE4"/>
+    <g clip-path="url(#jarB)">
+      <circle cx="1022" cy="548" r="6" fill="#E8B44A"/><circle cx="1040" cy="552" r="6" fill="#E8B44A"/>
+      <circle cx="1058" cy="546" r="6" fill="#E8B44A"/><circle cx="1076" cy="553" r="6" fill="#7E96A8"/>
+      <circle cx="1094" cy="547" r="6" fill="#E8B44A"/><circle cx="1112" cy="552" r="6" fill="#E8B44A"/>
+      <circle cx="1130" cy="546" r="6" fill="#E8B44A"/><circle cx="1148" cy="552" r="6" fill="#7E96A8"/>
+      <circle cx="1166" cy="547" r="6" fill="#E8B44A"/><circle cx="1184" cy="551" r="6" fill="#E8B44A"/>
+      <circle cx="1032" cy="534" r="6" fill="#E8B44A"/><circle cx="1050" cy="536" r="6" fill="#E8B44A"/>
+      <circle cx="1068" cy="532" r="6" fill="#E8B44A"/><circle cx="1086" cy="537" r="6" fill="#E8B44A"/>
+      <circle cx="1104" cy="533" r="6" fill="#7E96A8"/><circle cx="1122" cy="536" r="6" fill="#E8B44A"/>
+      <circle cx="1140" cy="532" r="6" fill="#E8B44A"/><circle cx="1158" cy="537" r="6" fill="#E8B44A"/>
+      <circle cx="1176" cy="533" r="6" fill="#E8B44A"/>
+      <circle cx="1044" cy="520" r="6" fill="#E8B44A"/><circle cx="1062" cy="518" r="6" fill="#E8B44A"/>
+      <circle cx="1080" cy="522" r="6" fill="#7E96A8"/><circle cx="1098" cy="519" r="6" fill="#E8B44A"/>
+      <circle cx="1116" cy="521" r="6" fill="#E8B44A"/><circle cx="1134" cy="518" r="6" fill="#E8B44A"/>
+      <circle cx="1152" cy="522" r="6" fill="#E8B44A"/>
+      <circle cx="1074" cy="505" r="6" fill="#E8B44A"/><circle cx="1092" cy="507" r="6" fill="#E8B44A"/>
+      <circle cx="1110" cy="504" r="6" fill="#7E96A8"/><circle cx="1128" cy="506" r="6" fill="#E8B44A"/>
+    </g>
+    <path d="M1010 404 h172 a12 12 0 0 1 12 12 v116 a32 32 0 0 1 -32 32 h-132 a32 32 0 0 1 -32 -32 v-116 a12 12 0 0 1 12 -12 z" fill="none" stroke="#D8CDBA" stroke-width="2"/>
+    <rect x="1018" y="394" width="156" height="14" rx="7" fill="#D8CDBA"/>
+    <text x="1096" y="602" font-size="17" fill="#6B6257" text-anchor="middle">18 hạt đường · 5 hạt muối</text>
+
+    <rect x="966" y="628" width="326" height="124" rx="20" fill="#FFFFFF"/>
+    <text x="990" y="664" font-size="13" font-weight="600" fill="#8A8075" letter-spacing="1">HŨ NÀY ĐẾN TỪ ĐÂU</text>
+    <text x="990" y="700" font-size="20" font-weight="700" fill="#1C1917">12 trong 18 hạt đường</text>
+    <text x="990" y="728" font-size="17" fill="#6B6257">có mặt Bé Nghé</text>
+
+    <rect x="966" y="772" width="326" height="124" rx="20" fill="#F6EFE4"/>
+    <circle cx="990" cy="806" r="6" fill="#7E96A8"/>
+    <text x="1006" y="812" font-size="13" font-weight="600" fill="#8A8075" letter-spacing="1">HẠT MUỐI 12/10 · 42 NGÀY TRƯỚC</text>
+    <text x="990" y="848" font-size="19" font-weight="600" fill="#1C1917">“Mất hợp đồng lớn nhất năm.”</text>
+    <text x="990" y="878" font-size="16" fill="#6B6257">Bây giờ nhìn lại, chuyện đó ra sao rồi?</text>
+
+    <rect x="966" y="916" width="326" height="56" rx="18" fill="none" stroke="#C7BCA8" stroke-width="2"/>
+    <text x="1129" y="951" font-size="16" fill="#6B6257" text-anchor="middle">Xem lại cả tháng</text>
+
+    <rect x="934" y="986" width="390" height="90" fill="#F6EFE4"/>
+    <text x="996" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Hôm nay</text>
+    <text x="1100" y="1040" font-size="15" font-weight="600" fill="#F2781F" text-anchor="middle">Hũ</text>
+    <text x="1204" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Người</text>
+    <text x="1292" y="1040" font-size="15" fill="#8A8075" text-anchor="middle">Tôi</text>
+  </g>
+  <rect x="934" y="232" width="390" height="844" rx="38" fill="none" stroke="#D6C9B4" stroke-width="2"/>
+  <text x="934" y="1120" font-size="17" font-weight="600" fill="#1C1917">3 · Hũ tháng — và hạt muối quay lại sau 42 ngày</text>
+  <text x="934" y="1150" font-size="14" fill="#8A8075">Giao điểm Người × Khoảnh khắc đã có trong docs/01</text>
+  <text x="934" y="1176" font-size="14" fill="#8A8075">Muối cũ hỏi lại đúng một lần, bỏ qua thì thôi.</text>
+</svg>
