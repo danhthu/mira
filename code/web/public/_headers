@@ -1,0 +1,13 @@
+# Từ 25/11/2026 Mira không còn local-first: dữ liệu nằm trên máy chủ, web gọi API.
+# CSP dưới đây mở đúng MỘT gốc cho connect-src — mira-api.trady360.com — và không gì khác.
+# Trang vẫn không nạp được script, ảnh hay font từ bất kỳ đâu ngoài chính nó.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://mira-api.trady360.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+
+# Tài nguyên có vân tay trong tên thì cache lâu được.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
