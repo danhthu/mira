@@ -50,6 +50,8 @@ export interface AppDeps {
   readonly habits: HabitRepository;
   readonly nep: NepRepository;
   readonly danhMuc: DanhMucRepository;
+  /** Cấu hình đọc câu bằng AI. Khoá rỗng nghĩa là chưa bật. */
+  readonly ai: { readonly apiKey: string; readonly model: string };
   readonly auth: AuthDeps;
   readonly wakingMinutesPerWeek?: number;
 }
@@ -60,6 +62,7 @@ export function buildDeps(
   ttlSeconds: number,
   wakingMinutesPerWeek: number | undefined,
   googleClientId: string,
+  ai: { apiKey: string; model: string } = { apiKey: '', model: 'claude-opus-5-5' },
 ): AppDeps {
   const users = new UserRepository(db);
   return {
@@ -73,6 +76,7 @@ export function buildDeps(
     habits: new HabitRepository(db),
     nep: new NepRepository(db),
     danhMuc: new DanhMucRepository(db),
+    ai,
     auth: { users, jwtSecret, ttlSeconds, googleClientId },
   };
 }

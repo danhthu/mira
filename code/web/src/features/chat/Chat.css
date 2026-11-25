@@ -1,0 +1,225 @@
+/* Màn chat. Khác mọi màn khác ở một chỗ: nó là màn để GÕ, nên ô gõ phải luôn nhìn thấy
+   và phần cuộn nằm giữa, không phải cuộn cả trang. */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding: 16px 20px 0;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.chat__dau {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex: none;
+}
+
+/* Ba con số, không phải mười hai. Đây là màn để gõ; đọc số thì sang tab khác, và mỗi ô
+   là một đường dẫn sang đúng chỗ đọc nó. */
+.chat__so {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex: none;
+}
+
+.chat__o {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: 10px 11px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.chat__o b {
+  display: block;
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chat__o span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  margin-top: 2px;
+}
+
+.chat__cuon {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scrollbar-width: none;
+}
+
+.chat__cuon::-webkit-scrollbar {
+  display: none;
+}
+
+.chat__moi {
+  color: var(--fg-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.chat__moi ul {
+  list-style: none;
+  margin: 10px 0;
+}
+
+/* Ví dụ in nghiêng và thụt vào: trông như câu người ta sắp gõ, không như danh sách
+   tính năng. */
+.chat__moi li {
+  font-style: italic;
+  color: var(--fg);
+  padding: 5px 0 5px 14px;
+  border-left: 2px solid var(--line);
+}
+
+.chat__nho {
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.bong {
+  max-width: 86%;
+  border-radius: var(--radius-lg);
+  padding: 11px 14px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.bong--toi {
+  align-self: flex-end;
+  background: var(--navy);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+}
+
+.bong--mira {
+  align-self: flex-start;
+  background: var(--surface);
+  border-bottom-left-radius: 5px;
+}
+
+.bong__chu {
+  margin: 0;
+}
+
+.bong__cho {
+  color: var(--fg-muted);
+}
+
+/* Thẻ một việc Mira đọc ra. Nó là ĐỀ XUẤT, chưa ghi, nên nó nằm trong bong bóng của
+   Mira chứ không trông như một mục đã có trong danh sách. */
+.y {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 0;
+}
+
+.y + .y {
+  border-top: 1px solid var(--line);
+}
+
+.y b {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.y span {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.y--khong {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--fg-dim);
+}
+
+.y__keo,
+.y__muoi {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  flex: none;
+}
+
+.y__keo {
+  border-radius: 999px;
+  background: var(--candy);
+}
+
+.y__muoi {
+  border-radius: 3px;
+  background: var(--salt);
+}
+
+.bong__ghi {
+  margin-top: 10px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 11px;
+  padding: 9px 20px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.bong__ghi:disabled {
+  opacity: 0.6;
+}
+
+.bong__xong {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Hàng gõ: dính đáy, trên thanh tab. */
+.chat__go {
+  flex: none;
+  display: flex;
+  gap: 9px;
+  padding: 10px 0 calc(var(--tab-height) + 8px);
+  background: var(--screen);
+}
+
+.chat__go input {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1.5px solid #d7dfe9;
+  border-radius: 999px;
+  padding: 12px 17px;
+  font-size: 16px;
+}
+
+.chat__go button {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 15px;
+  flex: none;
+}
+
+.chat__go button:disabled {
+  opacity: 0.4;
+}

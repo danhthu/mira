@@ -14,7 +14,33 @@
 import { DomainError } from '../shared/errors';
 
 const CUA_SO_MS = 15 * 60 * 1000;
-const TOI_DA = 8;
+
+/**
+ * Mỗi đường có ngưỡng và lời nhắn riêng.
+ *
+ * Dùng chung ngưỡng đăng nhập cho mọi thứ là sai hai lần: 8 lần mỗi mười lăm phút quá
+ * chặt cho một ô chat (gõ tám câu là hết), và câu "Sai quá nhiều lần" vô nghĩa khi người
+ * dùng chẳng sai gì cả — họ chỉ đang gõ.
+ */
+export interface Nguong {
+  readonly toiDa: number;
+  /** `{con}` được thay bằng số phút còn lại. */
+  readonly thongDiep: string;
+}
+
+export const NGUONG_DANG_NHAP: Nguong = {
+  toiDa: 8,
+  thongDiep: 'Sai quá nhiều lần. Thử lại sau {con} phút.',
+};
+
+/**
+ * Đọc câu: rộng tay hơn nhiều vì đây là thao tác bình thường, nhưng vẫn có trần vì mỗi
+ * câu tầng luật không đọc được là một lần gọi LLM, tức là tiền thật.
+ */
+export const NGUONG_DOC: Nguong = {
+  toiDa: 60,
+  thongDiep: 'Gõ hơi nhanh rồi. Nghỉ {con} phút nữa nhé.',
+};
 /** Dọn định kỳ để map không phình mãi khi máy chủ chạy nhiều ngày. */
 const DON_MOI_MS = 5 * 60 * 1000;
 
@@ -35,10 +61,10 @@ function don(bayGio: number): void {
 }
 
 /**
- * Gọi trước khi kiểm mật khẩu. Ném 429 khi vượt ngưỡng.
+ * Gọi trước việc cần chặn. Ném 429 khi vượt ngưỡng.
  * `dat` lấy từ header của proxy nếu có, không thì rỗng — thiếu IP vẫn đếm được theo tên.
  */
-export function kiemDoLuong(ip: string, username: string): void {
+export function kiemDoLuong(ip: string, username: string, nguong: Nguong = NGUONG_DANG_NHAP): void {
   const bayGio = Date.now();
   don(bayGio);
 
@@ -51,13 +77,9 @@ export function kiemDoLuong(ip: string, username: string): void {
   }
 
   d.soLan += 1;
-  if (d.soLan > TOI_DA) {
+  if (d.soLan > nguong.toiDa) {
     const con = Math.ceil((d.hetHan - bayGio) / 60000);
-    throw new DomainError(
-      'unauthorized',
-      429,
-      `Sai quá nhiều lần. Thử lại sau ${con} phút.`,
-    );
+    throw new DomainError('unauthorized', 429, nguong.thongDiep.replace('{con}', String(con)));
   }
 }
 

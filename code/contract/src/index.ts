@@ -137,6 +137,36 @@ export interface DanhMucCreate {
 /** Trần danh mục **mỗi ô**, không phải tổng. */
 export const DANH_MUC_CAP = 6;
 
+// ─────────────────────────────────────────────────────── đọc câu
+
+/**
+ * Một việc Mira đọc được từ câu người dùng gõ.
+ *
+ * Đây là **đề xuất**, không phải thứ đã ghi. Người dùng duyệt rồi client mới gọi các
+ * route ghi đã có.
+ */
+export type YChi =
+  | { readonly loai: 'gio'; readonly bucket: TimeBucket; readonly minutes: number; readonly ten: string; readonly golden: boolean }
+  | { readonly loai: 'hat'; readonly kind: MomentKind; readonly text: string }
+  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number }
+  | { readonly loai: 'khongGhi'; readonly viSao: string };
+
+export type OTien = 'netIncome' | 'monthlyExpense' | 'debtPayment' | 'debtBalance' | 'netWorth';
+
+export interface KetQuaDoc {
+  readonly yChi: readonly YChi[];
+  /** 'luat' đọc bằng luật (không tốn tiền), 'ai' phải nhờ LLM, 'chiu' không ai đọc được. */
+  readonly nguon: 'luat' | 'ai' | 'chiu';
+}
+
+export const O_TIEN_LABEL_VI: Record<OTien, string> = {
+  netIncome: 'Thu nhập ròng',
+  monthlyExpense: 'Chi tiêu tháng',
+  debtPayment: 'Trả nợ mỗi tháng',
+  debtBalance: 'Dư nợ',
+  netWorth: 'Tài sản ròng',
+};
+
 export interface TimeEntry {
   readonly id: string;
   /** YYYY-MM-DD theo giờ địa phương của người dùng. */

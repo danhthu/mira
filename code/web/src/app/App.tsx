@@ -4,6 +4,7 @@ import type { User } from '@mira/contract';
 import { TabBar } from '../ui/TabBar';
 import { AuthScreen } from '../features/auth/AuthScreen';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
+import { ChatScreen } from '../features/chat/ChatScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { TimeScreen } from '../features/time/TimeScreen';
 import { BucketScreen } from '../features/time/BucketScreen';
@@ -83,7 +84,10 @@ export function App() {
     <BrowserRouter>
       <div className="screen">
         <Routes>
-          <Route path="/" element={<HomeScreen />} />
+          {/* Màn đầu là chat: đây là chỗ GÕ. Bản cũ (bốn thẻ số rồi ô viết ở đáy)
+              còn ở /tom-tat cho lúc muốn liếc nhanh mọi con số. */}
+          <Route path="/" element={<ChatScreen />} />
+          <Route path="/tom-tat" element={<HomeScreen />} />
           <Route path="/thoi-gian" element={<TimeScreen />} />
           <Route path="/thoi-gian/:bucket" element={<BucketScreen />} />
           <Route path="/hu" element={<HuScreen />} />

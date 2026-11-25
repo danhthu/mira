@@ -4,6 +4,7 @@ import type {
   GoogleCredentials,
   DanhMuc,
   DanhMucCreate,
+  KetQuaDoc,
   Nep,
   NepCreate,
   NgayCuaNep,
@@ -128,6 +129,10 @@ export function createClient(options: ClientOptions) {
     deleteTimeEntry: (id: string) => call<void>('DELETE', `/time-entries/${id}`),
     weekSummary: (weekStart: string) =>
       call<WeekSummary>('GET', `/time-entries/week${query({ weekStart })}`),
+
+    // ───────────────────────────────────────── đọc câu
+    /** Đọc một câu thành đề xuất. KHÔNG ghi gì cả. */
+    doc: (cau: string) => call<KetQuaDoc>('POST', '/doc', { cau }),
 
     // ───────────────────────────────────────── danh mục
     listDanhMuc: () => call<DanhMuc[]>('GET', '/danh-muc'),

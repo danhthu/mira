@@ -32,13 +32,15 @@ import { dangNhap, dangNhapGoogle } from '../services/auth';
 import { nhapBo } from '../services/nhapBo';
 import { xuatBo } from '../services/xuatBo';
 import { chayNep, dungNep, nhanLaiNgay, taoNep, tuChoiNgay } from '../services/nep';
+import { docBangLuat } from '../services/docCau';
+import { docBangAi } from '../services/docCauAi';
 import {
   catDanhMuc,
   docDanhMuc,
   doiTenDanhMuc,
   taoDanhMuc,
 } from '../services/danhMuc';
-import { kiemDoLuong, xoaDem } from './chanDoLuong';
+import { kiemDoLuong, xoaDem, NGUONG_DOC } from './chanDoLuong';
 import type { Money } from '../entities/Money';
 
 // ─────────────────────────────────────────────────────── đọc tham số
@@ -190,6 +192,29 @@ const getMe: Handler = async (_req, deps, userId) => {
     status: 200,
     body: { id: user.id, username: user.username, displayName: user.displayName },
   };
+};
+
+/**
+ * Đọc một câu thành đề xuất. **Không ghi gì cả.**
+ *
+ * Luật trước, AI sau. Người dùng duyệt rồi client mới gọi các route ghi đã có — nên
+ * đường ghi vẫn là đường đã kiểm, không có cửa sau nào mới.
+ */
+const postDoc: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  const cau = String(b.cau ?? '').trim();
+  if (cau === '') throw badRequest('Chưa có câu nào để đọc.');
+  if (cau.length > 500) throw badRequest('Câu dài quá 500 ký tự.');
+
+  // Chặn dò khoá: mỗi lần gọi AI là tiền thật.
+  const ip = req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for'] ?? '';
+  kiemDoLuong(ip, `doc|${userId}`, NGUONG_DOC);
+
+  const luat = docBangLuat(cau);
+  if (luat.nguon === 'luat') return { status: 200, body: luat };
+
+  const ai = await docBangAi(deps.ai, cau);
+  return { status: 200, body: ai };
 };
 
 // ── danh mục: tên việc người dùng tự đặt, nằm trong một trong bốn ô
@@ -517,6 +542,8 @@ export const routes: readonly Route[] = [
 
   { method: 'POST', path: '/import', handler: postImport },
   { method: 'GET', path: '/export', handler: getExport },
+
+  { method: 'POST', path: '/doc', handler: postDoc },
 
   { method: 'GET', path: '/danh-muc', handler: listDanhMuc },
   { method: 'POST', path: '/danh-muc', handler: postDanhMuc },
