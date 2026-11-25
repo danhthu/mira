@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<title>Mira — chốt tính năng key</title>
+<style>
+  :root {
+    --sheet: #141B27;
+    --screen: #F2F0EC;
+    --navy: #18202E;
+    --deep: #1E3A5F;
+    --green: #0D9E6E;
+    --red: #D94452;
+    --amber: #C97F00;
+    --purple: #6D4ED8;
+    --sugar: #F0A92E;
+    --salt: #5B7FA3;
+    --line: #E8EDF4;
+    --muted: #8A93A3;
+    --dim: #6B7A91;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1804px; height: 1420px;
+    background: var(--sheet);
+    font: 400 15px/1.45 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: 46px 56px;
+  }
+  h1 { font-size: 37px; letter-spacing: -0.4px; }
+  .sub  { font-size: 19px; color: #9AA7BC; margin-top: 10px; }
+  .src  { font-size: 15px; color: var(--dim); margin-top: 10px; }
+
+  .row { display: flex; gap: 44px; margin-top: 32px; }
+  .col { width: 390px; }
+
+  .phone {
+    width: 390px; height: 844px;
+    background: var(--screen);
+    border: 2px solid #2A3545; border-radius: 38px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    color: var(--navy);
+  }
+  .body { flex: 1; padding: 30px; overflow: hidden; }
+
+  .card { background: #fff; border-radius: 16px; padding: 18px 20px; }
+  .lbl  { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+  .big  { font-size: 26px; font-weight: 700; line-height: 1.15; }
+  .sm   { font-size: 12px; color: var(--muted); }
+  .btw  { display: flex; align-items: center; justify-content: space-between; }
+
+  .date { font-size: 25px; font-weight: 700; }
+  .head { display: flex; align-items: flex-start; justify-content: space-between; }
+  .badge {
+    font-size: 11px; font-weight: 700; color: var(--green);
+    background: rgba(13,158,110,.14); border-radius: 12px; padding: 5px 11px;
+  }
+  .ava {
+    width: 44px; height: 44px; border-radius: 50%; background: var(--navy);
+    color: #fff; display: grid; place-items: center; font-weight: 600; font-size: 16px;
+  }
+
+  .insight { background: var(--navy); color: #fff; border-radius: 16px; padding: 18px 20px; }
+  .insight .lbl { color: #7B8AA3; }
+  .insight p { font-style: italic; font-size: 17px; margin-top: 8px; line-height: 1.4; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .bar { height: 5px; border-radius: 3px; background: var(--line); margin-top: 10px; }
+  .bar > i { display: block; height: 100%; border-radius: 3px; }
+
+  /* hai hinh dang: vien keo bau dai - hat muoi vuong */
+  .cd { width: 16px; height: 10px; border-radius: 6px; background: var(--sugar); flex: none; }
+  .st { width: 10px; height: 10px; border-radius: 2px; background: var(--salt); flex: none; }
+  .jar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 11px; max-width: 160px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+
+  .inp {
+    background: #fff; border: 1.5px solid #D7DFE9; border-radius: 15px;
+    padding: 17px 18px; margin-top: 10px; display: flex; align-items: center;
+  }
+  .caret { width: 2px; height: 20px; background: var(--navy); margin-right: 3px; }
+  .ph { font-size: 16px; color: #A6B0BE; }
+
+  .pick { display: flex; gap: 12px; margin-top: 12px; }
+  .pick > div {
+    flex: 1; background: #fff; border: 1.5px solid #E2E8F0; border-radius: 14px;
+    padding: 14px 15px; display: flex; align-items: center; gap: 11px;
+    font-weight: 600; font-size: 15px;
+  }
+  .pick > div.on { border-color: var(--navy); background: var(--navy); color: #fff; }
+
+  .hint { font-size: 13px; color: var(--dim); margin-top: 12px; line-height: 1.5; }
+  .hint b { color: var(--navy); }
+
+  .dwrap { position: relative; width: 148px; height: 148px; flex: none; }
+  .donut {
+    width: 148px; height: 148px; border-radius: 50%;
+    -webkit-mask: radial-gradient(circle, transparent 43px, #000 44px);
+            mask: radial-gradient(circle, transparent 43px, #000 44px);
+  }
+  .dmid { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+
+  .legend { flex: 1; display: flex; flex-direction: column; gap: 12px; padding-left: 11px; }
+  .legend .ln { display: flex; align-items: center; gap: 8px; font-size: 13.5px; white-space: nowrap; }
+  .legend .v { margin-left: auto; font-weight: 600; }
+
+  .pills { display: flex; gap: 8px; }
+  .pills > span {
+    background: #fff; border-radius: 17px; padding: 8px 17px; font-size: 14px; color: #6B7280;
+  }
+  .pills > span.on { background: var(--navy); color: #fff; font-weight: 600; }
+
+  .strip {
+    background: rgba(13,158,110,.12); border-radius: 14px; padding: 12px 18px;
+    display: flex; align-items: center; justify-content: space-between; margin-top: 14px;
+  }
+  .spark { display: flex; align-items: flex-end; gap: 5px; height: 26px; }
+  .spark i { flex: 1; border-radius: 2px 2px 0 0; background: var(--green); display: block; }
+  .spark i.low { background: #BACBC2; }
+
+  .tx { display: flex; align-items: center; gap: 13px; margin-top: 9px; }
+  .txi { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; }
+
+  .statrow { display: flex; margin-top: 11px; }
+  .statrow > div { flex: 1; text-align: center; }
+  .statrow > div + div { border-left: 1px solid var(--line); }
+  .statrow .n { font-size: 20px; font-weight: 700; }
+
+  .flag {
+    font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 12px;
+    background: rgba(201,127,0,.14); color: var(--amber); display: inline-block;
+  }
+  .flag.ok { background: rgba(13,158,110,.14); color: var(--green); }
+
+  .split { display: flex; height: 12px; border-radius: 6px; overflow: hidden; margin-top: 12px; }
+  .split > i { display: block; height: 100%; }
+
+  .tabs {
+    height: 90px; background: #FAF9F7; display: flex; align-items: center;
+    border-top: 1px solid #EAE7E1;
+  }
+  .tabs > div { flex: 1; text-align: center; font-size: 11px; color: #9AA0A8; }
+  .tabs .ic { font-size: 19px; opacity: .45; display: block; margin-bottom: 4px; }
+  .tabs .on { color: var(--navy); font-weight: 600; }
+  .tabs .on .ic { opacity: 1; }
+
+  /* khoi chot tinh nang duoi moi man */
+  .fx { margin-top: 22px; }
+  .fx h3 { font-size: 19px; font-weight: 700; }
+  .fx .owns { font-size: 14px; color: var(--sugar); margin-top: 7px; font-weight: 600; line-height: 1.4; }
+  .blk { margin-top: 14px; }
+  .blk .t { font-size: 10px; letter-spacing: 1.3px; font-weight: 700; color: #5C6B81; }
+  .blk ul { list-style: none; margin-top: 7px; }
+  .blk li { font-size: 14px; color: #C3CDDB; padding-left: 15px; position: relative; line-height: 1.5; margin-top: 4px; }
+  .blk li:before { content: "—"; position: absolute; left: 0; color: #4A5A72; }
+  .blk.no li { color: #7E8A9C; }
+  .blk.no li:before { content: "\00D7"; color: #6A5260; }
+</style>
+
+<body data-w="1804" data-h="1420">
+
+<h1>Mira — chốt tính năng key</h1>
+<div class="sub">Bốn màn, bốn vai. Mỗi màn ghi rõ nó đo gì, quan tâm gì, và cố tình không làm gì.</div>
+<div class="src">Khuôn hình theo Batify · nội dung theo docs/08-three-pillars.md, docs/01-modules.md (M1, M2, M3, M5), ràng buộc cứng trong code/CLAUDE.md</div>
+
+<div class="row">
+
+  <!-- ============ 1 · THỜI GIAN ============ -->
+  <div class="col">
+    <div class="phone"><div class="body">
+
+      <div class="btw">
+        <div class="date">Thời gian</div>
+        <div class="sm">Tuần này</div>
+      </div>
+      <div class="pills" style="margin-top:16px">
+        <span>Hôm nay</span><span class="on">Tuần này</span><span>Tháng</span>
+      </div>
+
+      <div style="display:flex;align-items:center;margin-top:16px">
+        <div class="dwrap">
+          <div class="donut" style="background:conic-gradient(
+            var(--deep) 0 45%, var(--green) 45% 65%,
+            var(--purple) 65% 88%, var(--amber) 88% 100%)"></div>
+          <div class="dmid">
+            <div style="font-size:23px;font-weight:700">112h</div>
+            <div class="sm" style="margin-top:2px">giờ tỉnh</div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="ln"><span class="dot" style="background:var(--deep)"></span>Công việc<span class="v">45%</span></div>
+          <div class="ln"><span class="dot" style="background:var(--green)"></span>Gia đình<span class="v">20%</span></div>
+          <div class="ln"><span class="dot" style="background:var(--purple)"></span>Cá nhân<span class="v">23%</span></div>
+          <div class="ln"><span class="dot" style="background:var(--amber)"></span>Lãng phí<span class="v">12%</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="lbl">TRONG GIỜ GIA ĐÌNH</div>
+        <div class="split">
+          <i style="width:42%;background:var(--green)"></i>
+          <i style="width:58%;background:#CBE2D8"></i>
+        </div>
+        <div class="btw" style="margin-top:12px">
+          <div style="font-size:15px;font-weight:600">Giờ vàng 9h 20m</div>
+          <div style="font-size:15px;color:var(--dim)">Còn lại 12h 40m</div>
+        </div>
+        <div class="sm" style="margin-top:9px">Giờ vàng là giờ thật sự có mặt, không phải giờ ở cùng nhà</div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <span class="flag ok">SO VỚI TUẦN TRƯỚC</span>
+        <div style="font-size:20px;font-weight:700;margin-top:12px">Giờ gia đình nhiều hơn 3 giờ</div>
+        <div style="font-size:14px;color:#6B7280;margin-top:8px;line-height:1.5">
+          Lãng phí giảm 2 giờ. Công việc gần như không đổi.
+        </div>
+        <div class="statrow">
+          <div><div class="n">112h</div><div class="sm">Giờ tỉnh</div></div>
+          <div><div class="n" style="color:var(--green)">22h</div><div class="sm">Gia đình</div></div>
+          <div><div class="n" style="color:var(--amber)">14h</div><div class="sm">Lãng phí</div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div class="on"><span class="ic">⏱️</span>Thời gian</div>
+      <div><span class="ic">💰</span>Tài chính</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+
+    <div class="fx">
+      <h3>1 · Thời gian</h3>
+      <div class="owns">Đo: 112 giờ tỉnh chia theo nhóm việc bạn tự đặt</div>
+      <div class="blk">
+        <div class="t">QUAN TÂM</div>
+        <ul>
+          <li>Donut theo nhóm việc: công việc, gia đình, cá nhân, lãng phí</li>
+          <li>Giờ vàng là lát cắt bên trong nhóm gia đình</li>
+          <li>Mẫu số là giờ tỉnh, không phải 24 giờ</li>
+        </ul>
+      </div>
+      <div class="blk no">
+        <div class="t">KHÔNG LÀM</div>
+        <ul>
+          <li>Không gộp mọi nhóm thành một con số duy nhất</li>
+          <li>Không chấm điểm ngày, không chuỗi ngày</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2 · NHÀ · HŨ HẠNH PHÚC ============ -->
+  <div class="col">
+    <div class="phone"><div class="body" style="padding:26px 28px">
+
+      <div class="head">
+        <div>
+          <div class="date">Thứ 4, 29/4</div>
+          <div class="sm" style="margin-top:3px">Ngày 47 · Mira</div>
+        </div>
+        <div style="text-align:right">
+          <div class="badge">ACTIVE</div>
+          <div class="ava" style="margin-top:9px;margin-left:auto">M</div>
+        </div>
+      </div>
+
+      <div class="insight" style="margin-top:10px;padding:14px 18px">
+        <div class="lbl">NHẬN XÉT TUẦN NÀY</div>
+        <p>Tuần này 22 trong 112 giờ tỉnh dành cho gia đình — nhiều hơn tuần trước 3 giờ.</p>
+      </div>
+
+      <div class="grid2" style="margin-top:9px;gap:11px">
+        <div class="card">
+          <div class="lbl">HŨ</div>
+          <div class="jar">
+            <span class="cd"></span><span class="cd"></span><span class="cd"></span>
+            <span class="st"></span><span class="cd"></span><span class="cd"></span>
+            <span class="cd"></span><span class="cd"></span><span class="st"></span>
+            <span class="cd"></span><span class="cd"></span><span class="cd"></span>
+            <span class="st"></span><span class="cd"></span><span class="cd"></span>
+            <span class="cd"></span><span class="st"></span><span class="cd"></span>
+            <span class="cd"></span><span class="cd"></span><span class="st"></span>
+            <span class="cd"></span><span class="cd"></span>
+          </div>
+          <div class="sm" style="margin-top:10px">18 kẹo · 5 muối</div>
+        </div>
+        <div class="card">
+          <div class="lbl">THỜI GIAN</div>
+          <div class="big" style="color:var(--green);margin-top:8px">22h</div>
+          <div class="sm" style="margin-top:4px">Gia đình tuần này</div>
+          <div class="bar"><i style="width:20%;background:var(--green)"></i></div>
+          <div class="sm" style="margin-top:9px">Giờ vàng 9h 20m</div>
+        </div>
+        <div class="card">
+          <div class="lbl">TÀI CHÍNH</div>
+          <div class="big" style="margin-top:8px">9,5</div>
+          <div class="sm" style="margin-top:4px">Tháng vốn tự do</div>
+          <div class="bar"><i style="width:40%;background:var(--deep)"></i></div>
+          <div class="sm" style="margin-top:9px">Mức dư 36,7%</div>
+        </div>
+        <div class="card">
+          <div class="lbl">MỤC TIÊU</div>
+          <div class="big" style="margin-top:8px">2/3</div>
+          <div class="sm" style="margin-top:4px">Nhịp tuần này</div>
+          <div style="display:flex;gap:6px;margin-top:11px">
+            <span class="dot" style="background:var(--navy)"></span>
+            <span class="dot" style="background:var(--navy)"></span>
+            <span class="dot" style="background:#D8DCE3"></span>
+          </div>
+          <div class="sm" style="margin-top:8px">Quý còn 38 ngày</div>
+        </div>
+      </div>
+
+      <div class="lbl" style="margin-top:11px">GHI LẠI KHOẢNH KHẮC</div>
+      <div class="inp" style="margin-top:7px;padding:13px 17px">
+        <span class="caret"></span><span class="ph">Hôm nay có gì đáng nhớ?</span>
+      </div>
+      <div class="pick" style="margin-top:9px">
+        <div class="on"><span class="cd"></span>Viên kẹo</div>
+        <div><span class="st"></span>Hạt muối</div>
+      </div>
+      <div class="hint" style="margin-top:9px">
+        Vàng ấm là ngày vui, xanh nguội là ngày nặng. Hạt muối được hỏi lại <b>một lần</b>, sau 42 ngày.
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div class="on"><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div><span class="ic">💰</span>Tài chính</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+
+    <div class="fx">
+      <h3>2 · Nhà · hũ hạnh phúc</h3>
+      <div class="owns">Đo: không đo gì — đây là nơi ghi, không phải nơi chấm</div>
+      <div class="blk">
+        <div class="t">QUAN TÂM</div>
+        <ul>
+          <li>Một hạt chỉ có: chữ · ngày · kẹo hay muối</li>
+          <li>Ô nhập đứng ngay trang chủ, không phải danh sách</li>
+          <li>Hai trạng thái, hai hình: kẹo bầu dài · muối vuông</li>
+        </ul>
+      </div>
+      <div class="blk no">
+        <div class="t">KHÔNG LÀM</div>
+        <ul>
+          <li>Không gắn tên người, không gắn nhãn, không phân loại</li>
+          <li>Không hỏi tâm trạng 1–5, không xếp hạng tháng</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3 · TÀI CHÍNH ============ -->
+  <div class="col">
+    <div class="phone"><div class="body">
+
+      <div class="btw">
+        <div class="date">Tài chính</div>
+        <div class="sm">Tháng 4</div>
+      </div>
+      <div class="pills" style="margin-top:16px">
+        <span>Tuần</span><span class="on">Tháng</span><span>Quý</span>
+      </div>
+
+      <div class="card" style="margin-top:16px;display:flex;align-items:center">
+        <div class="dwrap">
+          <div class="donut" style="background:conic-gradient(
+            var(--green) 0 51.7%, var(--red) 51.7% 88.6%,
+            var(--deep) 88.6% 97.6%, var(--amber) 97.6% 100%)"></div>
+          <div class="dmid">
+            <div style="font-size:21px;font-weight:700;color:var(--green)">+2.1tr</div>
+            <div class="sm" style="margin-top:2px">tiết kiệm</div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="ln"><span class="dot" style="background:var(--green)"></span>Thu nhập<span class="v" style="color:var(--green)">+18.5tr</span></div>
+          <div class="ln"><span class="dot" style="background:var(--red)"></span>Chi tiêu<span class="v" style="color:var(--red)">−13.2tr</span></div>
+          <div class="ln"><span class="dot" style="background:var(--deep)"></span>Đầu tư<span class="v" style="color:var(--deep)">−3.2tr</span></div>
+          <div class="ln"><span class="dot" style="background:var(--amber)"></span>Lãng phí<span class="v" style="color:var(--amber)">−850k</span></div>
+        </div>
+      </div>
+
+      <div class="strip">
+        <div style="display:flex;align-items:center;gap:10px;font-size:15px">
+          <span>💰</span>Mức dư tháng này
+          <span class="spark" style="width:66px">
+            <i class="low" style="height:30%"></i><i class="low" style="height:38%"></i>
+            <i style="height:55%"></i><i style="height:50%"></i>
+            <i style="height:72%"></i><i style="height:92%"></i>
+          </span>
+        </div>
+        <div style="font-weight:700;color:var(--green);font-size:17px">36,7%</div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="lbl">NỢ</div>
+        <div class="btw" style="margin-top:10px">
+          <div><div class="big" style="font-size:23px">240tr</div><div class="sm">còn lại</div></div>
+          <div style="text-align:center"><div class="big" style="font-size:23px;color:var(--amber)">5tr</div><div class="sm">mỗi tháng</div></div>
+          <div style="text-align:right"><div class="big" style="font-size:23px">8/2029</div><div class="sm">trả xong</div></div>
+        </div>
+        <div class="bar" style="height:8px;margin-top:13px"><i style="width:32%;background:var(--amber)"></i></div>
+        <div class="sm" style="margin-top:7px">Nợ đang giữ lại 3,4 tháng tự do · trả xong: 9,5 → 12,9 tháng</div>
+      </div>
+
+      <div class="lbl" style="margin-top:16px">NĂM Ô NHẬP THÁNG NÀY</div>
+      <div class="tx">
+        <div class="txi" style="background:#E8E2D4">💼</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600">Thu nhập ròng</div>
+          <div class="sm">Đã nhập · 14/4</div>
+        </div>
+        <div style="font-weight:700;color:var(--green)">18.500k</div>
+      </div>
+      <div class="tx">
+        <div class="txi" style="background:#EDEDED">🏦</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600">Tài sản ròng</div>
+          <div class="sm">Chưa nhập tháng này</div>
+        </div>
+        <div style="font-weight:700;color:#A6B0BE;font-size:19px">?</div>
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div class="on"><span class="ic">💰</span>Tài chính</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+
+    <div class="fx">
+      <h3>3 · Tài chính</h3>
+      <div class="owns">Đo: Vốn tự do = tài sản ròng ÷ chi tiêu tháng</div>
+      <div class="blk">
+        <div class="t">QUAN TÂM</div>
+        <ul>
+          <li>Năm ô nhập một tháng, ba mươi giây là xong</li>
+          <li>Nợ quy ra số tháng tự do nó đang giữ lại</li>
+          <li>Ô chưa nhập hiện dấu hỏi xám, không đoán hộ</li>
+        </ul>
+      </div>
+      <div class="blk no">
+        <div class="t">KHÔNG LÀM</div>
+        <ul>
+          <li>Không nối API ngân hàng, không bóc hoá đơn</li>
+          <li>Không ngân sách sáu khoang như bản 01-modules</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 4 · MỤC TIÊU ============ -->
+  <div class="col">
+    <div class="phone"><div class="body">
+
+      <div class="btw">
+        <div class="date">Mục tiêu</div>
+        <div class="sm">Quý 2</div>
+      </div>
+      <div class="pills" style="margin-top:16px">
+        <span>Dài hạn</span><span class="on">Quý</span><span>Tuần</span>
+      </div>
+
+      <div style="display:flex;align-items:center;margin-top:14px">
+        <div class="dwrap">
+          <div class="donut" style="background:conic-gradient(
+            var(--deep) 0 44.4%, var(--green) 44.4% 77.7%, var(--purple) 77.7% 100%)"></div>
+          <div class="dmid">
+            <div style="font-size:23px;font-weight:700">9h</div>
+            <div class="sm" style="margin-top:2px">mỗi tuần</div>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="ln"><span class="dot" style="background:var(--deep)"></span>Viết bản thảo<span class="v">4h</span></div>
+          <div class="ln"><span class="dot" style="background:var(--green)"></span>Chơi với con<span class="v">3h</span></div>
+          <div class="ln"><span class="dot" style="background:var(--purple)"></span>Ăn tối cùng nhà<span class="v">2h</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="lbl">NGUYÊN LIỆU LẤY TỪ ĐÂU</div>
+        <div class="bar" style="height:12px;background:rgba(201,127,0,.3)">
+          <i style="width:91%;background:var(--navy)"></i>
+        </div>
+        <div class="btw" style="margin-top:12px">
+          <div style="font-weight:600;font-size:15px">Lãng phí đã ghi 8,2h</div>
+          <div style="font-weight:600;font-size:15px;color:var(--amber)">Thiếu 0,8h</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <span class="flag">KHÔNG ĐỦ NGUYÊN LIỆU</span>
+        <div style="font-size:20px;font-weight:700;margin-top:12px">Ba mục tiêu cần quá tay</div>
+        <div style="font-size:14px;color:#6B7280;margin-top:8px;line-height:1.5">
+          Thiếu 0,8 giờ. Bỏ bớt một cái — và 2 giờ đó chuyển sang đâu?
+        </div>
+        <div class="statrow">
+          <div><div class="n">9h</div><div class="sm">Đang cần</div></div>
+          <div><div class="n">8,2h</div><div class="sm">Đang có</div></div>
+          <div><div class="n" style="color:var(--amber)">0,8h</div><div class="sm">Thiếu</div></div>
+        </div>
+      </div>
+
+      <div class="lbl" style="margin-top:11px">ĐANG CHẠY</div>
+      <div class="tx">
+        <div class="txi" style="background:#DCE6F5">✍️</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600">Viết bản thảo 4h mỗi tuần</div>
+          <div class="sm">Quý · hết hạn 28/7 · lấy từ giờ lướt</div>
+        </div>
+        <div style="font-weight:600;font-size:14px">38 ngày</div>
+      </div>
+      <div class="tx">
+        <div class="txi" style="background:#E2F1EA">🍚</div>
+        <div style="flex:1">
+          <div style="font-size:16px;font-weight:600">Ăn tối cùng nhà 4 bữa</div>
+          <div class="sm">Nhịp tuần · đã 3/4</div>
+        </div>
+        <div style="font-weight:600;font-size:14px">còn 1</div>
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div><span class="ic">💰</span>Tài chính</div>
+      <div class="on"><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+
+    <div class="fx">
+      <h3>4 · Mục tiêu</h3>
+      <div class="owns">Đo: không có số riêng — mục tiêu là cầu nối giữa hai trụ</div>
+      <div class="blk">
+        <div class="t">QUAN TÂM</div>
+        <ul>
+          <li>Ba tầng có trần: dài hạn 3 · quý 2 · nhịp tuần 3–5</li>
+          <li>Nói bằng thứ muốn thêm, không nói bằng thứ muốn bớt</li>
+          <li>Khai nguồn từng mục tiêu một, ngay lúc tạo nó</li>
+          <li>Bỏ bớt luôn có bước hai: giờ đó chuyển sang đâu</li>
+        </ul>
+      </div>
+      <div class="blk no">
+        <div class="t">KHÔNG LÀM</div>
+        <ul>
+          <li>Không phần trăm hoàn thành, không huy hiệu</li>
+          <li>Không nhắc, không hỏi vì sao bạn bỏ một tuần</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

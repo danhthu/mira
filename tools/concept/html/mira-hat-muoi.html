@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<title>Mira — hạt muối</title>
+<style>
+  :root {
+    --sheet: #141B27;
+    --screen: #F2F0EC;
+    --navy: #18202E;
+    --deep: #1E3A5F;
+    --green: #0D9E6E;
+    --amber: #C97F00;
+    --sugar: #E0A32F;
+    --salt: #7E96A8;
+    --salt-deep: #4F6B7E;
+    --line: #E8EDF4;
+    --muted: #8A93A3;
+    --dim: #6B7A91;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 1380px; height: 1256px;
+    background: var(--sheet);
+    font: 400 15px/1.45 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: 46px 56px;
+  }
+  h1 { font-size: 37px; letter-spacing: -0.4px; }
+  .sub  { font-size: 19px; color: #9AA7BC; margin-top: 10px; }
+  .src  { font-size: 15px; color: var(--dim); margin-top: 10px; }
+  .warn { font-size: 15px; color: var(--salt); margin-top: 8px; }
+
+  .row { display: flex; gap: 49px; margin-top: 34px; }
+  .col { width: 390px; }
+
+  .phone {
+    width: 390px; height: 844px;
+    background: var(--screen);
+    border: 2px solid #2A3545; border-radius: 38px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    color: var(--navy);
+  }
+  .body { flex: 1; padding: 30px; overflow: hidden; }
+
+  .cap  { margin-top: 24px; font-size: 17px; font-weight: 600; }
+  .cap2 { margin-top: 8px; font-size: 14px; color: var(--dim); }
+
+  .card { background: #fff; border-radius: 16px; padding: 18px 20px; }
+  .lbl  { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+  .sm   { font-size: 12px; color: var(--muted); }
+  .btw  { display: flex; align-items: center; justify-content: space-between; }
+  .date { font-size: 25px; font-weight: 700; }
+
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .sugar { background: var(--sugar); }
+  .salt  { background: var(--salt); }
+
+  .pills { display: flex; gap: 8px; }
+  .pills > span {
+    background: #fff; border-radius: 17px; padding: 8px 17px; font-size: 14px; color: #6B7280;
+  }
+  .pills > span.on { background: var(--navy); color: #fff; font-weight: 600; }
+
+  .insight { background: var(--navy); color: #fff; border-radius: 16px; padding: 18px 20px; }
+  .insight .lbl { color: #7B8AA3; }
+  .insight p { font-style: italic; font-size: 17px; margin-top: 8px; line-height: 1.4; }
+
+  /* ---- chon loai hat ---- */
+  .pick { display: flex; gap: 12px; margin-top: 12px; }
+  .pick > div {
+    flex: 1; background: #fff; border-radius: 16px; padding: 18px 16px; text-align: center;
+    border: 2px solid transparent;
+  }
+  .pick .on { border-color: var(--salt-deep); }
+  .pick .trio { display: flex; justify-content: center; gap: 5px; }
+  .pick .trio span { width: 13px; height: 13px; border-radius: 50%; }
+  .pick .nm { font-size: 18px; font-weight: 700; margin-top: 13px; }
+  .pick .ds { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .chips { display: flex; gap: 9px; margin-top: 11px; }
+  .chips > span {
+    border-radius: 22px; padding: 10px 17px; font-size: 14px;
+    border: 2px solid #D6DCE4; color: #6B7280;
+  }
+  .chips > span.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  .btns { display: flex; gap: 12px; margin-top: 14px; }
+  .btns > div {
+    flex: 1; border-radius: 16px; padding: 17px; text-align: center; font-size: 16px;
+    border: 2px solid #D6DCE4; color: #6B7280;
+  }
+  .btns .go { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 600; }
+
+  /* ---- dong thoi gian ---- */
+  .mrow { display: flex; gap: 12px; padding: 12px 0; }
+  .mrow + .mrow { border-top: 1px solid var(--line); }
+  .mrow .dot { margin-top: 5px; }
+  .faded { opacity: .45; }
+  .tag {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 10px;
+    background: #E7EDF1; color: var(--salt-deep); margin-left: 8px; white-space: nowrap;
+  }
+
+  /* ---- 42 ngay ---- */
+  .quote { font-size: 24px; font-weight: 700; line-height: 1.35; margin-top: 14px; }
+  .ask { font-size: 17px; color: #C9D4E3; margin-top: 16px; line-height: 1.45; }
+  .ans { display: flex; flex-direction: column; gap: 11px; margin-top: 16px; }
+  .ans > div {
+    background: #fff; border-radius: 15px; padding: 16px 18px; font-size: 16px;
+    color: var(--navy);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ans .hint { font-size: 13px; color: var(--muted); }
+
+  .tabs {
+    height: 90px; background: #FAF9F7; display: flex; align-items: center;
+    border-top: 1px solid #EAE7E1;
+  }
+  .tabs > div { flex: 1; text-align: center; font-size: 11px; color: #9AA0A8; }
+  .tabs .ic { font-size: 19px; opacity: .45; display: block; margin-bottom: 4px; }
+  .tabs .on { color: var(--navy); font-weight: 600; }
+  .tabs .on .ic { opacity: 1; }
+</style>
+
+<body data-w="1380" data-h="1256">
+
+<h1>Mira — hạt muối, không phải cái hũ</h1>
+<div class="sub">Hũ thì mười app đang dùng. Thứ chưa ai làm là để chuyện khó nằm chung chỗ với chuyện lành.</div>
+<div class="src">Khảo sát 23/11: Gratitude Jar, Candy Jar, Jarflow, Happijar, My Good Jar, Jar of Joy, Grateful Jar, Jar of Awesomeness — tất cả chỉ gom chuyện tốt</div>
+<div class="warn">Nên ở ba màn này cái hũ lùi xuống nền. Hạt muối đứng ngang hàng hạt đường, và được hỏi lại sau 42 ngày.</div>
+
+<div class="row">
+
+  <!-- ============ 1 · GHI LẠI KHOẢNH KHẮC ============ -->
+  <div class="col">
+    <div class="phone"><div class="body">
+
+      <div class="btw">
+        <div class="date">Ghi lại khoảnh khắc</div>
+      </div>
+      <div class="sm" style="margin-top:5px">Thứ 2, 23/11 · 20:14</div>
+
+      <div class="card" style="margin-top:18px;min-height:112px">
+        <div style="font-size:18px;line-height:1.45">
+          Họp hai tiếng, không ra được quyết định nào.
+        </div>
+      </div>
+
+      <div class="lbl" style="margin-top:20px">ĐÂY LÀ GÌ?</div>
+      <div class="pick">
+        <div>
+          <div class="trio">
+            <span class="sugar"></span><span class="sugar"></span><span class="sugar"></span>
+          </div>
+          <div class="nm">Hạt đường</div>
+          <div class="ds">Chuyện lành</div>
+        </div>
+        <div class="on">
+          <div class="trio">
+            <span class="salt"></span><span class="salt"></span><span class="salt"></span>
+          </div>
+          <div class="nm" style="color:var(--salt-deep)">Hạt muối</div>
+          <div class="ds">Chuyện khó</div>
+        </div>
+      </div>
+
+      <div class="lbl" style="margin-top:20px">CÓ AI CÙNG KHÔNG?</div>
+      <div class="chips">
+        <span>Bé Nghé</span><span>Linh</span><span>+ thêm</span>
+      </div>
+
+      <div class="btns">
+        <div>Thêm ảnh</div>
+        <div class="go">Ghi lại</div>
+      </div>
+
+      <div class="card" style="margin-top:18px;background:#E7EDF1">
+        <div style="display:flex;gap:11px;align-items:flex-start">
+          <span class="dot salt" style="margin-top:5px"></span>
+          <div style="font-size:14px;color:#4A5A66;line-height:1.5">
+            Mira sẽ hỏi lại hạt muối này <b>một lần</b>, sau 42 ngày.
+            Không nhắc thêm lần nào nữa.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div class="on"><span class="ic">📝</span>Khoảnh khắc</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+    <div class="cap">1 · Ghi lại khoảnh khắc — muối ngang đường</div>
+    <div class="cap2">Hai ô bằng nhau, không ô nào là lựa chọn “đúng”. Muối đang được chọn.</div>
+    <div class="cap2">Nói trước sẽ hỏi lại một lần, để người ghi không thấy bị theo dõi.</div>
+  </div>
+
+  <!-- ============ 2 · DÒNG KHOẢNH KHẮC ============ -->
+  <div class="col">
+    <div class="phone"><div class="body">
+
+      <div class="btw">
+        <div class="date">Khoảnh khắc</div>
+        <div class="sm">23 hạt</div>
+      </div>
+      <div class="pills" style="margin-top:16px">
+        <span class="on">Tháng 11</span><span>Năm nay</span><span>Tất cả</span>
+      </div>
+
+      <div class="insight" style="margin-top:16px">
+        <div class="lbl">NĂM HẠT MUỐI THÁNG NÀY</div>
+        <p>Ba hạt đã nhạt. Hai hạt còn nguyên.</p>
+      </div>
+
+      <div class="card" style="margin-top:16px;padding:4px 20px">
+        <div class="mrow">
+          <span class="dot sugar"></span>
+          <div style="flex:1">
+            <div style="font-size:15px">Bé Nghé tự xúc cơm cả bữa</div>
+            <div class="sm">Hôm nay · Bé Nghé</div>
+          </div>
+        </div>
+        <div class="mrow">
+          <span class="dot salt"></span>
+          <div style="flex:1">
+            <div style="font-size:15px">Họp 2 tiếng không ra quyết định</div>
+            <div class="sm">Hôm qua</div>
+          </div>
+        </div>
+        <div class="mrow">
+          <span class="dot sugar"></span>
+          <div style="flex:1">
+            <div style="font-size:15px">Linh nấu bún bò lúc nửa đêm</div>
+            <div class="sm">21/11 · Linh</div>
+          </div>
+        </div>
+        <div class="mrow faded">
+          <span class="dot salt"></span>
+          <div style="flex:1">
+            <div style="font-size:15px">Mất hợp đồng lớn nhất năm<span class="tag">ĐÃ NHẠT</span></div>
+            <div class="sm">12/10 · đã nhìn lại sau 42 ngày</div>
+          </div>
+        </div>
+        <div class="mrow faded">
+          <span class="dot salt"></span>
+          <div style="flex:1">
+            <div style="font-size:15px">Cãi nhau chuyện tiền học<span class="tag">ĐÃ NHẠT</span></div>
+            <div class="sm">03/10 · Linh</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sm" style="margin-top:16px;line-height:1.6">
+        Hạt muối đã nhìn lại thì mờ đi, không xoá.
+        Vẫn đếm được, vẫn đọc lại được.
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div class="on"><span class="ic">📝</span>Khoảnh khắc</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+    <div class="cap">2 · Dòng khoảnh khắc — muối mờ đi, không mất</div>
+    <div class="cap2">Chín app kia gọi ngẫu nhiên một kỷ niệm đẹp. Đây gọi lại đúng chuyện khó.</div>
+    <div class="cap2">“Đã nhạt” là trạng thái người dùng tự đánh, không phải Mira kết luận.</div>
+  </div>
+
+  <!-- ============ 3 · 42 NGÀY SAU ============ -->
+  <div class="col">
+    <div class="phone" style="background:var(--navy)"><div class="body" style="color:#fff">
+
+      <div style="display:flex;align-items:center;gap:9px">
+        <span class="dot salt"></span>
+        <div class="lbl" style="color:#7B8AA3">HẠT MUỐI · 12/10 · 42 NGÀY TRƯỚC</div>
+      </div>
+
+      <div class="quote">“Mất hợp đồng lớn nhất năm. Không biết quý sau sống bằng gì.”</div>
+
+      <div class="ask">
+        Bây giờ nhìn lại, chuyện đó ra sao rồi?
+      </div>
+
+      <div class="ans">
+        <div>
+          <span>Vẫn nặng như hôm đó</span>
+          <span class="hint">giữ nguyên</span>
+        </div>
+        <div>
+          <span style="font-weight:600;color:var(--salt-deep)">Nhẹ hơn rồi</span>
+          <span class="hint">đánh dấu đã nhạt</span>
+        </div>
+        <div>
+          <span>Không còn thấy gì</span>
+          <span class="hint">đánh dấu đã nhạt</span>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;padding:16px 18px;border-radius:15px;background:#222C3D">
+        <div style="font-size:14px;color:#A9B6C7;line-height:1.55">
+          Bỏ qua cũng được. Mira hỏi đúng một lần rồi thôi,
+          không nhắc lại, không đếm số lần bạn bỏ qua.
+        </div>
+      </div>
+
+      <div class="lbl" style="color:#7B8AA3;margin-top:22px">BA HẠT MUỐI ĐÃ NHẠT</div>
+      <div style="margin-top:12px;font-size:15px;color:#C9D4E3;line-height:1.9">
+        Cãi nhau chuyện tiền học · 03/10<br>
+        Bị chê trước cả phòng · 28/09<br>
+        Hỏng xe giữa đường mưa · 15/09
+      </div>
+
+    </div>
+    <div class="tabs">
+      <div><span class="ic">🏠</span>Nhà</div>
+      <div><span class="ic">⏱️</span>Thời gian</div>
+      <div class="on"><span class="ic">📝</span>Khoảnh khắc</div>
+      <div><span class="ic">🎯</span>Mục tiêu</div>
+      <div><span class="ic">👤</span>Tôi</div>
+    </div></div>
+    <div class="cap">3 · Sau 42 ngày — màn chưa app nào có</div>
+    <div class="cap2">Nền tối để tách hẳn khỏi nhịp thường ngày: đây là một lần hỏi, không phải một mục.</div>
+    <div class="cap2">Ba lựa chọn, không thang điểm. Bỏ qua không bị ghi nhận là bỏ lỡ.</div>
+  </div>
+
+</div>
+</body>
+</html>
