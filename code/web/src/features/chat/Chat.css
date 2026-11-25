@@ -403,3 +403,20 @@
 .chat__go button:disabled {
   opacity: 0.4;
 }
+
+/*
+ * Dòng "Mira đoán ô này".
+ *
+ * Màu `--fg-dim` chứ không phải `--fg-muted`: cỡ chữ đã nhỏ hơn mọi thứ quanh nó, nên
+ * nếu nhạt thêm nữa thì trượt dưới ngưỡng tương phản 4.5 và thành dòng chữ chỉ người
+ * mắt tốt mới đọc được — mà đây đúng là dòng cần đọc, nó nói rằng con số bên trên chưa
+ * chắc đúng ô.
+ *
+ * Không dùng màu cam. Cam nghĩa là có lỗi; ở đây không có lỗi nào, chỉ là Mira chưa chắc.
+ */
+.y__doan {
+  grid-column: 1;
+  font-size: 12.5px;
+  font-style: normal;
+  color: var(--fg-dim);
+}

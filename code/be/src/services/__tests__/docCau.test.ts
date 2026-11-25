@@ -95,9 +95,39 @@ describe('docBangLuat — giờ', () => {
     expect(doc('5 ngày trước học 2 tiếng').yChi[0]).toMatchObject({ ten: 'Học' });
   });
 
-  it('có số giờ mà không có từ khoá nào thì CHỊU, không đoán ô', () => {
-    // "làm cái đó 2 tiếng" — không biết cái đó thuộc ô nào. Đoán bừa tệ hơn im.
-    expect(doc('làm cái đó 2 tiếng').nguon).toBe('chiu');
+  it('⚑ có thời lượng và tên việc mà không từ khoá nào nhận ra thì VẪN GHI, kèm cờ đoán', () => {
+    // Luật cũ chịu ở đây, và câu rơi xuống LLM. Không có khoá API thì rơi xuống đất:
+    // Founder gõ "thể dục 30 phút" và nhận về một dòng lỗi tên biến môi trường.
+    //
+    // Mất hẳn 30 phút tệ hơn xếp nhầm ô. Ô sai sửa một cú chạm; mục không ghi thì tuần
+    // sau không ai nhớ ra để mà sửa.
+    const r = doc('làm cái đó 2 tiếng');
+    expect(r.nguon).toBe('luat');
+    expect(r.yChi[0]).toMatchObject({
+      loai: 'gio',
+      minutes: 120,
+      ten: 'Làm cái đó',
+      bucket: 'personal',
+      doanO: true,
+    });
+  });
+
+  it('⚑ câu Founder gõ thật: "thể dục 30 phút" vào Cá nhân, KHÔNG phải đoán', () => {
+    // Đây là câu đã chết trên điện thoại Founder. Từ khoá `the duc` trần giờ có thật,
+    // nên nó vào đúng ô bằng luật chứ không nhờ lưới hứng.
+    expect(doc('thể dục 30 phút').yChi[0]).toMatchObject({
+      loai: 'gio',
+      minutes: 30,
+      ten: 'Thể dục',
+      bucket: 'personal',
+      doanO: false,
+    });
+  });
+
+  it('⚑ chỉ có con số, không có tên việc thì CHỊU', () => {
+    // "30 phút" ghi ra được cái gì? Một dòng "Ghi tay · 30m · Cá nhân" mà tuần sau đọc
+    // lại cũng không ai biết nó là gì. Thà không ghi.
+    expect(doc('30 phút').nguon).toBe('chiu');
   });
 
   it('số giờ vô lý thì không nhận', () => {
@@ -177,7 +207,8 @@ describe('docBangLuat — danh mục người dùng', () => {
     // "dự án A" không có trong TU_KHOA. Có danh mục thì đọc được; không có thì chịu.
     expect(doc('họp dự án A 90 phút', DANH_MUC).yChi[0]).toMatchObject({ danhMucId: 'dm-hop' });
     expect(doc('gym 1 tiếng', DANH_MUC).yChi[0]).toMatchObject({ danhMucId: 'dm-gym', bucket: 'personal' });
-    expect(doc('gym 1 tiếng').nguon).toBe('chiu');
+    // Không có danh mục thì vẫn đọc được bằng từ khoá — nhưng không gắn được danh mục.
+    expect(doc('gym 1 tiếng').yChi[0]).toMatchObject({ danhMucId: null, bucket: 'personal' });
   });
 
   it('tên dài khớp trước tên ngắn', () => {
@@ -233,11 +264,13 @@ describe('docBangLuat — câu nhiều việc', () => {
   it('⚑ mảnh có số mà không đọc được thì NÓI RA, không im lặng bỏ', () => {
     // Bỏ lặng lẽ một mảnh có số là làm mất một mục người dùng tưởng đã ghi — họ bấm
     // "Ghi", thấy "Đã ghi", và hai hôm sau mới phát hiện thiếu.
-    const r = doc('họp 3 tiếng, làm cái gì đó 2 tiếng');
+    // Mảnh "tiền nong 500" có chữ số mà không ra nổi gì: 500 trần không phải số tiền
+    // (thiếu đơn vị), cũng không phải thời lượng. Nó phải được NÓI RA.
+    const r = doc('họp 3 tiếng, tiền nong 500');
     expect(r.nguon).toBe('luat');
     expect(r.yChi[0]).toMatchObject({ loai: 'gio', minutes: 180 });
     expect(r.yChi[1]).toMatchObject({ loai: 'chuaHieu' });
-    expect((r.yChi[1] as { doan: string }).doan).toContain('làm cái gì đó');
+    expect((r.yChi[1] as { doan: string }).doan).toContain('tiền nong 500');
   });
 
   it('mảnh KHÔNG có số thì bỏ im lặng, vì nó là chữ đệm', () => {

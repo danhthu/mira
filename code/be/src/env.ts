@@ -53,20 +53,6 @@ export const env = {
    * Nhiều client ID thì ngăn bằng dấu phẩy (web và app có thể khác nhau).
    */
   googleClientId: process.env['GOOGLE_CLIENT_ID'] ?? '',
-  /**
-   * Khoá gọi Claude cho màn nhập bằng chat. Rỗng = tầng luật vẫn chạy, câu nào luật
-   * không đọc được thì trả 503 kèm lời giải thích, không im lặng bỏ qua.
-   *
-   * ĐÂY LÀ BÍ MẬT THẬT, khác `GOOGLE_CLIENT_ID`. Nó không bao giờ được đi ra trình duyệt.
-   */
-  anthropicApiKey: process.env['ANTHROPIC_API_KEY'] ?? '',
-  /**
-   * Mô hình đọc câu. Mặc định `claude-opus-5-5`.
-   *
-   * Hạ xuống model rẻ hơn (`claude-haiku-5-5` rẻ hơn bốn mươi lần) là quyết định về tiền
-   * của Founder, nên nó nằm ở đây chứ không bị chốt cứng trong mã.
-   */
-  chatModel: process.env['CHAT_MODEL'] ?? 'claude-opus-5-5',
   /** Có cấu hình CSDL chưa — thiếu thì máy chủ không khởi động được. */
   hasDatabase: (process.env['DB_NAME'] ?? '') !== '' || (process.env['DB_HOST'] ?? '') !== '',
 };

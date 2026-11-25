@@ -16,3 +16,8 @@ growth/os/analytics/imports/*.csv
 
 # Cache cua Astro: sinh ra luc build, khong phai ma nguon.
 .astro/
+
+# Máy chủ chạy nền trên máy Founder: pid để tắt được, log để đọc lại khi có chuyện.
+# Cả hai là trạng thái của MỘT máy, không phải của dự án.
+code/be/mira-api.pid
+code/be/mira-api.log

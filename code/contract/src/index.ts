@@ -186,6 +186,18 @@ export type YChi =
       readonly ngay: string;
       /** Danh mục khớp được theo tên, nếu có. Client gửi kèm khi ghi. */
       readonly danhMucId: string | null;
+      /**
+       * `true` khi ô ở trên là ĐOÁN, không đọc được từ câu.
+       *
+       * Câu "thể dục 30 phút" có đủ thời lượng và tên việc, nhưng không từ khoá nào
+       * nhận ra "thể dục". Trước đây Mira từ chối ghi và đẩy câu sang LLM — mà không có
+       * khoá thì nó chết hẳn. Thà ghi vào một ô đoán còn hơn làm mất hẳn 30 phút của
+       * người ta: ô sai thì sửa một cú chạm, mục không ghi thì không ai nhớ ra nữa.
+       *
+       * Nhưng phải NÓI RA là đang đoán. Đoán im lặng thì người dùng tin con số, và một
+       * tháng sau biểu đồ Cá nhân phình lên vì toàn thứ Mira tự xếp vào đó.
+       */
+      readonly doanO: boolean;
     }
   | { readonly loai: 'hat'; readonly kind: MomentKind; readonly text: string; readonly ngay: string }
   | {

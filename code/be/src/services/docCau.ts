@@ -46,6 +46,15 @@ export type YChi =
       readonly ngay: string;
       /** Danh mục khớp được theo tên, nếu có. */
       readonly danhMucId: string | null;
+      /**
+       * `true` khi ô ở trên là ĐOÁN — câu có thời lượng và tên việc nhưng không từ khoá
+       * nào nhận ra. Xem `O_MAC_DINH`.
+       *
+       * ⚠ Kiểu này là BẢN SAO của `YChi` trong `@mira/contract`, cố ý tách ra để tầng
+       * nghiệp vụ không phụ thuộc gói contract. Hai bản phải khớp nhau bằng tay — không
+       * có trình biên dịch nào canh giúp. Thêm trường ở đây thì phải thêm cả ở kia.
+       */
+      readonly doanO: boolean;
     }
   | { readonly loai: 'hat'; readonly kind: 'candy' | 'salt'; readonly text: string; readonly ngay: string }
   | {
@@ -117,8 +126,12 @@ const boDau = (s: string): string =>
  * Từ khoá → ô. Xếp theo thứ tự ưu tiên: cái cụ thể trước cái chung.
  *
  * Danh sách này **cố tình ngắn**. Nhồi hai trăm từ vào đây thì nó bắt đầu đoán sai một
- * cách tự tin, mà đoán sai là thứ đắt nhất ở đây. Câu nào luật không chắc thì đẩy sang
- * LLM, và LLM còn biết nói "tôi không hiểu".
+ * cách tự tin, mà đoán sai là thứ đắt nhất ở đây.
+ *
+ * Câu không khớp từ nào mà vẫn có thời lượng và tên việc thì KHÔNG mất: nó rơi xuống ô
+ * mặc định ở `O_MAC_DINH` bên dưới, có cờ báo là đang đoán. Nên danh sách này không cần
+ * đầy đủ, nó chỉ cần đúng — việc của nó là xếp đúng ô cho những câu hay gõ nhất, phần
+ * còn lại đã có lưới hứng.
  *
  * Danh mục của người dùng được khớp TRƯỚC danh sách này, vì tên họ tự đặt nói đúng hơn.
  */
@@ -127,9 +140,24 @@ const TU_KHOA: ReadonlyArray<readonly [RegExp, TimeBucket, boolean]> = [
   [/\b(choi voi con|dua con|don con|voi con|voi vo|voi chong|an com cung|ca nha|gia dinh|bo me|ong ba)\b/, 'family', true],
   [/\b(an toi|an trua|an sang|nau com|don nha|nha cua|cham con|cho con)\b/, 'family', false],
   [/\b(dien thoai|facebook|tiktok|youtube|luot|xem phim|game|choi game|mang xa hoi)\b/, 'waste', false],
-  [/\b(ngu|tap gym|tap the duc|chay bo|doc sach|hoc|thien|tam|di bo)\b/, 'personal', false],
+  [
+    // Thể thao và chăm mình. "the duc" TRẦN phải có: Founder gõ "thể dục 30 phút" và cả
+    // câu rơi xuống LLM, vì danh sách cũ chỉ nhận đủ cụm "tap the duc".
+    /\b(ngu|gym|tap gym|the duc|tap the duc|chay bo|chay|dap xe|boi|da bong|cau long|tennis|yoga|thien|tam|di bo|doc sach|hoc)\b/,
+    'personal',
+    false,
+  ],
   [/\b(di xe|di lai|ket xe|tau xe|lai xe)\b/, 'work', false],
 ];
+
+/**
+ * Ô dùng khi câu có đủ thời lượng và tên việc mà không từ khoá nào nhận ra.
+ *
+ * Chọn `personal` vì nó là ô ít gây hại nhất khi đoán sai. Đoán nhầm vào `waste` là nói
+ * với người ta rằng việc họ vừa làm là phí phạm; đoán nhầm vào `work` thì bẻ cong đúng
+ * con số mà cả app xoay quanh. `personal` sai thì cũng chỉ là sai.
+ */
+const O_MAC_DINH: TimeBucket = 'personal';
 
 const VUI = /\b(vui|hanh phuc|tuyet|thich|cuoi|am|de chiu|nhe nhom|thanh cong|dc viec|duoc viec)\b/;
 const BUON = /\b(met|buon|te|chan|cang|stress|ap luc|cai nhau|gian|lo|that vong|kiet suc)\b/;
@@ -399,6 +427,7 @@ function docMotManh(goc: string, bc: BoiCanhDoc): KetQuaManh {
           golden: dm.golden,
           ngay,
           danhMucId: dm.id,
+          doanO: false,
         },
         coSo,
       };
@@ -414,10 +443,31 @@ function docMotManh(goc: string, bc: BoiCanhDoc): KetQuaManh {
             golden: vang,
             ngay,
             danhMucId: null,
+            doanO: false,
           },
           coSo,
         };
       }
+    }
+
+    // Lưới hứng: có thời lượng, có tên việc, nhưng không từ khoá nào nhận ra.
+    //
+    // Đây là chỗ "thể dục 30 phút" từng chết. Luật cũ đòi phải khớp từ khoá mới ghi, nên
+    // bất kỳ việc nào ngoài danh sách đều rơi xuống LLM — và không có khoá API thì rơi
+    // xuống đất. Vá thêm từ khoá chỉ dời cái hố đi chỗ khác: đời sống của một người có
+    // hàng trăm việc, không bao giờ liệt kê hết được.
+    //
+    // Nên đổi luật: thời lượng cộng tên việc là ĐỦ để ghi. Ô thì đoán, và nói rõ là đoán.
+    //
+    // `tenViec` trả "Ghi tay" khi cắt xong không còn chữ nào — tức câu chỉ có mỗi con số
+    // như "30 phút". Không có tên việc thì không ghi, vì một dòng "Ghi tay · 30m · Cá
+    // nhân" trong sổ tuần sau đọc lại cũng không ai biết nó là gì.
+    const ten = tenViec(goc);
+    if (ten !== 'Ghi tay') {
+      return {
+        y: { loai: 'gio', bucket: O_MAC_DINH, minutes: phut, ten, golden: false, ngay, danhMucId: null, doanO: true },
+        coSo,
+      };
     }
   }
 

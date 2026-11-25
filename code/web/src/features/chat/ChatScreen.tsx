@@ -192,6 +192,9 @@ export function ChatScreen() {
       golden: g.golden,
       ngay: day,
       danhMucId: g.danhMucId,
+      // Phím Ghi nhanh dựng từ chính lịch sử của người dùng, nên ô là ô họ đã chọn chứ
+      // không phải Mira đoán.
+      doanO: false,
     };
     const id = (demDong += 1);
     setDong((d) => [
@@ -520,6 +523,11 @@ function TheY({ y, homNay }: { readonly y: YChi; readonly homNay: string }) {
         <i className={`vien vien--${y.bucket}`}>
           {y.golden ? 'Giờ vàng' : BUCKET_LABEL_VI[y.bucket]}
         </i>
+        {/* Đoán thì phải nói là đoán.
+            Mira không nhận ra việc này nên tự xếp vào Cá nhân. Ghi vẫn hơn bỏ, nhưng im
+            lặng thì người dùng tưởng Mira hiểu — rồi một tháng sau ô Cá nhân phình lên
+            toàn thứ họ không hề xếp vào đó, và họ không biết tại sao. */}
+        {y.doanO && <em className="y__doan">Mira đoán ô này · sửa ở Thời gian</em>}
       </div>
     );
   }

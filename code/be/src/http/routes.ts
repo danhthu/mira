@@ -33,7 +33,6 @@ import { nhapBo } from '../services/nhapBo';
 import { xuatBo } from '../services/xuatBo';
 import { chayNep, dungNep, nhanLaiNgay, taoNep, tuChoiNgay } from '../services/nep';
 import { docBangLuat } from '../services/docCau';
-import { docBangAi } from '../services/docCauAi';
 import {
   catDanhMuc,
   docDanhMuc,
@@ -221,11 +220,30 @@ const postDoc: Handler = async (req, deps, userId) => {
   const danhMuc = await deps.danhMuc.findActive(userId);
   const bc = { homNay, danhMuc };
 
-  const luat = docBangLuat(cau, bc);
-  if (luat.nguon === 'luat') return { status: 200, body: luat };
+  // CHỈ CÓ TẦNG LUẬT. Không gọi LLM, không cần khoá API.
+  //
+  // Trước đây câu nào luật không đọc được thì đẩy sang Claude, và vì chưa có khoá nên
+  // người dùng nhận về đúng một dòng: "Máy chủ chưa cấu hình ANTHROPIC_API_KEY". Đó là
+  // lỗi của máy chủ nói bằng giọng máy chủ, ném vào mặt người đang ghi nhật ký.
+  //
+  // Founder chốt bỏ hẳn đường đó. Nghĩa là luật phải gánh hết, nên luật đã đổi: thời
+  // lượng cộng tên việc là đủ ghi, ô thì đoán và nói rõ là đoán. Còn lại mới trả 'chiu',
+  // và lúc đó client nói một câu tiếng người chứ không đọc tên biến môi trường.
+  const kq = docBangLuat(cau, bc);
 
-  const ai = await docBangAi(deps.ai, cau, bc);
-  return { status: 200, body: ai };
+  // Ghi lại ĐÚNG câu mà luật không đọc nổi.
+  //
+  // Không có dòng này thì "Mira chưa hiểu câu này" chỉ người dùng nhìn thấy, còn người
+  // sửa luật thì mù: đáp trả vẫn là 200, log vẫn sạch, và cái lỗ trong bộ từ khoá không
+  // bao giờ lộ ra. Mỗi câu ở đây là một từ khoá còn thiếu, hoặc một dạng câu chưa nghĩ tới.
+  //
+  // Chỉ ghi câu CHỊU, không ghi câu đọc được: đây là nhật ký đời sống, không phải chỗ
+  // đổ toàn bộ những gì người ta gõ vào. Và log này nằm trên máy của chính chủ.
+  if (kq.nguon === 'chiu') {
+    console.warn(JSON.stringify({ level: 40, time: Date.now(), tag: 'doc_chiu', cau }));
+  }
+
+  return { status: 200, body: kq };
 };
 
 // ── nhắc: hẹn giờ gợi người dùng quay lại ghi
