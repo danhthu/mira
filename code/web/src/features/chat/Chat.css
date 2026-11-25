@@ -188,6 +188,28 @@
   border-bottom-right-radius: 5px;
 }
 
+/* Lời nhắc: nền hổ phách rất nhạt, viền cùng tông. Khác hẳn bóng chữ của Mira, vì nó
+   không phải câu trả lời cho điều gì — nó là thứ tự nhảy ra. Nhưng KHÔNG dùng đỏ và
+   không dùng dấu chấm than: Mira nhắc, không mắng. */
+.bong--nhac {
+  align-self: stretch;
+  background: var(--waste-soft);
+  border: 1px solid rgba(168, 98, 8, 0.18);
+  border-radius: var(--radius-md);
+  padding: 13px 16px;
+}
+
+.bong--nhac .bong__chu {
+  font-size: 14.5px;
+  color: var(--fg);
+}
+
+.bong--nhac .bong__chan {
+  border-top: none;
+  padding-top: 7px;
+  margin-top: 4px;
+}
+
 .bong--mira {
   align-self: flex-start;
   background: var(--surface);

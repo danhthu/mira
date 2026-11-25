@@ -6,6 +6,7 @@ import type {
   DanhMucCreate,
   KetQuaDoc,
   Nep,
+  Nhac,
   NepCreate,
   NgayCuaNep,
   Credentials,
@@ -147,6 +148,24 @@ export function createClient(options: ClientOptions) {
       call<DanhMuc>('PATCH', `/danh-muc/${id}`, body),
     /** Cất đi, không xoá: mục giờ cũ còn trỏ về nó. */
     catDanhMuc: (id: string) => call<DanhMuc>('POST', `/danh-muc/${id}/cat`),
+
+    // ───────────────────────────────────────── nhắc
+    //
+    // `from`/`to` là khoảng ngày cần biết đã bỏ qua những hôm nào. Thực tế client chỉ
+    // cần đúng hôm nay, nhưng để khoảng thì màn thiết lập hiện được lịch sử mà không
+    // phải thêm route.
+    listNhac: (from: string, to: string) =>
+      call<{ nhac: Nhac[]; boQua: { nhacId: string; date: string }[] }>(
+        'GET',
+        `/nhac${query({ from, to })}`,
+      ),
+    createNhac: (nhac: { gio: string; days: string; loi?: string | null }) =>
+      call<Nhac>('POST', '/nhac', nhac),
+    updateNhac: (id: string, patch: { gio?: string; days?: string; loi?: string | null; bat?: boolean }) =>
+      call<Nhac>('PATCH', `/nhac/${id}`, patch),
+    deleteNhac: (id: string) => call<void>('DELETE', `/nhac/${id}`),
+    /** Bỏ qua ĐÚNG MỘT NGÀY. Tắt hẳn là `updateNhac(id, { bat: false })`. */
+    boQuaNhac: (id: string, date: string) => call<void>('POST', `/nhac/${id}/bo-qua`, { date }),
 
     // ───────────────────────────────────────── nếp
     listNep: () => call<Nep[]>('GET', '/nep'),

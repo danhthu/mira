@@ -76,6 +76,31 @@ export type TimeEntrySource = 'manual' | 'widget' | 'nep';
  * `days` là thứ trong tuần theo ISO, "1234567" là mỗi ngày, "12345" là thứ hai tới thứ
  * sáu. Mặc định của nếp là **đã làm**; người dùng chỉ động tay khi không làm.
  */
+// ─────────────────────────────────────────────────────────── nhắc
+
+/**
+ * Một lời nhắc: hẹn giờ gợi người dùng quay lại ghi.
+ *
+ * `gio` theo **đồng hồ người dùng**, không phải máy chủ. Máy chủ chỉ giữ chuỗi; việc so
+ * với bây giờ là việc của client, nơi duy nhất biết họ ở múi giờ nào.
+ *
+ * Mira KHÔNG gửi thông báo đẩy. Lời nhắc xuất hiện trong khung chat khi mở app — đẩy
+ * thật đòi service worker, Push API và một máy chủ luôn bật, mà máy chủ đang nằm trên
+ * laptop. Hứa nhắc rồi im lặng là cách nhanh nhất làm hỏng niềm tin vào mọi con số khác.
+ */
+export interface Nhac {
+  readonly id: string;
+  /** HH:MM, 24 giờ. */
+  readonly gio: string;
+  /** Thứ trong tuần theo ISO, giống `Nep.days`: "12345" là thứ hai tới thứ sáu. */
+  readonly days: string;
+  readonly loi: string | null;
+  readonly bat: boolean;
+}
+
+/** Trần lời nhắc. Hơn ba lần một ngày thì nó hết là lời nhắc và thành tiếng ồn. */
+export const NHAC_CAP = 3;
+
 export interface Nep {
   readonly id: string;
   readonly title: string;

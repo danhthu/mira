@@ -10,6 +10,7 @@ import {
 import { store } from '../../lib/store';
 import { useAsync } from '../../lib/useAsync';
 import { goiYNhanh, type GoiNhanh } from '../../lib/goiY';
+import { nhacToiHan, daGhiTay, type Nhac } from '../../lib/nhac';
 import { addDays, labelDay, monthOf, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, months as fmtMonths, vnd, UNKNOWN } from '../../lib/format';
 import './Chat.css';
@@ -69,14 +70,25 @@ export function ChatScreen() {
   const duoi = useRef<HTMLDivElement>(null);
 
   const tomTat = useAsync(async () => {
-    const [summary, money, ganDay] = await Promise.all([
+    const [summary, money, ganDay, nhac] = await Promise.all([
       store.weekSummary(weekStartOf(day)),
       store.getMoney(monthOf(day)),
       // Hai tuần đổ lại, để rút phím Ghi nhanh. Lấy cả đời thì phím tắt đóng băng theo
       // thói quen năm ngoái, mà việc của màn này là ghi chuyện hôm nay.
       store.listTimeEntries(addDays(day, -NGAY_XET_GOI), day),
+      store.listNhac(day, day),
     ]);
-    return { summary, money, goi: goiYNhanh(ganDay) };
+
+    // Giờ lấy từ đồng hồ TRÌNH DUYỆT, không phải máy chủ: "21:00" nghĩa là chín giờ tối
+    // chỗ người dùng đang ngồi.
+    const bayGio = new Date();
+    const denHan = nhacToiHan(nhac.nhac, nhac.boQua, {
+      ngay: day,
+      phutHienTai: bayGio.getHours() * 60 + bayGio.getMinutes(),
+      daGhi: daGhiTay(ganDay, day),
+    });
+
+    return { summary, money, goi: goiYNhanh(ganDay), denHan };
   }, [day]);
 
   useEffect(() => {
@@ -189,6 +201,12 @@ export function ChatScreen() {
     await ghi(id, [y]);
   }
 
+  /** Bỏ qua một lời nhắc, đúng hôm nay thôi. Tắt hẳn thì vào màn Tôi. */
+  async function boQua(nh: Nhac): Promise<void> {
+    await store.boQuaNhac(nh.id, day);
+    tomTat.reload();
+  }
+
   /**
    * Gỡ lại đúng những gì vừa ghi.
    *
@@ -208,6 +226,7 @@ export function ChatScreen() {
   const derived = tomTat.data?.money.derived ?? null;
   const waste = summary?.slices.find((s) => s.bucket === 'waste') ?? null;
   const goi = tomTat.data?.goi ?? [];
+  const denHan = tomTat.data?.denHan ?? [];
 
   /**
    * Chênh giờ vàng so tuần trước.
@@ -279,6 +298,27 @@ export function ChatScreen() {
       </div>
 
       <div className="chat__cuon">
+        {/*
+          Lời nhắc đã quá giờ, nằm NGAY TRONG dòng trò chuyện chứ không phải một hộp
+          thoại nhảy ra. Mở Mira lên là thấy, cùng chỗ với mọi thứ khác Mira nói.
+
+          Nó biến mất ngay khi có mục ghi tay đầu tiên trong ngày — lời nhắc tồn tại để
+          gợi người ta ghi, nhắc tiếp sau khi đã ghi thì nó thành lời trách.
+        */}
+        {denHan.map((nh) => (
+          <div key={nh.id} className="bong bong--nhac">
+            <p className="bong__chu">
+              {nh.loi ?? 'Hôm nay chưa ghi gì. Một câu thôi cũng được.'}
+            </p>
+            <p className="bong__chan">
+              <span className="sm">Nhắc lúc {nh.gio}</span>
+              <button type="button" className="bong__go" onClick={() => void boQua(nh)}>
+                Bỏ qua hôm nay
+              </button>
+            </p>
+          </div>
+        ))}
+
         {dong.length === 0 && (
           <div className="chat__moi">
             <p>Gõ một câu như nói với người quen:</p>

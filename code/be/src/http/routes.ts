@@ -40,6 +40,7 @@ import {
   doiTenDanhMuc,
   taoDanhMuc,
 } from '../services/danhMuc';
+import { taoNhac, suaNhac, xoaNhac, boQuaNhac } from '../services/nhac';
 import { kiemDoLuong, xoaDem, NGUONG_DOC } from './chanDoLuong';
 import type { Money } from '../entities/Money';
 
@@ -225,6 +226,44 @@ const postDoc: Handler = async (req, deps, userId) => {
 
   const ai = await docBangAi(deps.ai, cau, bc);
   return { status: 200, body: ai };
+};
+
+// ── nhắc: hẹn giờ gợi người dùng quay lại ghi
+//
+// Máy chủ CHỈ giữ ý định (mấy giờ, những thứ mấy) và danh sách ngày đã bỏ qua. Nó không
+// tự gửi gì, và cũng không trả lời được câu "lời nhắc nào đang tới hạn" — trả lời được
+// câu đó nghĩa là đã đoán múi giờ của người dùng, và đoán sai thì lời nhắc 21:00 nhảy
+// ra lúc 14:00. Việc so giờ nằm ở client, nơi duy nhất biết mấy giờ thật.
+
+const listNhac: Handler = async (req, deps, userId) => {
+  const from = assertDate(String(req.query.from ?? ''), 'from');
+  const to = assertDate(String(req.query.to ?? ''), 'to');
+  const [ds, boQua] = await Promise.all([
+    deps.nhac.findAll(userId),
+    deps.nhac.boQuaTrongKhoang(userId, from, to),
+  ]);
+  return { status: 200, body: { nhac: ds, boQua } };
+};
+
+const postNhac: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return { status: 201, body: await taoNhac(deps, userId, { gio: b.gio, days: b.days, loi: b.loi }) };
+};
+
+const patchNhac: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return { status: 200, body: await suaNhac(deps, userId, req.params.id ?? '', b) };
+};
+
+const deleteNhac: Handler = async (req, deps, userId) => {
+  await xoaNhac(deps, userId, req.params.id ?? '');
+  return { status: 204, body: undefined };
+};
+
+const postBoQuaNhac: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  await boQuaNhac(deps, userId, req.params.id ?? '', assertDate(String(b.date ?? ''), 'date'));
+  return { status: 204, body: undefined };
 };
 
 // ── danh mục: tên việc người dùng tự đặt, nằm trong một trong bốn ô
@@ -557,6 +596,11 @@ export const routes: readonly Route[] = [
   { method: 'GET', path: '/moments/due', handler: listDueMoments },
   { method: 'POST', path: '/moments/:id/revisit', handler: postRevisit },
   { method: 'DELETE', path: '/moments/:id', handler: deleteMoment },
+  { method: 'GET', path: '/nhac', handler: listNhac },
+  { method: 'POST', path: '/nhac', handler: postNhac },
+  { method: 'PATCH', path: '/nhac/:id', handler: patchNhac },
+  { method: 'DELETE', path: '/nhac/:id', handler: deleteNhac },
+  { method: 'POST', path: '/nhac/:id/bo-qua', handler: postBoQuaNhac },
 
   { method: 'GET', path: '/money/:month', handler: getMoney },
   { method: 'PUT', path: '/money/:month', handler: putMoney },

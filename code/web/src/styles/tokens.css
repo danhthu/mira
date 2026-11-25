@@ -697,3 +697,65 @@ input {
   border-color: var(--brand);
   color: #fff;
 }
+
+/* ─────────────────────────────── thiết lập nhắc */
+
+.nhac__lien {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  text-decoration: underline;
+  background: none;
+  padding: 0;
+}
+
+.nhac__them {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand);
+  background: none;
+  padding: 0;
+}
+
+.nhac__gio {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.nhac__loi {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 15px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Bảy thứ, dùng lại đúng hình dáng của `.nep-thu` bên nếp: cùng một ý niệm thì phải
+   trông giống nhau, không thì người dùng phải học hai lần. */
+.nhac-thu {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.nhac-thu > button {
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  background: var(--surface);
+}
+
+.nhac-thu > button.is-on {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}

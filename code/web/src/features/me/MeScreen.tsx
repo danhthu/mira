@@ -5,10 +5,11 @@ import { today } from '../../lib/date';
 import { dongPhien } from '../../lib/phien';
 import { googleThoat } from '../../lib/google';
 import { NhapXuat } from './NhapXuat';
+import { NhacCaiDat } from './NhacCaiDat';
 
 /**
- * Màn Tôi. Ba việc: trả lời những hạt muối tới hạn, mang dữ liệu vào ra, và thoát.
- * Không có hồ sơ, không có cài đặt — thứ gì không cần thì không bày.
+ * Màn Tôi. Bốn việc: trả lời những hạt muối tới hạn, đặt giờ nhắc, mang dữ liệu vào ra,
+ * và thoát. Không có hồ sơ — thứ gì không cần thì không bày.
  */
 export function MeScreen({ user, onRa }: { readonly user: User; readonly onRa: () => void }) {
   const state = useAsync(() => store.momentsDue(today()), []);
@@ -91,6 +92,8 @@ export function MeScreen({ user, onRa }: { readonly user: User; readonly onRa: (
           </div>
         ))
       )}
+
+      <NhacCaiDat />
 
       <NhapXuat />
 

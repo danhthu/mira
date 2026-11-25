@@ -11,6 +11,7 @@ import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
 import { NepRepository } from '../database/repositories/NepRepository';
+import { NhacRepository } from '../database/repositories/NhacRepository';
 import { DanhMucRepository } from '../database/repositories/DanhMucRepository';
 import { UserRepository } from '../database/repositories/UserRepository';
 import type { AuthDeps } from '../services/auth';
@@ -49,6 +50,7 @@ export interface AppDeps {
   readonly money: MoneyRepository;
   readonly habits: HabitRepository;
   readonly nep: NepRepository;
+  readonly nhac: NhacRepository;
   readonly danhMuc: DanhMucRepository;
   /** Cấu hình đọc câu bằng AI. Khoá rỗng nghĩa là chưa bật. */
   readonly ai: { readonly apiKey: string; readonly model: string };
@@ -75,6 +77,7 @@ export function buildDeps(
     money: new MoneyRepository(db),
     habits: new HabitRepository(db),
     nep: new NepRepository(db),
+    nhac: new NhacRepository(db),
     danhMuc: new DanhMucRepository(db),
     ai,
     auth: { users, jwtSecret, ttlSeconds, googleClientId },
