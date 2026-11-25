@@ -1,13 +1,20 @@
 /* Màn chat. Khác mọi màn khác ở một chỗ: nó là màn để GÕ, nên ô gõ phải luôn nhìn thấy
    và phần cuộn nằm giữa, không phải cuộn cả trang. */
 
+/* `width: 100%` phải có, không chỉ `max-width`.
+   Khối này nằm trong một cha dạng flex, nên nếu không khoá chiều rộng thì nó co giãn
+   theo NỘI DUNG rộng nhất bên trong. Hàng Ghi nhanh cuộn ngang có nội dung rộng hơn màn
+   hình, và nó kéo cả cột ra 480px trên máy 375px — cả trang trôi ngang, ô số thứ ba bị
+   cắt mất. */
 .chat {
   display: flex;
   flex-direction: column;
   height: 100dvh;
   padding: 16px 20px 0;
+  width: 100%;
   max-width: 480px;
   margin-inline: auto;
+  min-width: 0;
 }
 
 .chat__dau {
@@ -49,6 +56,63 @@
   font-size: 11.5px;
   color: var(--fg-muted);
   margin-top: 2px;
+}
+
+/* Dòng đọc thứ hai. Nhỏ hơn hẳn nhãn: nó là chú thích cho con số, không phải một con
+   số thứ hai tranh chỗ. */
+.chat__phu {
+  display: block;
+  font-size: 10.5px;
+  font-style: normal;
+  color: var(--fg-muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hàng Ghi nhanh: cuộn ngang, nằm sát trên ô gõ vì nó là lối tắt CỦA ô gõ. */
+.chat__nhanh {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  flex: none;
+  padding: 2px 0 8px;
+  scrollbar-width: none;
+  /* Không cho hàng này quyết định chiều rộng của cả cột. */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.chat__nhanh::-webkit-scrollbar {
+  display: none;
+}
+
+.nhanh {
+  flex: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.nhanh b {
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nhanh span {
+  font-size: 11px;
+  color: var(--fg-muted);
+  margin-left: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.nhanh:disabled {
+  opacity: 0.5;
 }
 
 .chat__cuon {
@@ -121,11 +185,27 @@
 
 /* Thẻ một việc Mira đọc ra. Nó là ĐỀ XUẤT, chưa ghi, nên nó nằm trong bong bóng của
    Mira chứ không trông như một mục đã có trong danh sách. */
+/* Lưới hai cột: tên + số phút bên trái, viên ô bên phải, viên ô căng hết chiều cao.
+   Thẻ nào không có viên ô thì vẫn chiếm nguyên cột trái, không phải sửa gì. */
 .y {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 2px;
   padding: 9px 0;
+}
+
+.y > b,
+.y > span {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.y > .vien {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  justify-self: end;
 }
 
 .y + .y {
@@ -191,11 +271,53 @@
   text-decoration: none;
 }
 
-.bong__xong {
+/* Tiêu đề thẻ kết quả: nói đã ghi mấy mục, trước khi liệt kê từng mục. */
+.bong__dau {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+/* Chân thẻ: xác nhận bên trái, lối gỡ bên phải, ngăn bằng một đường mảnh. */
+.bong__chan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin: 10px 0 0;
-  font-size: 13px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.bong__xong {
+  font-size: 12.5px;
   color: var(--green);
   font-weight: 600;
+}
+
+/* Viên ô trên thẻ giờ. Màu bám đúng nghĩa đang có trong sản phẩm: xanh lá là giờ vàng,
+   hổ phách là lãng phí. Không đổi hổ phách thành màu thương hiệu — màu báo "đang phí
+   đời" mà đem đi tô cả app thì nó hết báo được gì. */
+.vien {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex: none;
+  background: var(--line);
+  color: var(--fg-dim);
+}
+
+.vien--family {
+  background: #e7f6f0;
+  color: var(--green);
+}
+
+.vien--waste {
+  background: #fdf1dc;
+  color: var(--amber);
 }
 
 /* Hàng gõ: dính đáy, trên thanh tab. */

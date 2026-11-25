@@ -9,7 +9,8 @@ import {
 } from '@mira/contract';
 import { store } from '../../lib/store';
 import { useAsync } from '../../lib/useAsync';
-import { labelDay, monthOf, today, weekStartOf } from '../../lib/date';
+import { goiYNhanh, type GoiNhanh } from '../../lib/goiY';
+import { addDays, labelDay, monthOf, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, months as fmtMonths, vnd, UNKNOWN } from '../../lib/format';
 import './Chat.css';
 
@@ -55,6 +56,9 @@ interface VetGhi {
   readonly tien: { readonly thang: string; readonly truoc: MoneyMonthUpdate }[];
 }
 
+/** Khoảng ngày dùng để rút phím Ghi nhanh. Hai tuần: đủ thấy nếp, chưa kịp nguội. */
+const NGAY_XET_GOI = 14;
+
 let demDong = 0;
 
 export function ChatScreen() {
@@ -65,11 +69,14 @@ export function ChatScreen() {
   const duoi = useRef<HTMLDivElement>(null);
 
   const tomTat = useAsync(async () => {
-    const [summary, money] = await Promise.all([
+    const [summary, money, ganDay] = await Promise.all([
       store.weekSummary(weekStartOf(day)),
       store.getMoney(monthOf(day)),
+      // Hai tuần đổ lại, để rút phím Ghi nhanh. Lấy cả đời thì phím tắt đóng băng theo
+      // thói quen năm ngoái, mà việc của màn này là ghi chuyện hôm nay.
+      store.listTimeEntries(addDays(day, -NGAY_XET_GOI), day),
     ]);
-    return { summary, money };
+    return { summary, money, goi: goiYNhanh(ganDay) };
   }, [day]);
 
   useEffect(() => {
@@ -158,6 +165,31 @@ export function ChatScreen() {
   }
 
   /**
+   * Chạm một phím Ghi nhanh là ghi luôn.
+   *
+   * Không đẩy chữ vào ô gõ rồi bắt bấm Gửi: như thế vẫn là hai thao tác cộng một lần đọc
+   * lại, tức là chẳng tiết kiệm gì. Nó đi thẳng qua đúng đường mà câu chat đi, nên cũng
+   * có đúng nút Hoàn tác ấy — đó là chỗ gánh rủi ro chạm nhầm.
+   */
+  async function ghiNhanh(g: GoiNhanh): Promise<void> {
+    const y: YChi = {
+      loai: 'gio',
+      bucket: g.bucket,
+      minutes: g.minutes,
+      ten: g.nhan,
+      golden: g.golden,
+      ngay: day,
+      danhMucId: g.danhMucId,
+    };
+    const id = (demDong += 1);
+    setDong((d) => [
+      ...d,
+      { id, ai: 'mira', ketQua: { yChi: [y], nguon: 'luat' }, dangGhi: true },
+    ]);
+    await ghi(id, [y]);
+  }
+
+  /**
    * Gỡ lại đúng những gì vừa ghi.
    *
    * Không có nút này thì "tự động ghi" là máy viết vào nhật ký của người mà người không
@@ -175,6 +207,23 @@ export function ChatScreen() {
   const summary = tomTat.data?.summary ?? null;
   const derived = tomTat.data?.money.derived ?? null;
   const waste = summary?.slices.find((s) => s.bucket === 'waste') ?? null;
+  const goi = tomTat.data?.goi ?? [];
+
+  /**
+   * Chênh giờ vàng so tuần trước.
+   *
+   * `previous` đã là **null khi không so được** — tuần trước trống, hoặc tuần này ghi ít
+   * ngày hơn. Máy chủ giữ chốt đó, client không được tự nối lại: so tổng 3 ngày với tổng
+   * 7 ngày thì cái gì cũng "giảm", và Mira từng báo "lãng phí giảm 26h" đúng kiểu đó.
+   */
+  const lechVang =
+    summary?.previous == null ? null : summary.goldenMinutes - summary.previous.goldenMinutes;
+
+  /** Lãng phí chiếm bao nhiêu phần giờ tỉnh. Chưa ghi gì thì không có mẫu số để chia. */
+  const tyLePhi =
+    summary === null || summary.wakingMinutes === 0 || waste === null || waste.minutes === 0
+      ? null
+      : Math.round((waste.minutes * 100) / summary.wakingMinutes);
 
   return (
     <div className="chat">
@@ -192,23 +241,40 @@ export function ChatScreen() {
         </Link>
       </div>
 
-      {/* Ba con số, không phải mười hai. Đây là màn để GÕ, phần đọc số nằm ở các tab kia. */}
+      {/*
+        Ba con số, không phải mười hai. Đây là màn để GÕ, phần đọc số nằm ở các tab kia.
+
+        Mỗi ô có thêm một DÒNG ĐỌC THỨ HAI. Một con số trần thì ngày thứ chín không còn
+        gì để nhìn — mà giữ cho mới mẻ là đòn bẩy +49% trong giả lập. Dòng thứ hai nói
+        con số ấy đang đi hướng nào, hoặc nó lớn cỡ nào so với cả ngày.
+
+        Dòng ấy VẮNG khi chưa đủ căn cứ, không điền bừa một số 0.
+      */}
       <div className="chat__so">
         <Link to="/tai-chinh" className="chat__o">
           <b>{fmtMonths(derived?.freeCapitalMonths ?? null)}</b>
           <span>tháng tự do</span>
+          {derived?.surplusPerMille != null && (
+            <i className="chat__phu">dư {Math.round(derived.surplusPerMille / 10)}% thu nhập</i>
+          )}
         </Link>
         <Link to="/thoi-gian/family" className="chat__o">
           <b style={{ color: 'var(--green)' }}>
             {summary === null || summary.goldenMinutes === 0 ? UNKNOWN : fmtMinutes(summary.goldenMinutes)}
           </b>
           <span>giờ vàng tuần</span>
+          {lechVang !== null && (
+            <i className="chat__phu" style={{ color: lechVang >= 0 ? 'var(--green)' : 'var(--fg-muted)' }}>
+              {lechVang >= 0 ? '▲' : '▼'} {fmtMinutes(Math.abs(lechVang))} so tuần trước
+            </i>
+          )}
         </Link>
         <Link to="/thoi-gian/waste" className="chat__o">
           <b style={{ color: 'var(--amber)' }}>
             {waste === null || waste.minutes === 0 ? UNKNOWN : fmtMinutes(waste.minutes)}
           </b>
           <span>lãng phí tuần</span>
+          {tyLePhi !== null && <i className="chat__phu">≈ {tyLePhi}% giờ tỉnh</i>}
         </Link>
       </div>
 
@@ -250,6 +316,34 @@ export function ChatScreen() {
         {dangDoc && <div className="bong bong--mira bong__cho">Đang đọc…</div>}
         <div ref={duoi} />
       </div>
+
+      {/*
+        Ghi nhanh: một chạm thay vì một câu.
+
+        Phím rút từ CHÍNH nhật ký người dùng, không phải một danh sách gõ cứng. Mẫu tham
+        khảo có tám ô cố định (Vận động, Ăn uống, Đọc sách…) — đẹp trong ảnh, nhưng đó là
+        danh mục của người thiết kế. Người ngồi đây đi làm 8 tiếng, đi lại 2 tiếng, ăn tối
+        30 phút; đó mới là phím đúng.
+
+        Chưa đủ dữ liệu thì hàng này KHÔNG hiện. Một hàng phím rỗng là thêm một khoảng
+        trống bấm được, không phải một lối tắt.
+      */}
+      {goi.length > 0 && (
+        <div className="chat__nhanh">
+          {goi.map((g) => (
+            <button
+              key={g.khoa}
+              type="button"
+              className="nhanh"
+              disabled={dangDoc}
+              onClick={() => void ghiNhanh(g)}
+            >
+              <b>{g.nhan}</b>
+              <span>{fmtMinutes(g.minutes)}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="chat__go">
         <input
@@ -293,41 +387,64 @@ function TraLoi({
 
   // `khongGhi` và `chuaHieu` không ghi được, nên câu chỉ gồm hai loại đó thì không có gì
   // để gỡ và cũng không hiện dòng trạng thái nào.
-  const coGhiDuoc = ketQua.yChi.some(
+  const ghiDuoc = ketQua.yChi.filter(
     (y) => y.loai === 'gio' || y.loai === 'hat' || y.loai === 'tien',
   );
 
   return (
     <>
+      {ghiDuoc.length > 0 && <p className="bong__dau">{tieuDe(ghiDuoc, dong)}</p>}
+
       {ketQua.yChi.map((y, i) => (
         <TheY key={i} y={y} homNay={homNay} />
       ))}
 
       {dong.loiGhi !== undefined && <p className="y y--khong">Ghi hỏng: {dong.loiGhi}</p>}
 
-      {coGhiDuoc &&
-        (dong.dangGhi === true ? (
-          <p className="bong__xong">Đang ghi…</p>
-        ) : dong.daHoanTac === true ? (
-          <p className="bong__xong">Đã gỡ lại.</p>
-        ) : dong.daGhi === true ? (
-          <p className="bong__xong">
-            Đã ghi.{' '}
-            <button
-              type="button"
-              className="bong__go"
-              disabled={dangGo || dong.veT === undefined}
-              onClick={() => {
-                setDangGo(true);
-                onHoanTac();
-              }}
-            >
-              {dangGo ? 'Đang gỡ…' : 'Hoàn tác'}
-            </button>
-          </p>
-        ) : null)}
+      {ghiDuoc.length > 0 && dong.daGhi === true && dong.daHoanTac !== true && (
+        <p className="bong__chan">
+          <span className="bong__xong">Đã vào nhật ký</span>
+          <button
+            type="button"
+            className="bong__go"
+            disabled={dangGo || dong.veT === undefined}
+            onClick={() => {
+              setDangGo(true);
+              onHoanTac();
+            }}
+          >
+            {dangGo ? 'Đang gỡ…' : '↺ Hoàn tác'}
+          </button>
+        </p>
+      )}
     </>
   );
+}
+
+/**
+ * Dòng tiêu đề của thẻ kết quả.
+ *
+ * Nói **đã ghi mấy mục và loại gì**, vì một câu có thể ra hai mục giờ cộng một hạt, và
+ * lúc đó danh sách thẻ bên dưới không tự nói ra con số ấy. Đếm sai ở đây là nói dối về
+ * một việc vừa xảy ra trong nhật ký của người ta, nên nó đếm thật chứ không ghi cứng.
+ */
+function tieuDe(ghiDuoc: readonly YChi[], dong: Dong): string {
+  if (dong.daHoanTac === true) return 'Đã gỡ lại.';
+  if (dong.dangGhi === true) return 'Đang ghi…';
+
+  const dem = { gio: 0, hat: 0, tien: 0 };
+  for (const y of ghiDuoc) {
+    if (y.loai === 'gio') dem.gio += 1;
+    else if (y.loai === 'hat') dem.hat += 1;
+    else if (y.loai === 'tien') dem.tien += 1;
+  }
+  const phan = [
+    dem.gio > 0 ? `${dem.gio} mục giờ` : null,
+    dem.hat > 0 ? `${dem.hat} hạt` : null,
+    dem.tien > 0 ? `${dem.tien} ô tiền` : null,
+  ].filter((x): x is string => x !== null);
+
+  return `Đã ghi ${phan.join(' · ')}`;
 }
 
 /**
@@ -354,10 +471,15 @@ function TheY({ y, homNay }: { readonly y: YChi; readonly homNay: string }) {
       <div className="y">
         <b>{y.ten}</b>
         <span>
-          {fmtMinutes(y.minutes)} · {BUCKET_LABEL_VI[y.bucket]}
-          {y.golden ? ' · giờ vàng' : ''}
+          {fmtMinutes(y.minutes)}
           {y.ngay !== homNay ? ` · ${labelDay(y.ngay)}` : ''}
         </span>
+        {/* Viên ô, không phải chữ nối bằng dấu chấm: ô là thứ quyết định con số này rơi
+            vào đâu, nên nó phải đọc được bằng một cái liếc. Nhãn tiếng Việt — giao diện
+            này không có chỗ cho chữ "Work". */}
+        <i className={`vien vien--${y.bucket}`}>
+          {y.golden ? 'Giờ vàng' : BUCKET_LABEL_VI[y.bucket]}
+        </i>
       </div>
     );
   }
