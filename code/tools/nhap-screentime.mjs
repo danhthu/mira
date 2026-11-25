@@ -114,9 +114,9 @@ for (const t of TUAN) {
     };
 
     for (const k of KHUNG) them(k.bucket, k.phut, k.ten, k.golden);
-    them('waste', langPhiNgay, 'Điện thoại — giải trí và mạng xã hội');
+    them('waste', langPhiNgay, 'Điện thoại: giải trí và mạng xã hội');
     // Phần còn lại là giờ gia đình thật, và đó là giờ vàng: tối, cả nhà có mặt.
-    them('family', Math.max(0, giaDinhNgay), 'Gia đình — phần còn lại của tối', true);
+    them('family', Math.max(0, giaDinhNgay), 'Gia đình, phần còn lại của tối', true);
   }
 
   theoTuan.push({ batDau: t.batDau, ngay: t.ngay, langPhiNgay, giaDinhNgay, tran });

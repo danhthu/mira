@@ -80,7 +80,7 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
       <div className="wel__track" ref={ray} onScroll={khiCuon}>
         <Trang
           h="Một ngày của bạn đi đâu hết"
-          p="Không phải cảm giác. Là giờ, chia theo bốn ô, cộng lại đúng số giờ bạn thức."
+          p="Giờ thật, chia theo bốn ô, cộng lại đúng số giờ bạn thức trong tuần."
         >
           <div className="wel__card">
             <div className="wel__row">
@@ -119,7 +119,7 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
 
         <Trang
           h="Viên kẹo và hạt muối"
-          p="Ghi một dòng về hôm nay. Ngày nặng được hỏi lại đúng một lần, sau 42 ngày — để bạn thấy nó đã nhẹ đi chưa."
+          p="Ghi một dòng về hôm nay. Ngày nặng thì 42 ngày sau Mira hỏi lại đúng một lần, xem nó đã nhẹ đi chưa."
         >
           <div className="wel__card wel__list">
             <Hat loai="candy" chu="Con tự đọc hết một trang sách" ngay="Hôm nay" />

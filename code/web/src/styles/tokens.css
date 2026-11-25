@@ -1,0 +1,410 @@
+/*
+ * Token giao diện Mira. Bảng màu lấy từ bản chốt concept 24/11/2026.
+ *
+ * Hai luật màu là ràng buộc cứng, không phải sở thích:
+ *   - Không bao giờ dùng đỏ cho "chưa đủ". Đỏ chỉ dành cho chi tiêu trong donut
+ *     tài chính, nơi nó là một loại tiền chứ không phải một lời phán xét.
+ *   - Giá trị chưa nhập hiện --fg-faint với dấu hỏi, không hiện số 0.
+ */
+:root {
+  --screen: #f2f0ec;
+  --surface: #ffffff;
+  --navy: #18202e;
+  --deep: #1e3a5f;
+  --green: #0d9e6e;
+  --red: #d94452;
+  --amber: #c97f00;
+  --purple: #6d4ed8;
+
+  /* Hũ: vàng ấm là ngày vui, xanh nguội là ngày nặng. */
+  --candy: #f0a92e;
+  --salt: #5b7fa3;
+
+  --line: #e8edf4;
+  --fg: var(--navy);
+  --fg-muted: #8a93a3;
+  --fg-faint: #a6b0be;
+  --fg-dim: #6b7a91;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+
+  --tab-height: 84px;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--screen);
+  color: var(--fg);
+  font:
+    400 15px/1.45 'Segoe UI',
+    -apple-system,
+    system-ui,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ───────────────────────────────────────────── khối dùng lại */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.screen-body {
+  flex: 1;
+  padding: 24px 20px calc(var(--tab-height) + 24px);
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.title {
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+}
+
+.big {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.sm {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.faint {
+  color: var(--fg-faint);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 11px;
+}
+
+.pills {
+  display: flex;
+  gap: 8px;
+}
+
+.pills button {
+  background: var(--surface);
+  border-radius: 17px;
+  padding: 8px 17px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.pills button[aria-pressed='true'] {
+  background: var(--navy);
+  color: #fff;
+  font-weight: 600;
+}
+
+.bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--line);
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.split {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.split > i {
+  display: block;
+  height: 100%;
+}
+
+.insight {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+}
+
+.insight .label {
+  color: #7b8aa3;
+}
+
+.insight p {
+  font-style: italic;
+  font-size: 17px;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.flag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: rgba(201, 127, 0, 0.14);
+  color: var(--amber);
+}
+
+.flag.ok {
+  background: rgba(13, 158, 110, 0.14);
+  color: var(--green);
+}
+
+.statrow {
+  display: flex;
+  margin-top: 11px;
+}
+
+.statrow > div {
+  flex: 1;
+  text-align: center;
+}
+
+.statrow > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.statrow .n {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 9px;
+}
+
+.list-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex: none;
+}
+
+.empty {
+  color: var(--fg-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ─────────────────────────────── chạm được
+
+   Thẻ nào mở ra màn khác thì phải trông như bấm được và phải lún xuống khi bấm. Trước
+   đây bốn thẻ trang chủ là thẻ chết: nhìn như nút mà bấm không ra gì. */
+
+.card-link {
+  display: block;
+  text-align: left;
+  width: 100%;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+/* Cả thẻ là một liên kết, nên gạch chân mặc định của trình duyệt chạy dưới MỌI dòng
+   trong thẻ, kể cả con số lớn. Mũi tên góc phải đã đủ nói "bấm được". */
+.card-link,
+.card-link * {
+  text-decoration: none;
+}
+
+.card-link:active {
+  transform: scale(0.985);
+}
+
+/* Mũi tên nhỏ góc phải: dấu hiệu rẻ tiền nhất cho "còn nữa ở trong". */
+.card-link .goc {
+  float: right;
+  color: var(--fg-faint);
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ─────────────────────────────── cột bốn tuần */
+
+.cot {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 128px;
+}
+
+.cot__i {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+}
+
+.cot__i > span:first-child {
+  width: 100%;
+  max-width: 44px;
+  border-radius: 7px 7px 0 0;
+  min-height: 3px;
+}
+
+.cot__i > b {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.cot__i > b.is-on {
+  color: var(--fg);
+}
+
+.cot__n {
+  font-size: 11px;
+  color: var(--fg-faint);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* ─────────────────────────────── gợi ý một chạm
+
+   Mô phỏng 300 persona: giảm ma sát ghi nâng giữ chân tuần 26 từ 27% lên 39%. Đây là
+   chỗ con số đó biến thành giao diện. */
+
+.goiy {
+  background: var(--navy);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  color: #fff;
+}
+
+.goiy__k {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  color: #8ea0bb;
+}
+
+.goiy__d {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 7px 0 13px;
+}
+
+.goiy__n {
+  display: flex;
+  gap: 9px;
+}
+
+.goiy__n > button {
+  flex: 1;
+  border-radius: 12px;
+  padding: 11px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.goiy__n > button:first-child {
+  background: #fff;
+  color: var(--navy);
+}
+
+.goiy__n > button:last-child {
+  background: transparent;
+  color: #cbd5e3;
+  border: 1.5px solid #3a4557;
+}
+
+/* ─────────────────────────────── hạt cũ nổi lên
+
+   Đòn bẩy mạnh nhất trong mô phỏng: 27% lên 44%. Nó không nhắc "bạn bỏ bốn ngày rồi",
+   nó chỉ đưa lại một hạt cũ. Nhắc mà không trách. */
+
+.cu {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  border-left: 3px solid var(--candy);
+}
+
+.cu__k {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  color: var(--fg-muted);
+}
+
+.cu__t {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}

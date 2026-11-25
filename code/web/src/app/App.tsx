@@ -6,6 +6,8 @@ import { AuthScreen } from '../features/auth/AuthScreen';
 import { WelcomeScreen } from '../features/auth/WelcomeScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { TimeScreen } from '../features/time/TimeScreen';
+import { BucketScreen } from '../features/time/BucketScreen';
+import { HuScreen } from '../features/home/HuScreen';
 import { MoneyScreen } from '../features/money/MoneyScreen';
 import { GoalScreen } from '../features/goal/GoalScreen';
 import { MeScreen } from '../features/me/MeScreen';
@@ -82,6 +84,8 @@ export function App() {
         <Routes>
           <Route path="/" element={<HomeScreen />} />
           <Route path="/thoi-gian" element={<TimeScreen />} />
+          <Route path="/thoi-gian/:bucket" element={<BucketScreen />} />
+          <Route path="/hu" element={<HuScreen />} />
           <Route path="/tai-chinh" element={<MoneyScreen />} />
           <Route path="/muc-tieu" element={<GoalScreen />} />
           <Route
