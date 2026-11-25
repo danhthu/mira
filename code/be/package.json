@@ -3,13 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "build": "tsc --noEmit",
+    "start": "ts-node src/index.ts",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "migrate": "ts-node src/database/migrations/runner.ts",
-    "seed": "ts-node src/database/seeds/runner.ts"
+    "seed": "ts-node src/database/seeds/runner.ts",
+    "nap": "ts-node src/cli/nap.ts"
   },
   "dependencies": {
+    "@fastify/cors": "11.3.1",
+    "@mira/contract": "*",
+    "bcryptjs": "3.0.3",
     "dotenv": "^16.4.5",
+    "fastify": "5.12.7",
+    "jose": "6.2.14",
     "pg": "^8.13.0",
     "uuid": "^14.0.2"
   },
