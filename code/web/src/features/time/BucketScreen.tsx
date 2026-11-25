@@ -2,8 +2,10 @@ import { Link, useParams } from 'react-router-dom';
 import { BUCKET_LABEL_VI, TIME_BUCKETS, type TimeBucket } from '@mira/contract';
 import { store } from '../../lib/store';
 import { useAsync } from '../../lib/useAsync';
-import { addDays, labelDay, today, weekStartOf } from '../../lib/date';
+import { addDays, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, perMille } from '../../lib/format';
+import { gomMuc, laNhom } from '../../lib/gom';
+import { Dong, NhomDong } from './DongMuc';
 
 const MAU: Record<TimeBucket, string> = {
   work: 'var(--deep)',
@@ -59,6 +61,7 @@ export function BucketScreen() {
   const tong = entries.reduce((t, e) => t + e.minutes, 0);
   const vang = entries.filter((e) => e.golden).reduce((t, e) => t + e.minutes, 0);
   const dungNhat = Math.max(1, ...entries.map((e) => e.minutes));
+  const gom = gomMuc(entries);
 
   return (
     <div className="screen-body">
@@ -115,8 +118,13 @@ export function BucketScreen() {
         </div>
       )}
 
-      <div className="label" style={{ marginTop: 6 }}>
-        Từng mục, bốn tuần gần đây
+      <div className="row" style={{ marginTop: 6 }}>
+        <div className="label">Từng mục, bốn tuần gần đây</div>
+        {gom.length < entries.length && (
+          <div className="sm">
+            {entries.length} mục, gom còn {gom.length}
+          </div>
+        )}
       </div>
 
       {state.loading && <p className="empty">Đang lấy số…</p>}
@@ -125,32 +133,13 @@ export function BucketScreen() {
         <p className="empty">Bốn tuần nay chưa ghi giờ nào vào nhóm này.</p>
       )}
 
-      {entries.map((e) => (
-        <div className="list-row" key={e.id}>
-          <div className="list-icon" style={{ background: '#edeff3' }}>
-            {e.golden ? '🕯️' : '•'}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 600 }}>
-              {e.note === null || e.note.trim() === '' ? 'Ghi tay' : e.note}
-            </div>
-            {/* Thanh tỉ lệ so với mục dài nhất. Lấy từ Focus Tracker (N-219): đọc một
-                danh sách số thì mắt so chiều dài nhanh hơn so chữ số. */}
-            <div className="bar" style={{ marginTop: 6 }}>
-              <i
-                style={{
-                  width: `${Math.round((e.minutes * 100) / Math.max(1, dungNhat))}%`,
-                  background: MAU[nhom],
-                }}
-              />
-            </div>
-            <div className="sm" style={{ marginTop: 5 }}>
-              {labelDay(e.date)}
-            </div>
-          </div>
-          <div style={{ fontWeight: 700, color: MAU[nhom] }}>{fmtMinutes(e.minutes)}</div>
-        </div>
-      ))}
+      {gom.map((x) =>
+        laNhom(x) ? (
+          <NhomDong key={`${x.bucket}|${x.note}|${x.golden}`} nhom={x} mau={MAU[nhom]} dungNhat={dungNhat} />
+        ) : (
+          <Dong key={x.id} e={x} mau={MAU[nhom]} dungNhat={dungNhat} />
+        ),
+      )}
     </div>
   );
 }

@@ -75,6 +75,12 @@ Thư mục này khác `docs/nguon/kiem-ke*.md`: kiểm kê là bảng nguồn **
 | N-222 | 25/11/2026 | giao-dien | One Day: lấy hàng ghi nhanh và thẻ ký ức cũ, tránh streak bảy chấm | vừa | [file](2026-11-25-mau-giao-dien.md) |
 | N-223 | 25/11/2026 | giao-dien | Ba mẫu đã loại: Artifact, Lume, SimpleTime | vừa | [file](2026-11-25-mau-giao-dien.md) |
 | N-224 | 25/11/2026 | giao-dien | ⚑ Mira cần HAI ngôn ngữ giao diện: màn hằng ngày và màn kể chuyện | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-225 | 25/11/2026 | giao-dien | RFC 5545: lưu RRULE + EXDATE + bản ghi đè; CalConnect cảnh báo sửa nhiều ngày thì phình hơn lưu từng ngày | cao | [file](2026-11-25-the-hien-repeat.md) |
+| N-226 | 25/11/2026 | giao-dien | rsyslog mặc định TẮT gộp lúc ghi vì công cụ phân tích không đọc được; gộp phải ở phía hiện | cao | [file](2026-11-25-the-hien-repeat.md) |
+| N-227 | 25/11/2026 | giao-dien | ⚑ Ngân hàng không đổi mô hình lưu: giữ từng giao dịch, suy ra nếp khi hiện, cho bấm xem lại | vừa | [file](2026-11-25-the-hien-repeat.md) |
+| N-228 | 25/11/2026 | giao-dien | Giao diện lịch: ba cách gom đều có người kêu, chưa có hướng dẫn chính thức nào | thấp | [file](2026-11-25-the-hien-repeat.md) |
+| N-229 | 25/11/2026 | giao-dien | ⚑ Lỗi tự gây: "17/24 ngày không theo nếp" là vô nghĩa; phải tách nếp cứng và nếp mềm | cao | [file](2026-11-25-the-hien-repeat.md) |
+| N-230 | 25/11/2026 | giao-dien | ⚑ Chốt: gom lúc hiện theo kiểu ngân hàng. Món nợ: cột source đang ghi "manual" cho cả dữ liệu suy ra | cao | [file](2026-11-25-the-hien-repeat.md) |
 
 > Ghi chú: dải mã N-100 trở lên dành cho agent market-intelligence (tránh trùng mã với lane doi-thu chạy song song). Lane nguyen-lieu tiếp tục từ N-017. Dải N-200+ dành cho lane `muc-tieu`; lane `giao-dien` bắt đầu từ N-218.
 

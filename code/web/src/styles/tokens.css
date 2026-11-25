@@ -408,3 +408,40 @@ input {
   line-height: 1.5;
   margin: 8px 0 0;
 }
+
+/* ─────────────────────────────── dòng gom nếp lặp
+
+   Hai mươi tám dòng "Ăn tối 30m" chở đúng một bit thông tin. Gom lại còn một dòng, và
+   dành chỗ vừa trống cho thứ thật sự có tin: những ngày KHÔNG theo nếp. */
+
+.lech {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--fg-dim);
+  background: #f4f1ea;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  margin-top: 7px;
+}
+
+.mo {
+  font-size: 13px;
+  color: var(--fg-dim);
+  padding: 6px 0 2px;
+}
+
+/* Danh sách từng ngày khi mở ra: thưa, dễ lướt, không cạnh tranh với dòng gom ở trên. */
+.ngay {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+  color: var(--fg-dim);
+}
+
+.ngay b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
