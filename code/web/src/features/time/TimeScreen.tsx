@@ -9,13 +9,9 @@ import { Donut, Legend } from '../../ui/Donut';
 import { GoiY, timNep } from './GoiY';
 import { NepSection } from './NepSection';
 import { DanhMucChon } from './DanhMucChon';
+import { MAU_TO } from '../../lib/mauO';
 
-const COLOR: Record<TimeBucket, string> = {
-  work: 'var(--deep)',
-  family: 'var(--green)',
-  personal: 'var(--purple)',
-  waste: 'var(--amber)',
-};
+const COLOR = MAU_TO;
 
 /**
  * Màn Thời gian. Donut là catalog nhóm việc — không có chỉ số nào gộp bốn nhóm thành
@@ -256,7 +252,7 @@ export function TimeScreen() {
             onClick={() => void add()}
             style={{
               marginLeft: 'auto',
-              background: 'var(--navy)',
+              background: 'var(--brand)',
               color: '#fff',
               borderRadius: 12,
               padding: '10px 18px',

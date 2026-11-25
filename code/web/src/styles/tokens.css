@@ -1,30 +1,74 @@
 /*
- * Token giao diện Mira. Bảng màu lấy từ bản chốt concept 24/11/2026.
+ * Token giao diện Mira. Bảng màu dựng lại 25/11/2026 cho tươi hơn.
  *
- * Hai luật màu là ràng buộc cứng, không phải sở thích:
- *   - Không bao giờ dùng đỏ cho "chưa đủ". Đỏ chỉ dành cho chi tiêu trong donut
- *     tài chính, nơi nó là một loại tiền chứ không phải một lời phán xét.
- *   - Giá trị chưa nhập hiện --fg-faint với dấu hỏi, không hiện số 0.
+ * BA LUẬT MÀU LÀ RÀNG BUỘC CỨNG, KHÔNG PHẢI SỞ THÍCH
+ *
+ * 1. Không bao giờ dùng đỏ cho "chưa đủ". Đỏ chỉ dành cho chi tiêu trong donut tài
+ *    chính, nơi nó là một loại tiền chứ không phải một lời phán xét.
+ * 2. Giá trị chưa nhập hiện --fg-faint kèm dấu hỏi, không hiện số 0.
+ * 3. Màu của bốn ô là MỘT PHẦN NGHĨA, không phải trang trí. Hổ phách nghĩa là lãng phí.
+ *    Đem hổ phách đi tô logo với thanh tab thì nó hết báo được gì — cái màu đang nói
+ *    "đời ông trôi chỗ này" mà xuất hiện khắp nơi thì mắt thôi không nhìn nó nữa.
+ *
+ * MỖI MÀU CÓ BA BẢN, VÀ KHÔNG DÙNG LẪN
+ *
+ *   --x        tươi, để TÔ: donut, thanh, chấm. Nền có màu nên không cần tương phản chữ.
+ *   --x-ink    đậm, để VIẾT CHỮ trên nền trắng. Bản tươi viết chữ thì đọc không ra.
+ *   --x-soft   nhạt, để LÓT NỀN thẻ và viên.
+ *
+ * Đó là chỗ dễ sai nhất khi làm giao diện "tươi": nâng độ rực lên thì chữ tụt tương
+ * phản, và màn hình đẹp trong ảnh chụp nhưng ra nắng thì không đọc nổi. Tách ba bản ra
+ * thì tươi được mà vẫn đọc được. `npm run kiem-mau` canh chỗ này.
+ *
+ * Cái làm giao diện tươi lên KHÔNG phải chữ rực hơn, mà là nền nguội và những mảng màu
+ * nhạt: --screen đổi từ kem ngà sang trắng hơi xanh, và các thẻ số có nền --x-soft.
  */
 :root {
-  --screen: #f2f0ec;
+  --screen: #f3f6fc;
   --surface: #ffffff;
-  --navy: #18202e;
-  --deep: #1e3a5f;
-  --green: #0d9e6e;
-  --red: #d94452;
-  --amber: #c97f00;
-  --purple: #6d4ed8;
+  --navy: #16203a;
+
+  /* Màu thương hiệu: tab đang chọn, nút gửi, chỗ đang focus.
+     Chàm — cố ý KHÔNG phải xanh lá hay hổ phách, để hai màu ấy giữ nguyên nghĩa. */
+  --brand: #4f46e5;
+  --brand-ink: #4338ca;
+  --brand-soft: #ecebfe;
+
+  /* Bốn ô. */
+  --work: #2563eb;
+  --work-ink: #2a52b5;
+  --work-soft: #e9f0ff;
+
+  --family: #12b886;
+  --family-ink: #047a5a;
+  --family-soft: #e3f8f1;
+
+  --personal: #a855f7;
+  --personal-ink: #6632d4;
+  --personal-soft: #f1ecfe;
+
+  --waste: #fbb224;
+  --waste-ink: #8f5406;
+  --waste-soft: #fff3df;
+
+  /* Tên cũ, giữ lại để không phải sửa hai chục chỗ cùng lúc. Chúng trỏ vào bản ĐỂ VIẾT
+     CHỮ, vì phần lớn chỗ dùng chúng là chữ trên nền trắng. */
+  --deep: var(--work-ink);
+  --green: var(--family-ink);
+  --amber: var(--waste-ink);
+  --purple: var(--personal-ink);
+
+  --red: #e0414f;
 
   /* Hũ: vàng ấm là ngày vui, xanh nguội là ngày nặng. */
-  --candy: #f0a92e;
-  --salt: #5b7fa3;
+  --candy: #cf8400;
+  --salt: #6391bb;
 
-  --line: #e8edf4;
+  --line: #e6ebf5;
   --fg: var(--navy);
-  --fg-muted: #8a93a3;
-  --fg-faint: #a6b0be;
-  --fg-dim: #6b7a91;
+  --fg-muted: #7b869c;
+  --fg-faint: #8b95a8;
+  --fg-dim: #5f6d87;
 
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -148,11 +192,11 @@ input {
   border-radius: 17px;
   padding: 8px 17px;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--fg-dim);
 }
 
 .pills button[aria-pressed='true'] {
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   font-weight: 600;
 }
@@ -544,7 +588,7 @@ input {
 
 .sua__luu {
   margin-left: auto;
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   border-radius: 10px;
   padding: 9px 18px;
@@ -649,7 +693,7 @@ input {
 }
 
 .nep-thu > button.is-on {
-  background: var(--navy);
-  border-color: var(--navy);
+  background: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }

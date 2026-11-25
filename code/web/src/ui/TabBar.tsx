@@ -27,8 +27,9 @@ export function TabBar() {
         bottom: 0,
         height: 'var(--tab-height)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        background: '#faf9f7',
-        borderTop: '1px solid #eae7e1',
+        background: 'rgba(255,255,255,0.94)',
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid var(--line)',
         display: 'flex',
         alignItems: 'center',
         maxWidth: 480,
@@ -46,7 +47,7 @@ export function TabBar() {
             fontSize: 11,
             textDecoration: 'none',
             fontWeight: isActive ? 600 : 400,
-            color: isActive ? 'var(--navy)' : '#9aa0a8',
+            color: isActive ? 'var(--brand)' : 'var(--fg-muted)',
           })}
         >
           {({ isActive }) => (

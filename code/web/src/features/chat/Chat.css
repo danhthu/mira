@@ -33,6 +33,10 @@
   flex: none;
 }
 
+/* Mỗi thẻ số lấy nền MÀU NHẠT của chính con số nó chở. Đây là chỗ làm giao diện tươi
+   lên — không phải ở chữ rực hơn, mà ở ba mảng màu nhạt đặt cạnh nhau. Và nó còn làm
+   được một việc nữa: ô Lãng phí có nền hổ phách nhạt thì liếc một cái là biết đang nói
+   về cái gì, không cần đọc nhãn. */
 .chat__o {
   flex: 1;
   background: var(--surface);
@@ -115,6 +119,18 @@
   opacity: 0.5;
 }
 
+.chat__o--tudo {
+  background: var(--work-soft);
+}
+
+.chat__o--vang {
+  background: var(--family-soft);
+}
+
+.chat__o--phi {
+  background: var(--waste-soft);
+}
+
 .chat__cuon {
   flex: 1;
   overflow-y: auto;
@@ -162,10 +178,13 @@
   line-height: 1.5;
 }
 
+/* Bóng chữ của người dùng: nền chàm NHẠT, chữ chàm đậm.
+   Nền đặc thì mỗi câu gõ thành một mảng tối, và cuộn lại cả ngày nhật ký trông nặng
+   hơn hẳn nội dung của nó. */
 .bong--toi {
   align-self: flex-end;
-  background: var(--navy);
-  color: #fff;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
   border-bottom-right-radius: 5px;
 }
 
@@ -310,14 +329,24 @@
   color: var(--fg-dim);
 }
 
+.vien--work {
+  background: var(--work-soft);
+  color: var(--work-ink);
+}
+
 .vien--family {
-  background: #e7f6f0;
-  color: var(--green);
+  background: var(--family-soft);
+  color: var(--family-ink);
+}
+
+.vien--personal {
+  background: var(--personal-soft);
+  color: var(--personal-ink);
 }
 
 .vien--waste {
-  background: #fdf1dc;
-  color: var(--amber);
+  background: var(--waste-soft);
+  color: var(--waste-ink);
 }
 
 /* Hàng gõ: dính đáy, trên thanh tab. */
@@ -340,7 +369,7 @@
 }
 
 .chat__go button {
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   border-radius: 999px;
   padding: 12px 20px;

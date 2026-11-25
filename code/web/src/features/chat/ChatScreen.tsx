@@ -251,14 +251,14 @@ export function ChatScreen() {
         Dòng ấy VẮNG khi chưa đủ căn cứ, không điền bừa một số 0.
       */}
       <div className="chat__so">
-        <Link to="/tai-chinh" className="chat__o">
+        <Link to="/tai-chinh" className="chat__o chat__o--tudo">
           <b>{fmtMonths(derived?.freeCapitalMonths ?? null)}</b>
           <span>tháng tự do</span>
           {derived?.surplusPerMille != null && (
             <i className="chat__phu">dư {Math.round(derived.surplusPerMille / 10)}% thu nhập</i>
           )}
         </Link>
-        <Link to="/thoi-gian/family" className="chat__o">
+        <Link to="/thoi-gian/family" className="chat__o chat__o--vang">
           <b style={{ color: 'var(--green)' }}>
             {summary === null || summary.goldenMinutes === 0 ? UNKNOWN : fmtMinutes(summary.goldenMinutes)}
           </b>
@@ -269,7 +269,7 @@ export function ChatScreen() {
             </i>
           )}
         </Link>
-        <Link to="/thoi-gian/waste" className="chat__o">
+        <Link to="/thoi-gian/waste" className="chat__o chat__o--phi">
           <b style={{ color: 'var(--amber)' }}>
             {waste === null || waste.minutes === 0 ? UNKNOWN : fmtMinutes(waste.minutes)}
           </b>

@@ -288,7 +288,7 @@
 }
 .wel__dots > button.is-on {
   width: 20px;
-  background: var(--navy);
+  background: var(--brand);
 }
 
 .wel__cta {
@@ -299,7 +299,7 @@
 }
 .wel__go {
   width: 100%;
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   border-radius: var(--radius-md);
   padding: 15px;

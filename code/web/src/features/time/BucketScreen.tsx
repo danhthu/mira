@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { BUCKET_LABEL_VI, TIME_BUCKETS, type TimeBucket } from '@mira/contract';
+import { BUCKET_LABEL_VI, TIME_BUCKETS } from '@mira/contract';
 import { store } from '../../lib/store';
 import { useAsync } from '../../lib/useAsync';
 import { addDays, today, weekStartOf } from '../../lib/date';
@@ -7,13 +7,9 @@ import { minutes as fmtMinutes, perMille } from '../../lib/format';
 import { gomMuc, laNhom } from '../../lib/gom';
 import { DanhMucQuanLy } from './DanhMucQuanLy';
 import { Dong, NhomDong } from './DongMuc';
+import { MAU_TO } from '../../lib/mauO';
 
-const MAU: Record<TimeBucket, string> = {
-  work: 'var(--deep)',
-  family: 'var(--green)',
-  personal: 'var(--purple)',
-  waste: 'var(--amber)',
-};
+const MAU = MAU_TO;
 
 /** Bốn tuần gần nhất đủ để thấy một nếp, chưa đủ dài để thành biểu đồ phải học cách đọc. */
 const SO_TUAN = 4;
