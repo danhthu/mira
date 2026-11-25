@@ -43,6 +43,14 @@ describe('docBangLuat — giờ', () => {
     expect(doc('hop 2 tieng').yChi[0]).toMatchObject({ bucket: 'work', minutes: 120 });
   });
 
+  it('⚑ tên việc cắt số giờ cả khi gõ KHÔNG DẤU', () => {
+    // Thiếu chữ `e` trần trong lớp ký tự thì tên ra "Hop 2 tieng", và thẻ hiện
+    // "Hop 2 tieng · 2h · Công việc" — lặp lại chính nó.
+    expect(doc('chieu nay hop 2 tieng').yChi[0]).toMatchObject({ ten: 'Hop' });
+    expect(doc('ngu 7 tieng').yChi[0]).toMatchObject({ ten: 'Ngu' });
+    expect(doc('luot dien thoai 45 phut').yChi[0]).toMatchObject({ ten: 'Luot dien thoai' });
+  });
+
   it('tên việc cắt bỏ số giờ và từ chỉ thời điểm', () => {
     expect(doc('sáng nay họp 3 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
   });

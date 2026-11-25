@@ -113,10 +113,16 @@ function docPhut(cau: string): number | null {
   return null;
 }
 
-/** Cắt phần số và đơn vị ra khỏi câu để lấy tên việc. */
+/**
+ * Cắt phần số và đơn vị ra khỏi câu để lấy tên việc.
+ *
+ * Mỗi lớp ký tự phải chứa cả dạng **không dấu**. Người ta gõ "2 tieng" nhiều ngang gõ
+ * "2 tiếng", và thiếu chữ `e` trần trong `ti[ếêe]ng` thì tên việc ra "Hop 2 tieng" —
+ * thẻ hiện "Hop 2 tieng · 2h · Công việc", lặp lại chính nó.
+ */
 function tenViec(goc: string): string {
   const sach = goc
-    .replace(/\d+(?:[.,]\d+)?\s*(?:ti[ếê]ng|gi[ờo]|h|ph[úu]t|p)\b/gi, ' ')
+    .replace(/\d+(?:[.,]\d+)?\s*(?:ti[ếêe]ng|gi[ờo]|h|ph[úu]t|p)\b/gi, ' ')
     .replace(/\b(h[ôo]m nay|s[áa]ng nay|chi[ềe]u nay|t[ốo]i nay|s[áa]ng|chi[ềe]u|t[ốo]i|nay)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim();
