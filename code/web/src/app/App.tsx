@@ -8,6 +8,7 @@ import { HomeScreen } from '../features/home/HomeScreen';
 import { TimeScreen } from '../features/time/TimeScreen';
 import { BucketScreen } from '../features/time/BucketScreen';
 import { HuScreen } from '../features/home/HuScreen';
+import { SauThangScreen } from '../features/sauthang/SauThangScreen';
 import { MoneyScreen } from '../features/money/MoneyScreen';
 import { GoalScreen } from '../features/goal/GoalScreen';
 import { MeScreen } from '../features/me/MeScreen';
@@ -86,6 +87,7 @@ export function App() {
           <Route path="/thoi-gian" element={<TimeScreen />} />
           <Route path="/thoi-gian/:bucket" element={<BucketScreen />} />
           <Route path="/hu" element={<HuScreen />} />
+          <Route path="/sau-thang" element={<SauThangScreen />} />
           <Route path="/tai-chinh" element={<MoneyScreen />} />
           <Route path="/muc-tieu" element={<GoalScreen />} />
           <Route

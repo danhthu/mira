@@ -1,11 +1,21 @@
 import { NavLink } from 'react-router-dom';
 
+/**
+ * Năm tab, theo concept cải tiến sau khi chạy 300 persona.
+ *
+ * Tab đầu đổi từ "Nhà" thành **Nhật ký**: cái tên cũ nói về một nơi, tên mới nói về việc
+ * phải làm ở đó. Và việc đó giờ nằm trên cùng màn hình chứ không ở đáy.
+ *
+ * "Tôi" rời khỏi thanh tab, nhường chỗ cho **Sáu tháng**. Màn Tôi mỗi tháng mở một lần,
+ * còn Sáu tháng là chỗ trả lời câu hỏi người ta cài Mira để hỏi. Vào Tôi qua tên ở góc
+ * màn Nhật ký.
+ */
 const TABS = [
-  { to: '/', icon: '🏠', label: 'Nhà' },
+  { to: '/', icon: '📓', label: 'Nhật ký' },
   { to: '/thoi-gian', icon: '⏱️', label: 'Thời gian' },
+  { to: '/sau-thang', icon: '📖', label: 'Sáu tháng' },
   { to: '/tai-chinh', icon: '💰', label: 'Tài chính' },
   { to: '/muc-tieu', icon: '🎯', label: 'Mục tiêu' },
-  { to: '/toi', icon: '👤', label: 'Tôi' },
 ] as const;
 
 export function TabBar() {

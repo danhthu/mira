@@ -8,11 +8,18 @@ import { minutes as fmtMinutes, months as fmtMonths, perMille, UNKNOWN } from '.
 import { Grain, Jar } from '../../ui/Grain';
 
 /**
- * Trang chủ. Ô nhập khoảnh khắc đứng ngay đây, không phải một danh sách: ghi xong là
- * xong, không phải mở màn khác.
+ * Màn Nhật ký. Thứ tự trên màn này là kết quả của mô phỏng 300 persona, không phải chọn
+ * cho đẹp:
  *
- * Bốn thẻ trụ đều **bấm được**. Trước đây chúng là thẻ chết, nhìn như nút mà bấm không
- * ra gì, nên số nào cũng cụt ở đó.
+ *   1. **Ô viết trên cùng.** Giảm ma sát ghi là đòn bẩy +39%. Bản cũ để ô viết ở đáy,
+ *      dưới bốn thẻ số — muốn ghi một câu phải cuộn qua hết phần thống kê. Đọc số là
+ *      việc thỉnh thoảng, ghi là việc mỗi ngày; việc mỗi ngày phải đứng trước.
+ *   2. **Hạt cũ nổi lên.** Đòn bẩy mạnh nhất, +49%.
+ *   3. **Bốn thẻ trụ**, đều bấm được.
+ *
+ * Thẻ Thời gian hiện **giờ vàng**, không phải "tổng đã ghi". Tổng đã ghi chót cả ba bảng
+ * đo: phân biệt 0,11 và chỉ đổi 3% giữa các tuần, nghĩa là nó gần như không bao giờ có
+ * tin mới. Giờ vàng đứng đầu bảng đổi theo tuần với 42%.
  */
 const NGAY_HAT_CU = 90;
 const KHOANG_HAT_CU = 4;
@@ -77,121 +84,14 @@ export function HomeScreen() {
             Mira
           </div>
         </div>
-      </div>
-
-      <div className="insight">
-        <div className="label">Nhận xét tuần này</div>
-        <p>
-          {summary === null || family === null || summary.loggedMinutes === 0
-            ? 'Tuần này chưa có giờ nào. Ghi một dòng bên tab Thời gian là Mira có cái để nói.'
-            : `Tuần này ${fmtMinutes(family.minutes)} cho gia đình, trong ${fmtMinutes(summary.wakingMinutes)} giờ bạn thức` +
-              (diff === null
-                ? '.'
-                : diff === 0
-                  ? ', bằng tuần trước.'
-                  : diff > 0
-                    ? `, nhiều hơn tuần trước ${fmtMinutes(diff)}.`
-                    : `, ít hơn tuần trước ${fmtMinutes(-diff)}.`)}
-        </p>
-      </div>
-
-      {hatCu !== null && (
-        <div className="cu">
-          <div className="cu__k">{nhanHatCu(hatCu.date, day)}</div>
-          <p className="cu__t">“{hatCu.text}”</p>
-          <Link to="/hu" className="sm" style={{ display: 'inline-block', marginTop: 10 }}>
-            Mở hũ
-          </Link>
-        </div>
-      )}
-
-      <div className="grid2">
-        <Link to="/hu" className="card card-link">
-          <div className="label">
-            Hũ <span className="goc">›</span>
-          </div>
-          <Jar kinds={moments.slice(0, 24).map((m) => m.kind)} />
-          <div className="sm" style={{ marginTop: 10 }}>
-            {moments.length === 0 ? 'Chưa có hạt nào' : `${candies} kẹo · ${salts} muối`}
-          </div>
-        </Link>
-
-        <Link to="/thoi-gian" className="card card-link">
-          <div className="label">
-            Thời gian <span className="goc">›</span>
-          </div>
-          <div className="big" style={{ color: 'var(--deep)', marginTop: 8 }}>
-            {summary === null || summary.loggedMinutes === 0
-              ? UNKNOWN
-              : fmtMinutes(summary.loggedMinutes)}
-          </div>
-          <div className="sm" style={{ marginTop: 4 }}>
-            Đã ghi tuần này
-          </div>
-          <div className="bar">
-            <i
-              style={{
-                width: `${Math.min(100, ((summary?.loggedMinutes ?? 0) * 100) / (summary?.wakingMinutes ?? 1))}%`,
-                background: 'var(--deep)',
-              }}
-            />
-          </div>
-          <div className="sm" style={{ marginTop: 9 }}>
-            {BUCKET_LABEL_VI.family} {family === null ? UNKNOWN : fmtMinutes(family.minutes)}
-          </div>
-        </Link>
-
-        <Link to="/tai-chinh" className="card card-link">
-          <div className="label">
-            Tài chính <span className="goc">›</span>
-          </div>
-          <div className="big" style={{ marginTop: 8 }}>
-            {fmtMonths(derived?.freeCapitalMonths ?? null)}
-          </div>
-          <div className="sm" style={{ marginTop: 4 }}>
-            Tháng sống được nếu dừng
-          </div>
-          <div className="bar">
-            <i
-              style={{
-                width: `${Math.min(100, (derived?.freeCapitalMonths ?? 0) * 4)}%`,
-                background: 'var(--deep)',
-              }}
-            />
-          </div>
-          <div className="sm" style={{ marginTop: 9 }}>
-            Mức dư {perMille(derived?.surplusPerMille ?? null)}
-          </div>
-        </Link>
-
-        <Link to="/muc-tieu" className="card card-link">
-          <div className="label">
-            Mục tiêu <span className="goc">›</span>
-          </div>
-          <div className="big" style={{ marginTop: 8 }}>
-            {habits.length === 0 ? UNKNOWN : `${habitDone}/${habitTarget}`}
-          </div>
-          <div className="sm" style={{ marginTop: 4 }}>
-            Thói quen tuần này
-          </div>
-          <div className="bar">
-            <i
-              style={{
-                width: `${habitTarget === 0 ? 0 : Math.min(100, (habitDone * 100) / habitTarget)}%`,
-                background: 'var(--green)',
-              }}
-            />
-          </div>
-          <div className="sm" style={{ marginTop: 9 }}>
-            {state.data === null || state.data.budget.shortfallMinutes === 0
-              ? 'Đủ giờ để làm'
-              : `Thiếu ${fmtMinutes(state.data.budget.shortfallMinutes)}`}
-          </div>
+        {/* Tab "Tôi" đã rút khỏi thanh dưới để nhường chỗ cho Sáu tháng. Đây là cửa vào. */}
+        <Link to="/toi" className="sm" aria-label="Màn Tôi">
+          Tôi ›
         </Link>
       </div>
 
       <div className="label" style={{ marginTop: 11 }}>
-        Ghi lại khoảnh khắc
+        Hôm nay có gì
       </div>
 
       <input
@@ -201,7 +101,7 @@ export function HomeScreen() {
         onKeyDown={(event) => {
           if (event.key === 'Enter') void submit();
         }}
-        placeholder="Hôm nay có gì đáng nhớ?"
+        placeholder="Viết một câu là đủ…"
         style={{
           background: 'var(--surface)',
           border: '1.5px solid #d7dfe9',
@@ -254,6 +154,110 @@ export function HomeScreen() {
       >
         Bỏ vào hũ
       </button>
+
+      {hatCu !== null && (
+        <div className="cu">
+          <div className="cu__k">{nhanHatCu(hatCu.date, day)}</div>
+          <p className="cu__t">“{hatCu.text}”</p>
+          <Link to="/hu" className="sm" style={{ display: 'inline-block', marginTop: 10 }}>
+            Mở hũ
+          </Link>
+        </div>
+      )}
+
+      <div className="grid2">
+        <Link to="/hu" className="card card-link">
+          <div className="label">
+            Hũ <span className="goc">›</span>
+          </div>
+          <Jar kinds={moments.slice(0, 24).map((m) => m.kind)} />
+          <div className="sm" style={{ marginTop: 10 }}>
+            {moments.length === 0 ? 'Chưa có hạt nào' : `${candies} kẹo · ${salts} muối`}
+          </div>
+        </Link>
+
+        <Link to="/thoi-gian" className="card card-link">
+          <div className="label">
+            Thời gian <span className="goc">›</span>
+          </div>
+          {/* Giờ vàng chứ không phải "tổng đã ghi". Tổng đã ghi chót cả ba bảng đo:
+              phân biệt 0,11 và chỉ đổi 3% giữa các tuần, nên nó gần như không bao giờ
+              mang tin mới. Giờ vàng đứng đầu bảng đổi theo tuần với 42%. */}
+          <div className="big" style={{ color: 'var(--green)', marginTop: 8 }}>
+            {summary === null || summary.goldenMinutes === 0
+              ? UNKNOWN
+              : fmtMinutes(summary.goldenMinutes)}
+          </div>
+          <div className="sm" style={{ marginTop: 4 }}>
+            Giờ vàng tuần này
+          </div>
+          <div className="bar">
+            <i
+              style={{
+                width: `${family === null || family.minutes === 0 ? 0 : Math.min(100, ((summary?.goldenMinutes ?? 0) * 100) / family.minutes)}%`,
+                background: 'var(--green)',
+              }}
+            />
+          </div>
+          <div className="sm" style={{ marginTop: 9 }}>
+            {diff === null
+              ? `${BUCKET_LABEL_VI.family} ${family === null ? UNKNOWN : fmtMinutes(family.minutes)}`
+              : diff === 0
+                ? 'Bằng tuần trước'
+                : diff > 0
+                  ? `Nhiều hơn tuần trước ${fmtMinutes(diff)}`
+                  : `Ít hơn tuần trước ${fmtMinutes(-diff)}`}
+          </div>
+        </Link>
+
+        <Link to="/tai-chinh" className="card card-link">
+          <div className="label">
+            Tài chính <span className="goc">›</span>
+          </div>
+          <div className="big" style={{ marginTop: 8 }}>
+            {fmtMonths(derived?.freeCapitalMonths ?? null)}
+          </div>
+          <div className="sm" style={{ marginTop: 4 }}>
+            Tháng sống được nếu dừng
+          </div>
+          <div className="bar">
+            <i
+              style={{
+                width: `${Math.min(100, (derived?.freeCapitalMonths ?? 0) * 4)}%`,
+                background: 'var(--deep)',
+              }}
+            />
+          </div>
+          <div className="sm" style={{ marginTop: 9 }}>
+            Mức dư {perMille(derived?.surplusPerMille ?? null)}
+          </div>
+        </Link>
+
+        <Link to="/muc-tieu" className="card card-link">
+          <div className="label">
+            Mục tiêu <span className="goc">›</span>
+          </div>
+          <div className="big" style={{ marginTop: 8 }}>
+            {habits.length === 0 ? UNKNOWN : `${habitDone}/${habitTarget}`}
+          </div>
+          <div className="sm" style={{ marginTop: 4 }}>
+            Thói quen tuần này
+          </div>
+          <div className="bar">
+            <i
+              style={{
+                width: `${habitTarget === 0 ? 0 : Math.min(100, (habitDone * 100) / habitTarget)}%`,
+                background: 'var(--green)',
+              }}
+            />
+          </div>
+          <div className="sm" style={{ marginTop: 9 }}>
+            {state.data === null || state.data.budget.shortfallMinutes === 0
+              ? 'Đủ giờ để làm'
+              : `Thiếu ${fmtMinutes(state.data.budget.shortfallMinutes)}`}
+          </div>
+        </Link>
+      </div>
 
       <p className="empty">
         Vàng ấm là ngày vui, xanh nguội là ngày nặng. Mỗi hạt muối Mira hỏi lại đúng một lần,
