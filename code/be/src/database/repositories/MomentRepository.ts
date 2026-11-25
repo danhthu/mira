@@ -1,46 +1,61 @@
 import type { IDatabase } from '../../shared/interfaces/IDatabase';
-import type { CreateMomentDto, UpdateMomentDto } from '../../shared/dtos/MomentDto';
+import type { AnswerRevisitDto, CreateMomentDto, UpdateMomentDto } from '../../shared/dtos/MomentDto';
 import type { MomentRow } from '../../shared/types/rows';
-import type { TimeBucket } from '../../shared/types/enums';
+import type { MomentKind } from '../../shared/types/enums';
 import type { Moment } from '../../entities/Moment';
+import { SALT_REVISIT_DAYS } from '../../shared/constants';
 import { MOMENT_QUERIES } from '../queries/moment';
-import { toMoment, serializePersonIds } from '../mappers/moment';
+import { toMoment } from '../mappers/moment';
 import { newId } from '../id';
+
+/** Cộng ngày vào một chuỗi YYYY-MM-DD, trả về cùng định dạng. */
+function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 export class MomentRepository {
   constructor(private readonly db: IDatabase) {}
 
-  async findAll(): Promise<Moment[]> {
-    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findAll);
+  async findAll(userId: string): Promise<Moment[]> {
+    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findAll, [userId]);
     return result.rows.map(toMoment);
   }
 
-  async findById(id: string): Promise<Moment | null> {
-    const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.findById, [id]);
+  async findById(userId: string, id: string): Promise<Moment | null> {
+    const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.findById, [id, userId]);
     return row === null ? null : toMoment(row);
   }
 
-  async findByDateRange(from: string, to: string): Promise<Moment[]> {
-    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findByDateRange, [from, to]);
+  async findByDateRange(userId: string, from: string, to: string): Promise<Moment[]> {
+    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findByDateRange, [from, to, userId]);
     return result.rows.map(toMoment);
   }
 
-  async findByBucket(bucket: TimeBucket): Promise<Moment[]> {
-    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findByBucket, [bucket]);
+  async findByKind(userId: string, kind: MomentKind): Promise<Moment[]> {
+    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findByKind, [kind, userId]);
     return result.rows.map(toMoment);
   }
 
-  async create(dto: CreateMomentDto): Promise<Moment> {
+  /** Hạt muối đã tới hạn hỏi lại và chưa từng trả lời. */
+  async findDueForRevisit(userId: string, on: string): Promise<Moment[]> {
+    const result = await this.db.query<MomentRow>(MOMENT_QUERIES.findDueForRevisit, [on, userId]);
+    return result.rows.map(toMoment);
+  }
+
+  // Ngày hỏi lại được tính ngay lúc ghi, không tính lại khi đọc: nếu sau này đổi
+  // SALT_REVISIT_DAYS thì những hạt cũ vẫn giữ đúng hẹn đã hứa với người dùng.
+  async create(userId: string, dto: CreateMomentDto): Promise<Moment> {
     const now = new Date().toISOString();
+    const revisitAt = dto.kind === 'salt' ? addDays(dto.date, SALT_REVISIT_DAYS) : null;
     const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.insert, [
       newId(),
-      dto.occurredAt,
+      userId,
+      dto.date,
+      dto.kind,
       dto.text ?? null,
-      dto.mediaUri ?? null,
-      dto.mediaType ?? null,
-      serializePersonIds(dto.personIds ?? []),
-      dto.bucket ?? null,
-      now,
+      revisitAt,
       now,
     ]);
     if (row === null) {
@@ -49,30 +64,39 @@ export class MomentRepository {
     return toMoment(row);
   }
 
-  // UpdateMomentDto không cho sửa occurredAt nhưng câu UPDATE ghi cả cột đó,
-  // nên phải đọc bản ghi hiện tại rồi ghi đè phần DTO gửi lên.
-  async update(id: string, dto: UpdateMomentDto): Promise<Moment | null> {
-    const current = await this.findById(id);
+  async update(userId: string, id: string, dto: UpdateMomentDto): Promise<Moment | null> {
+    const current = await this.findById(userId, id);
     if (current === null) {
       return null;
     }
     const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.update, [
       id,
-      current.occurredAt,
       dto.text === undefined ? current.text : dto.text,
-      dto.mediaUri === undefined ? current.mediaUri : dto.mediaUri,
-      dto.mediaType === undefined ? current.mediaType : dto.mediaType,
-      serializePersonIds(dto.personIds ?? current.personIds),
-      dto.bucket === undefined ? current.bucket : dto.bucket,
       new Date().toISOString(),
+      userId,
     ]);
     return row === null ? null : toMoment(row);
   }
 
-  async softDelete(id: string): Promise<Moment | null> {
+  /**
+   * Trả `null` khi hạt không tồn tại, không phải muối, hoặc đã trả lời rồi — câu
+   * UPDATE tự lọc cả ba. Tầng trên phân biệt bằng cách đọc lại hạt.
+   */
+  async answerRevisit(userId: string, id: string, dto: AnswerRevisitDto): Promise<Moment | null> {
+    const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.answerRevisit, [
+      id,
+      dto.answer,
+      new Date().toISOString(),
+      userId,
+    ]);
+    return row === null ? null : toMoment(row);
+  }
+
+  async softDelete(userId: string, id: string): Promise<Moment | null> {
     const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.softDelete, [
       id,
       new Date().toISOString(),
+      userId,
     ]);
     return row === null ? null : toMoment(row);
   }

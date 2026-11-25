@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import type { PersonRow, TimeEntryRow, MomentRow } from '../../../shared/types/rows';
 import { toPerson } from '../person';
 import { toTimeEntry } from '../timeEntry';
-import { toMoment, parsePersonIds, serializePersonIds } from '../moment';
+import { toMoment } from '../moment';
 
 const personRow: PersonRow = {
   id: '0192f0c0-0000-7000-8000-000000000001',
@@ -22,8 +22,8 @@ const timeEntryRow: TimeEntryRow = {
   id: '0192f0c0-0000-7000-8000-000000000002',
   date: '2026-08-25',
   minutes: 90,
-  bucket: 'people',
-  person_id: personRow.id,
+  bucket: 'family',
+  golden: true,
   note: 'Gọi điện về nhà',
   source: 'manual',
   created_at: '2026-08-25T02:00:00.000Z',
@@ -33,12 +33,11 @@ const timeEntryRow: TimeEntryRow = {
 
 const momentRow: MomentRow = {
   id: '0192f0c0-0000-7000-8000-000000000003',
-  occurred_at: '2026-08-25T12:30:00.000Z',
-  text: 'Con tập đi xe đạp',
-  media_uri: 'file:///photo.jpg',
-  media_type: 'photo',
-  person_ids: '["p1","p2"]',
-  bucket: 'people',
+  date: '2026-08-25',
+  kind: 'salt',
+  text: 'Họp hai tiếng không ra quyết định',
+  revisit_at: '2026-10-06',
+  revisit_answer: null,
   created_at: '2026-08-25T12:31:00.000Z',
   updated_at: '2026-08-25T12:31:00.000Z',
   deleted_at: null,
@@ -77,40 +76,42 @@ describe('toPerson', () => {
 });
 
 describe('toTimeEntry', () => {
-  it('đổi person_id sang personId và giữ phút là số nguyên', () => {
+  it('giữ nhóm việc của catalog và cờ giờ vàng', () => {
     const entry = toTimeEntry(timeEntryRow);
-    expect(entry.personId).toBe(personRow.id);
+    expect(entry.bucket).toBe('family');
+    expect(entry.golden).toBe(true);
     expect(entry.minutes).toBe(90);
-    expect(entry.bucket).toBe('people');
     expect(entry.source).toBe('manual');
   });
 
-  it('entry không gắn người thì personId là null', () => {
-    expect(toTimeEntry({ ...timeEntryRow, person_id: null, note: null }).personId).toBeNull();
+  it('giờ không phải giờ vàng thì golden là false, không phải undefined', () => {
+    expect(toTimeEntry({ ...timeEntryRow, golden: false, note: null }).golden).toBe(false);
+  });
+
+  it('nhóm lãng phí đọc ra đúng — đây là nguyên liệu của luật khai nguồn', () => {
+    expect(toTimeEntry({ ...timeEntryRow, bucket: 'waste', golden: false }).bucket).toBe('waste');
   });
 });
 
 describe('toMoment', () => {
-  it('parse person_ids từ chuỗi JSON thành mảng', () => {
-    expect(toMoment(momentRow).personIds).toEqual(['p1', 'p2']);
+  it('đọc ra hạt muối kèm ngày hỏi lại, chưa trả lời', () => {
+    const moment = toMoment(momentRow);
+    expect(moment.kind).toBe('salt');
+    expect(moment.revisitAt).toBe('2026-10-06');
+    expect(moment.revisitAnswer).toBeNull();
   });
 
-  it('mảng rỗng khi moment không gắn ai', () => {
-    expect(toMoment({ ...momentRow, person_ids: '[]' }).personIds).toEqual([]);
+  it('viên kẹo không có hẹn hỏi lại', () => {
+    const moment = toMoment({ ...momentRow, kind: 'candy', revisit_at: null });
+    expect(moment.kind).toBe('candy');
+    expect(moment.revisitAt).toBeNull();
   });
 
-  it('media và bucket rỗng thì trả null', () => {
-    const moment = toMoment({ ...momentRow, media_uri: null, media_type: null, bucket: null, text: null });
-    expect(moment.mediaUri).toBeNull();
-    expect(moment.mediaType).toBeNull();
-    expect(moment.bucket).toBeNull();
-    expect(moment.text).toBeNull();
+  it('hạt không chữ vẫn là một hạt', () => {
+    expect(toMoment({ ...momentRow, text: null }).text).toBeNull();
   });
-});
 
-describe('person_ids', () => {
-  it('serialize rồi parse lại ra đúng mảng ban đầu', () => {
-    const ids = ['a', 'b', 'c'];
-    expect(parsePersonIds(serializePersonIds(ids))).toEqual(ids);
+  it('câu trả lời đã ghi thì đọc ra đúng', () => {
+    expect(toMoment({ ...momentRow, revisit_answer: 'lighter' }).revisitAnswer).toBe('lighter');
   });
 });

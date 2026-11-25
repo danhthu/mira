@@ -53,6 +53,12 @@ describe('kiemTokenGoogle', () => {
   });
 
   it('JWT đúng hình dạng nhưng chữ ký bậy vẫn 401', async () => {
+    // Chuỗi đúng hình dạng JWT thì `jose` đi TẢI KHOÁ CÔNG KHAI của Google thật. Để
+    // nguyên thì test này phụ thuộc mạng: lúc xanh lúc đỏ, và đỏ vì lý do chẳng liên
+    // quan gì tới thứ đang kiểm. Chặn `fetch` lại cho nó hỏng ngay và hỏng giống nhau.
+    const fetchThat = globalThis.fetch;
+    globalThis.fetch = (() => Promise.reject(new Error('test không gọi mạng'))) as typeof fetch;
+
     const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
     const gia = [
       b64({ alg: 'RS256', kid: 'khong-co-that' }),
@@ -67,7 +73,13 @@ describe('kiemTokenGoogle', () => {
       'chu-ky-bay',
     ].join('.');
 
-    const e = await batLoi(() => kiemTokenGoogle(CLIENT, gia));
-    expect(e.status).toBe(401);
+    try {
+      const e = await batLoi(() => kiemTokenGoogle(CLIENT, gia));
+      expect(e.status).toBe(401);
+      // Không nói rõ hỏng ở đâu, kể cả khi lý do thật là không tải được khoá.
+      expect(e.message).toBe('Token Google không hợp lệ.');
+    } finally {
+      globalThis.fetch = fetchThat;
+    }
   });
 });

@@ -4,14 +4,14 @@ export interface CreateTimeEntryDto {
   date: string;
   minutes: number;
   bucket: TimeBucket;
-  personId?: string;
-  note?: string;
+  golden?: boolean;
+  note?: string | null;
   source?: TimeEntrySource;
 }
 
 export interface UpdateTimeEntryDto {
   minutes?: number;
   bucket?: TimeBucket;
-  personId?: string | null;
+  golden?: boolean;
   note?: string | null;
 }

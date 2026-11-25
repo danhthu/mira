@@ -1,0 +1,17 @@
+{
+  "name": "mira",
+  "private": true,
+  "workspaces": [
+    "contract",
+    "api-client",
+    "be",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w web",
+    "dev:be": "npm run dev -w mira-be",
+    "build": "npm run build -w web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm test --workspaces --if-present"
+  }
+}

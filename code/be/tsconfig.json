@@ -8,9 +8,16 @@
     "noImplicitReturns": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@mira/contract": ["../contract/src/index.ts"]
+    },
+    // `be` chạy bằng ts-node (dev, migrate, seed) nên tsc ở đây chỉ để kiểm kiểu.
+    // Nhờ noEmit mà `@mira/contract` nằm ngoài thư mục src không còn là lỗi rootDir;
+    // mọi import từ contract trong `be` đều là `import type` nên không có phụ thuộc
+    // runtime nào vào package ESM đó.
+    "noEmit": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

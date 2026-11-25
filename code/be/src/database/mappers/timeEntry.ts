@@ -7,9 +7,10 @@ export function toTimeEntry(row: TimeEntryRow): TimeEntry {
     id: row.id,
     date: row.date,
     minutes: row.minutes,
-    // CHECK constraint của bucket và source đã giới hạn đúng tập giá trị này.
+    // CHECK constraint ở migration 002 giới hạn bucket và source đúng các giá trị
+    // của union; chỉ repository trong thư mục này mới ghi vào hai cột đó.
     bucket: row.bucket as TimeBucket,
-    personId: row.person_id,
+    golden: row.golden,
     note: row.note,
     source: row.source as TimeEntrySource,
     createdAt: row.created_at,

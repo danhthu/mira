@@ -17,7 +17,7 @@ export interface TimeEntryRow {
   date: string;
   minutes: number;
   bucket: string;
-  person_id: string | null;
+  golden: boolean;
   note: string | null;
   source: string;
   created_at: string;
@@ -27,12 +27,11 @@ export interface TimeEntryRow {
 
 export interface MomentRow {
   id: string;
-  occurred_at: string;
+  date: string;
+  kind: string;
   text: string | null;
-  media_uri: string | null;
-  media_type: string | null;
-  person_ids: string;
-  bucket: string | null;
+  revisit_at: string | null;
+  revisit_answer: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -53,10 +52,11 @@ export interface WorkLoadRow {
 export interface MoneyRow {
   id: string;
   month: string;
-  net_income: number;
-  monthly_expense: number;
-  net_worth: number;
-  debt: number;
+  net_income: number | null;
+  monthly_expense: number | null;
+  debt_payment: number | null;
+  debt_balance: number | null;
+  net_worth: number | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -79,12 +79,24 @@ export interface GoalRow {
   id: string;
   tier: string;
   title: string;
-  started_at: string;
-  expires_at: string;
-  cost_minutes_per_week: number | null;
+  weekly_minutes: number;
+  source_bucket: string;
+  started_on: string;
+  expires_on: string | null;
+  ended_on: string | null;
+  handed_over_to: string | null;
   cost_amount_per_month: number | null;
-  status: string;
-  release_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface HabitRow {
+  id: string;
+  title: string;
+  target_per_week: number;
+  started_on: string;
+  ended_on: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

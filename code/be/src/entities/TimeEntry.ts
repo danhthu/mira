@@ -7,7 +7,8 @@ export interface TimeEntry {
   readonly date: string;
   readonly minutes: number;
   readonly bucket: TimeBucket;
-  readonly personId: string | null;
+  /** Giờ vàng: lát cắt bên trong nhóm gia đình, giờ thật sự có mặt. */
+  readonly golden: boolean;
   readonly note: string | null;
   readonly source: TimeEntrySource;
   readonly createdAt: string;

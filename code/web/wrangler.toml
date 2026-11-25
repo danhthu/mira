@@ -1,0 +1,24 @@
+# mira.joybit.one — bản web của Mira trên Cloudflare Workers (static assets).
+#
+# Vì sao Workers chứ không phải Pages: tạo project Pages trên tài khoản này trả về lỗi
+# API 8000000, và bản Pages mới đòi Vite >= 6. Workers static assets là đường Cloudflare
+# đang khuyến nghị, và cũng là cách Vessel360 đang phục vụ vessel360.joybit.one trên
+# đúng zone joybit.one này (xem code/deploy/cf-site/wrangler.toml bên repo đó).
+#
+# Build:  npm run build -w web   (từ code/)
+# Deploy: npx wrangler deploy    (từ code/web)
+name = "mira"
+compatibility_date = "2026-11-01"
+
+# Không mở bản *.workers.dev: app chỉ sống ở tên miền thật.
+workers_dev = false
+
+# custom_domain = true thì wrangler tự tạo bản ghi DNS và chứng chỉ cho tên miền này.
+routes = [
+  { pattern = "mira.joybit.one", custom_domain = true },
+]
+
+[assets]
+directory = "./dist"
+# App dùng BrowserRouter: mở thẳng /thoi-gian phải trả index.html chứ không phải 404.
+not_found_handling = "single-page-application"

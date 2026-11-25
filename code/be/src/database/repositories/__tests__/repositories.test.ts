@@ -106,17 +106,16 @@ describe('PersonRepository.update', () => {
 });
 
 describe('MomentRepository.create', () => {
-  it('ghi person_ids xuống DB dưới dạng chuỗi JSON', async () => {
+  it('hạt muối được hẹn hỏi lại đúng 42 ngày sau', async () => {
     const db = new FakeDatabase([
       [
         {
           id: 'moment-1',
-          occurred_at: '2026-08-25T10:00:00.000Z',
-          text: null,
-          media_uri: null,
-          media_type: null,
-          person_ids: '["person-1"]',
-          bucket: null,
+          date: '2026-08-25',
+          kind: 'salt',
+          text: 'Ngay nang',
+          revisit_at: '2026-10-06',
+          revisit_answer: null,
           created_at: '2026-08-25T10:00:00.000Z',
           updated_at: '2026-08-25T10:00:00.000Z',
           deleted_at: null,
@@ -125,9 +124,37 @@ describe('MomentRepository.create', () => {
     ]);
     const repo = new MomentRepository(db);
 
-    const moment = await repo.create({ occurredAt: '2026-08-25T10:00:00.000Z', personIds: ['person-1'] });
+    const moment = await repo.create('u-1', { date: '2026-08-25', kind: 'salt', text: 'Ngay nang' });
 
-    expect(db.calls[0]?.params[5]).toBe('["person-1"]');
-    expect(moment.personIds).toEqual(['person-1']);
+    // INSERT gio la (id, user_id, date, kind, text, revisit_at, ...) nen revisit_at o index 5.
+    expect(db.calls[0]?.params[1]).toBe('u-1');
+    expect(db.calls[0]?.params[5]).toBe('2026-10-06');
+    expect(moment.revisitAt).toBe('2026-10-06');
+  });
+
+  it('vien keo khong co hen hoi lai', async () => {
+    const db = new FakeDatabase([
+      [
+        {
+          id: 'moment-2',
+          date: '2026-08-25',
+          kind: 'candy',
+          text: null,
+          revisit_at: null,
+          revisit_answer: null,
+          created_at: '2026-08-25T10:00:00.000Z',
+          updated_at: '2026-08-25T10:00:00.000Z',
+          deleted_at: null,
+        },
+      ],
+    ]);
+    const repo = new MomentRepository(db);
+
+    const moment = await repo.create('u-1', { date: '2026-08-25', kind: 'candy' });
+
+    expect(db.calls[0]?.params[5]).toBeNull();
+    expect(moment.revisitAt).toBeNull();
+    // Hat khong chu van la mot hat.
+    expect(moment.text).toBeNull();
   });
 });

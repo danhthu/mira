@@ -1,0 +1,445 @@
+openapi: 3.1.0
+info:
+  title: Mira API
+  version: 0.1.0
+  description: >-
+    Hợp đồng giữa `code/be` và `code/web`. Kiểu TypeScript tương ứng nằm ở `src/index.ts`
+    và đó mới là nguồn sự thật khi hai bên lệch nhau.
+
+    Ràng buộc cứng phản ánh trong hợp đồng này: không có endpoint nào trả về điểm số,
+    chuỗi ngày hay xếp hạng; khoảnh khắc không có trường người; mọi số tiền là VND nguyên
+    và mọi khoảng thời gian là phút nguyên.
+
+    V1 chạy local-first: `web` ghi vào máy và không gọi API nào. Máy chủ này là tầng đồng bộ
+    tự chọn, bật từ màn Tôi.
+servers:
+  - url: http://localhost:8787
+    description: máy chủ phát triển
+
+tags:
+  - name: time
+  - name: moments
+  - name: money
+  - name: goals
+
+paths:
+  /health:
+    get:
+      summary: Kiểm tra máy chủ sống
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok: { type: boolean }
+
+  /time-entries:
+    get:
+      tags: [time]
+      summary: Danh sách mục giờ trong một khoảng ngày
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: danh sách
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/TimeEntry' } }
+    post:
+      tags: [time]
+      summary: Ghi một mục giờ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimeEntryCreate' }
+      responses:
+        '201':
+          description: đã ghi
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimeEntry' }
+        '400': { $ref: '#/components/responses/Error' }
+
+  /time-entries/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      tags: [time]
+      summary: Sửa một mục giờ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimeEntryCreate' }
+      responses:
+        '200':
+          description: đã sửa
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimeEntry' }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      tags: [time]
+      summary: Xoá mềm một mục giờ
+      responses:
+        '204': { description: đã xoá }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /time-entries/week:
+    get:
+      tags: [time]
+      summary: Tổng hợp tuần theo nhóm việc, kèm tuần trước để so
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: tổng hợp
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WeekSummary' }
+
+  /moments:
+    get:
+      tags: [moments]
+      summary: Hạt trong một khoảng ngày
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: danh sách
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Moment' } }
+    post:
+      tags: [moments]
+      summary: Bỏ một hạt vào hũ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MomentCreate' }
+      responses:
+        '201':
+          description: đã bỏ
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Moment' }
+        '400': { $ref: '#/components/responses/Error' }
+
+  /moments/due:
+    get:
+      tags: [moments]
+      summary: Hạt muối đến hạn hỏi lại (42 ngày, hỏi đúng một lần)
+      parameters:
+        - { name: on, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: danh sách
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Moment' } }
+
+  /moments/{id}/revisit:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      tags: [moments]
+      summary: Trả lời câu hỏi lại. Bỏ qua cũng được và không bị đếm.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answer]
+              properties:
+                answer: { $ref: '#/components/schemas/SaltAnswer' }
+      responses:
+        '200':
+          description: đã ghi câu trả lời
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Moment' }
+        '409':
+          description: đã trả lời rồi, Mira không hỏi lần hai
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /money/{month}:
+    parameters:
+      - { name: month, in: path, required: true, schema: { type: string, pattern: '^\d{4}-\d{2}$' } }
+    get:
+      tags: [money]
+      summary: Năm ô của một tháng, kèm số suy ra
+      responses:
+        '200':
+          description: tháng
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [month, derived]
+                properties:
+                  month: { $ref: '#/components/schemas/MoneyMonth' }
+                  derived: { $ref: '#/components/schemas/MoneyDerived' }
+    put:
+      tags: [money]
+      summary: Ghi một phần hoặc cả năm ô. Ô không gửi lên thì giữ nguyên, ô gửi null thì xoá.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoneyMonthUpdate' }
+      responses:
+        '200':
+          description: đã ghi
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [month, derived]
+                properties:
+                  month: { $ref: '#/components/schemas/MoneyMonth' }
+                  derived: { $ref: '#/components/schemas/MoneyDerived' }
+
+  /goals:
+    get:
+      tags: [goals]
+      summary: Mục tiêu đang chạy, lọc theo tầng
+      parameters:
+        - { name: tier, in: query, schema: { $ref: '#/components/schemas/GoalTier' } }
+        - { name: includeEnded, in: query, schema: { type: boolean, default: false } }
+      responses:
+        '200':
+          description: danh sách
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Goal' } }
+    post:
+      tags: [goals]
+      summary: Tạo mục tiêu. Từ chối khi tầng đã đầy trần.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GoalCreate' }
+      responses:
+        '201':
+          description: đã tạo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '409':
+          description: tầng đã đầy, phải bỏ bớt trước
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /goals/{id}/end:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      tags: [goals]
+      summary: Kết thúc mục tiêu. Bỏ giữa chừng thì phải nói giờ đó chuyển sang đâu.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                handOverTo:
+                  type: [string, 'null']
+                  description: id mục tiêu nhận lại số giờ vừa giải phóng
+      responses:
+        '200':
+          description: đã kết thúc
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /goals/budget:
+    get:
+      tags: [goals]
+      summary: Luật khai nguồn — giờ các mục tiêu cần so với giờ lãng phí đã ghi
+      parameters:
+        - { name: weekStart, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200':
+          description: ngân sách
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GoalBudget' }
+
+components:
+  responses:
+    Error:
+      description: lỗi
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+
+  schemas:
+    TimeBucket:
+      type: string
+      enum: [work, family, personal, waste]
+
+    TimeEntry:
+      type: object
+      required: [id, date, minutes, bucket, golden, note, source]
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        minutes: { type: integer, minimum: 1 }
+        bucket: { $ref: '#/components/schemas/TimeBucket' }
+        golden:
+          type: boolean
+          description: giờ vàng, lát cắt bên trong nhóm gia đình
+        note: { type: [string, 'null'] }
+        source: { type: string, enum: [manual, widget] }
+
+    TimeEntryCreate:
+      type: object
+      required: [date, minutes, bucket]
+      properties:
+        date: { type: string, format: date }
+        minutes: { type: integer, minimum: 1 }
+        bucket: { $ref: '#/components/schemas/TimeBucket' }
+        golden: { type: boolean, default: false }
+        note: { type: [string, 'null'] }
+
+    BucketSlice:
+      type: object
+      required: [bucket, minutes, perMille]
+      properties:
+        bucket: { $ref: '#/components/schemas/TimeBucket' }
+        minutes: { type: integer }
+        perMille: { type: integer, description: phần nghìn của giờ tỉnh }
+
+    WeekSummary:
+      type: object
+      required: [weekStart, wakingMinutes, loggedMinutes, slices, goldenMinutes, previous]
+      properties:
+        weekStart: { type: string, format: date }
+        wakingMinutes: { type: integer }
+        loggedMinutes: { type: integer }
+        slices: { type: array, items: { $ref: '#/components/schemas/BucketSlice' } }
+        goldenMinutes: { type: integer }
+        previous:
+          type: [object, 'null']
+          required: [loggedMinutes, slices, goldenMinutes]
+          properties:
+            loggedMinutes: { type: integer }
+            slices: { type: array, items: { $ref: '#/components/schemas/BucketSlice' } }
+            goldenMinutes: { type: integer }
+
+    MomentKind:
+      type: string
+      enum: [candy, salt]
+      description: viên kẹo là ngày vui, hạt muối là ngày nặng
+
+    SaltAnswer:
+      type: string
+      enum: [same, lighter, gone]
+
+    Moment:
+      type: object
+      required: [id, date, kind, text, revisitAt, revisitAnswer]
+      properties:
+        id: { type: string }
+        date: { type: string, format: date }
+        kind: { $ref: '#/components/schemas/MomentKind' }
+        text:
+          type: [string, 'null']
+          description: có thể rỗng — bấm kẹo hay muối mà không viết gì vẫn là một hạt
+        revisitAt: { type: [string, 'null'], format: date }
+        revisitAnswer: { $ref: '#/components/schemas/SaltAnswer' }
+
+    MomentCreate:
+      type: object
+      required: [date, kind]
+      properties:
+        date: { type: string, format: date }
+        kind: { $ref: '#/components/schemas/MomentKind' }
+        text: { type: [string, 'null'] }
+
+    MoneyMonth:
+      type: object
+      required: [month, netIncome, monthlyExpense, debtPayment, debtBalance, netWorth]
+      properties:
+        month: { type: string, pattern: '^\d{4}-\d{2}$' }
+        netIncome: { type: [integer, 'null'], description: VND nguyên }
+        monthlyExpense: { type: [integer, 'null'] }
+        debtPayment: { type: [integer, 'null'] }
+        debtBalance: { type: [integer, 'null'] }
+        netWorth: { type: [integer, 'null'], description: đã trừ nợ rồi }
+
+    MoneyMonthUpdate:
+      type: object
+      properties:
+        netIncome: { type: [integer, 'null'] }
+        monthlyExpense: { type: [integer, 'null'] }
+        debtPayment: { type: [integer, 'null'] }
+        debtBalance: { type: [integer, 'null'] }
+        netWorth: { type: [integer, 'null'] }
+
+    MoneyDerived:
+      type: object
+      required: [freeCapitalMonths, surplusPerMille, monthsHeldByDebt]
+      properties:
+        freeCapitalMonths: { type: [number, 'null'] }
+        surplusPerMille: { type: [integer, 'null'] }
+        monthsHeldByDebt: { type: [number, 'null'] }
+
+    GoalTier:
+      type: string
+      enum: [long, quarter, rhythm]
+
+    Goal:
+      type: object
+      required: [id, tier, title, weeklyMinutes, sourceBucket, startedOn, expiresOn, endedOn, handedOverTo]
+      properties:
+        id: { type: string }
+        tier: { $ref: '#/components/schemas/GoalTier' }
+        title: { type: string }
+        weeklyMinutes: { type: integer, minimum: 1 }
+        sourceBucket: { $ref: '#/components/schemas/TimeBucket' }
+        startedOn: { type: string, format: date }
+        expiresOn: { type: [string, 'null'], format: date }
+        endedOn: { type: [string, 'null'], format: date }
+        handedOverTo: { type: [string, 'null'] }
+
+    GoalCreate:
+      type: object
+      required: [tier, title, weeklyMinutes]
+      properties:
+        tier: { $ref: '#/components/schemas/GoalTier' }
+        title: { type: string, minLength: 1 }
+        weeklyMinutes: { type: integer, minimum: 1 }
+        sourceBucket: { $ref: '#/components/schemas/TimeBucket' }
+
+    GoalBudget:
+      type: object
+      required: [neededMinutes, availableMinutes, shortfallMinutes]
+      properties:
+        neededMinutes: { type: integer }
+        availableMinutes: { type: integer }
+        shortfallMinutes: { type: integer }
+
+    ApiError:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [bad_request, not_found, tier_full, not_enough_source, already_answered]
+        message: { type: string }
