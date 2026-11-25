@@ -205,6 +205,35 @@ xong hoặc không gì đổi). Id trong file bị bỏ, máy chủ cấp id m�
 **đã xoá** — kho localStorage cũ giờ là nguồn sự thật thứ hai, nguy hiểm hơn là vô dụng.
 `index.ts` từ chối khởi động nếu `JWT_SECRET` dưới 32 ký tự.
 
+### localStorage giờ giữ đúng MỘT khoá: `mira.token`
+
+Không dữ liệu, không bản sao `User`. Bản trước còn cache object `User` để màn đầu vẽ ngay
+không phải chờ mạng — đã bỏ, vì đó là nguồn sự thật thứ hai: đổi tên hiển thị trên máy
+khác thì máy này hiện tên cũ mãi và không ai đoán ra tại sao. Giờ `App.tsx` gọi
+`GET /auth/me`, nên có **ba** trạng thái chứ không phải hai: `dang-hoi` → `da-vao` hoặc
+`chua-vao`. Thiếu trạng thái giữa thì mỗi lần mở app sẽ nháy qua màn đăng nhập một nhịp.
+
+Token thì **không thể** chuyển vào CSDL — nó chính là thứ chứng minh được phép gọi CSDL,
+nên phải nằm phía trình duyệt. `dongPhien()` dọn luôn `mira.v1` và `mira.user` của bản cũ.
+
+Đã kiểm: đăng nhập xong `localStorage` chỉ còn `mira.token`; nạp lại trang thì
+`GET /auth/me` → 200 và tên lấy từ máy chủ; đặt token rác thì bị đá về đăng nhập và
+`localStorage` sạch trơn.
+
+### Tài khoản demo `danhthu` — mật khẩu `123456`
+
+Founder yêu cầu, ngày 25/11/2026. Đặt bằng `npm run doi-mk -w mira-be -- danhthu 123456`.
+
+Đường này **cố tình không kiểm độ dài**. Ngưỡng 8 ký tự của `dangKy` giữ nguyên cho người
+dùng thật; `dangNhap` vốn không kiểm độ dài nên mật khẩu ngắn vẫn vào được. Nghĩa là hạ
+được mật khẩu cho một tài khoản mà không hạ ngưỡng của cả hệ thống.
+
+⚠ **Tài khoản này coi như công khai.** Nó đang mở ra internet ở mira.joybit.one, và trong
+đó đang có dữ liệu Thời gian sử dụng thật của Founder. Khi nào dữ liệu thật quan trọng
+hơn sự tiện, phải tách ra một tài khoản riêng có mật khẩu đàng hoàng.
+
+Cái chặn duy nhất còn lại là `chanDoLuong.ts`: 8 lần sai trong 15 phút thì 429.
+
 ### Đã kiểm trên máy chủ thật
 
 | Phép thử | Kết quả |
