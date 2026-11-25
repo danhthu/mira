@@ -76,6 +76,18 @@ describe('docBangLuat — giờ', () => {
     expect(doc('Đọc sách 1 tiếng').yChi[0]).toMatchObject({ bucket: 'personal', minutes: 60 });
   });
 
+  it('⚑ "ăn tối" giữ nguyên chữ "tối", vì đó là bữa ăn chứ không phải thời điểm', () => {
+    // Cắt "tối" ở giữa câu thì tên ra "Ăn", và thẻ hiện "Ăn · 30m · Gia đình" — mất đúng
+    // cái từ phân biệt bữa tối với bữa sáng.
+    expect(doc('ăn tối 30 phút').yChi[0]).toMatchObject({ ten: 'Ăn tối' });
+    expect(doc('an toi 30 phut').yChi[0]).toMatchObject({ ten: 'An toi' });
+  });
+
+  it('"sáng" / "chiều" / "tối" đứng ĐẦU câu thì vẫn là thời điểm và bị cắt', () => {
+    expect(doc('sáng họp 3 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
+    expect(doc('chiều đón con 30 phút').yChi[0]).toMatchObject({ ten: 'Đón con' });
+  });
+
   it('⚑ chữ "h" trần không được ăn vào chữ cái có dấu đứng sau', () => {
     // Chốt bằng `\b` thì trong "thứ 6 họp" nó cắt luôn "6 h" của "họp" — vì "ọ" không
     // phải `\w` nên `\b` sau "h" lại đúng. Tên việc ra "Thứ ọp".
@@ -299,6 +311,37 @@ describe('docBangLuat — việc Mira không ghi', () => {
     const r = doc('hôm nay rút atm 2 triệu');
     expect(r.nguon).toBe('luat');
     expect(r.yChi[0]).toMatchObject({ loai: 'tien', o: 'monthlyExpense', vnd: 2_000_000, cong: true });
+  });
+
+  it('⚑ "rút 500k" — chữ "rút" TRẦN — vẫn đọc được', () => {
+    // Đây là câu Founder gõ thật trên điện thoại lúc 17:15 ngày 25/11, và nó rơi xuống
+    // LLM rồi chết vì chưa có khoá API. Luật cũ đòi đủ cụm "rút tiền" / "rút atm", mà
+    // không ai gõ đủ cụm đó.
+    expect(doc('rút 500k').yChi[0]).toMatchObject({
+      loai: 'tien',
+      o: 'monthlyExpense',
+      vnd: 500_000,
+      cong: true,
+    });
+    expect(doc('rut 500k').nguon).toBe('luat');
+  });
+
+  it('⚑ "rút" chỉ tính khi câu CÓ số tiền', () => {
+    // Nhánh tiền chỉ chạy sau khi `docTien` bắt được một số tiền, nên "rút kinh nghiệm"
+    // không thể lọt vào ô Chi tiêu.
+    expect(doc('rút kinh nghiệm').nguon).toBe('chiu');
+  });
+
+  it('mấy từ tiêu tiền hay gõ đều vào Chi tiêu tháng', () => {
+    for (const cau of ['ăn trưa 50k', 'cafe 35k', 'đổ xăng 100k', 'grab 80k', 'đi chợ 200k']) {
+      expect(doc(cau).yChi[0]).toMatchObject({ o: 'monthlyExpense', cong: true });
+    }
+  });
+
+  it('⚑ "ăn tối 30 phút" vẫn là GIỜ, không phải tiền', () => {
+    // "ăn tối" giờ nằm trong cả hai danh sách. Nhánh tiền chỉ chạy khi có số tiền, và
+    // "30 phút" không phải số tiền — nếu luật này lỏng ra thì bữa tối thành khoản chi.
+    expect(doc('ăn tối 30 phút').yChi[0]).toMatchObject({ loai: 'gio', bucket: 'family' });
   });
 
   it('⚑ "rút 2 triệu để tiêu" không bị chữ "tiêu" kéo sang luật khác', () => {

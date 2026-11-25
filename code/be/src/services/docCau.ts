@@ -142,7 +142,14 @@ const BUON = /\b(met|buon|te|chan|cang|stress|ap luc|cai nhau|gian|lo|that vong|
  */
 const O_TIEN: ReadonlyArray<readonly [RegExp, OTien, boolean]> = [
   [/\b(thu nhap|luong|nhan luong|ve tay|thuong)\b/, 'netIncome', true],
-  [/\b(chi tieu|tieu|chi phi|xai|mua|an uong)\b/, 'monthlyExpense', true],
+  [
+    // Có số tiền rồi thì mấy từ này gần như chắc chắn là tiêu. "ăn tối 30 phút" KHÔNG
+    // rơi vào đây: nhánh tiền chỉ chạy khi `docTien` đã bắt được một số tiền, mà "30
+    // phút" không phải số tiền.
+    /\b(chi tieu|tieu|chi phi|xai|mua|an uong|an sang|an trua|an toi|cafe|ca phe|xang|taxi|grab|ship|sieu thi|di cho)\b/,
+    'monthlyExpense',
+    true,
+  ],
   [/\b(tra no|tra gop|tra ngan hang)\b/, 'debtPayment', true],
   [/\b(du no|con no|no con|khoan no)\b/, 'debtBalance', false],
   [/\b(tai san|tai san rong|tong tai san|net worth)\b/, 'netWorth', false],
@@ -157,8 +164,13 @@ const O_TIEN: ReadonlyArray<readonly [RegExp, OTien, boolean]> = [
  * chứ không hỏi một câu kế toán.
  *
  * Phải khớp TRƯỚC `O_TIEN`, vì câu "rút 2 triệu để tiêu" có cả chữ "tiêu".
+ *
+ * NHẬN CẢ CHỮ "rút" TRẦN. Bản đầu đòi đủ cụm "rút tiền" / "rút atm", và câu người ta gõ
+ * thật — "rút 500k" — rơi thẳng xuống LLM rồi chết vì chưa có khoá API. Luật này chỉ
+ * được xét khi câu ĐÃ có số tiền, nên "rút" trần ở đây gần như chắc chắn là rút tiền
+ * chứ không phải "rút kinh nghiệm".
  */
-const RUT_TIEN = /\b(rut tien|rut atm|rut o atm|rut the)\b/;
+const RUT_TIEN = /\brut\b/;
 
 /**
  * Việc **không làm đổi gì** mà người ta vẫn hay gõ.
@@ -282,10 +294,17 @@ function tenViec(goc: string): string {
     .replace(/\b\d+\s*ng[àa]y tr[uư][ớo]c\b/gi, ' ')
     .replace(/\bth[ứu] [2-7]\b/gi, ' ')
     .replace(/\bch[ủu] nh[ậa]t\b/gi, ' ')
+    // Cụm hai chữ thì cắt ở bất kỳ đâu: "sáng nay", "tối qua" không bao giờ là tên việc.
     .replace(
-      /\b(h[ôo]m nay|h[ôo]m qua|h[ôo]m kia|t[ốo]i qua|s[áa]ng nay|chi[ềe]u nay|t[ốo]i nay|s[áa]ng|chi[ềe]u|t[ốo]i|nay)\b/gi,
+      /\b(h[ôo]m nay|h[ôo]m qua|h[ôo]m kia|t[ốo]i qua|s[áa]ng nay|chi[ềe]u nay|t[ốo]i nay)\b/gi,
       ' ',
     )
+    // Nhưng "sáng" / "chiều" / "tối" TRẦN chỉ cắt khi nó đứng ĐẦU câu.
+    //
+    // "ăn tối 30 phút" — chữ "tối" ở đây là bữa ăn, không phải thời điểm. Cắt ở giữa câu
+    // thì tên việc ra "Ăn", và thẻ hiện "Ăn · 30m · Gia đình": mất đúng cái từ phân biệt
+    // bữa tối với bữa sáng. "sáng họp 3 tiếng" thì "sáng" đứng đầu và đúng là thời điểm.
+    .replace(/^\s*(s[áa]ng|chi[ềe]u|t[ốo]i|nay)\b/i, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   if (sach === '') return 'Ghi tay';
