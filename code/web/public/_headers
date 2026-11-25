@@ -1,12 +1,18 @@
 # Từ 25/11/2026 Mira không còn local-first: dữ liệu nằm trên máy chủ, web gọi API.
-# CSP dưới đây mở đúng MỘT gốc cho connect-src — mira-api.trady360.com — và không gì khác.
-# Trang vẫn không nạp được script, ảnh hay font từ bất kỳ đâu ngoài chính nó.
+#
+# connect-src mở đúng HAI gốc: API của Mira, và accounts.google.com cho đăng nhập Google.
+# script-src và frame-src cũng phải mở cho Google — nút "Tiếp tục với Google" là một
+# iframe do Google vẽ, không phải nút của Mira. Đó là đánh đổi có ý thức: đổi lại, thao
+# tác chọn tài khoản không đi qua mã của Mira, và Mira không bao giờ thấy mật khẩu Google.
+#
+# Ngoài hai gốc đó thì không gì khác. Thêm gốc mới vào đây là một quyết định, không phải
+# một bước sửa lỗi — nếu một script lạ nạp được thì nó đọc được token trong localStorage.
 
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://mira-api.trady360.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; img-src 'self' data: https://lh3.googleusercontent.com; connect-src 'self' https://mira-api.trady360.com https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
 
 # Tài nguyên có vân tay trong tên thì cache lâu được.
 /assets/*

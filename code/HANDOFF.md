@@ -220,6 +220,55 @@ nên phải nằm phía trình duyệt. `dongPhien()` dọn luôn `mira.v1` và 
 `GET /auth/me` → 200 và tên lấy từ máy chủ; đặt token rác thì bị đá về đăng nhập và
 `localStorage` sạch trơn.
 
+### Đăng nhập Google, và bỏ đăng ký — 25/11/2026
+
+Theo khuôn PUKATO. `POST /auth/register` **đã bỏ** (trả 404). Người mới vào bằng Google,
+và lần đầu đăng nhập chính là lần tài khoản được tạo — không có màn riêng để tạo. Đăng
+nhập bằng mật khẩu vẫn còn, nhưng xuống dưới và phải bấm mới mở: nó là đường cho tài
+khoản cũ, không phải đường chính.
+
+Migration `005_dang_nhap_google.sql`: `password_hash` cho phép NULL (người vào bằng Google
+không có mật khẩu — nhét chuỗi rác vào là sớm muộn có người thử bcrypt với nó), thêm
+`email` + `google_sub`, chỉ mục duy nhất trên `lower(email)`, và một CHECK chặn hàng không
+có cả mật khẩu lẫn email.
+
+**`be/src/services/google.ts` — bốn thứ phải đúng, thiếu một là từ chối:** chữ ký (JWKS
+của Google), `aud` khớp `GOOGLE_CLIENT_ID`, `iss` là accounts.google.com, và
+`email_verified`. Bỏ `aud` là lỗ hổng kinh điển — token Google hợp lệ **của ứng dụng
+khác** sẽ vào được, mà thử bằng tay thì vẫn thấy chạy đúng.
+
+**Không có chế độ dev bỏ qua kiểm.** Vessel360 có `mock:<email>`; Mira thì không, vì máy
+chủ dev và máy chủ thật ở đây là cùng một máy — một cờ bật nhầm là mở toang.
+
+**Chưa chạy được cho tới khi có Client ID.** Chưa đặt thì `/auth/google` trả **503** và
+web ẩn nút Google đi, không hiện một nút hỏng. Cần hai chỗ cùng một giá trị:
+`GOOGLE_CLIENT_ID` trong `code/be/.env` và `VITE_GOOGLE_CLIENT_ID` trong
+`code/web/.env.production`. Lệch nhau thì mọi lần đăng nhập đều 401.
+
+Trong Google Cloud Console → Credentials → OAuth client ID → Web, phần **Authorized
+JavaScript origins** phải có `https://mira.joybit.one` và `http://localhost:5173`.
+
+CSP ở `web/public/_headers` đã nới cho `accounts.google.com` ở `script-src`, `style-src`,
+`connect-src` và `frame-src` — nút là iframe do Google vẽ, không phải nút của Mira.
+`Referrer-Policy: no-referrer` vẫn giữ; nếu GSI báo lỗi origin thì đây là chỗ nghi đầu tiên.
+
+### Màn chào (`features/auth/WelcomeScreen.tsx`)
+
+Bốn trang vuốt ngang, khuôn từ PUKATO `WelcomePage.tsx`. **Khác PUKATO một chỗ có chủ ý:**
+PUKATO chỉ chào trong app Android/iOS và nhớ "đã xem" trong localStorage; Mira chỉ có web
+nên làm vậy thì màn chào không bao giờ xuất hiện. Ở đây nó là trang mặc định cho người
+chưa đăng nhập và **không nhớ gì cả** — hợp với luật localStorage chỉ giữ token.
+
+Số trên các thẻ là **số thật của Founder**, không phải số bịa cho đẹp.
+
+Hai lỗi đã gặp khi dựng, ghi lại vì cả hai đều trông như chuyện nhỏ:
+
+1. **Chấm chỉ vị trí chạy trước nội dung.** `onScroll` bắn liên tục trong lúc cuộn mượt,
+   nên bấm "Tiếp" hai lần liên tiếp thì `idx` nhận một giá trị giữa đường. Sửa bằng ref
+   `dich`: đang có đích thì bỏ qua mọi sự kiện cuộn cho tới khi tới nơi.
+2. **Khối minh hoạ cao cố định tràn đè lên tiêu đề** ở trang nội dung dài. Đổi sang
+   `min-height`. Tiêu đề lệch vài chục pixel giữa các trang là chưa đẹp; tràn là lỗi.
+
 ### Tài khoản demo `danhthu` — mật khẩu `123456`
 
 Founder yêu cầu, ngày 25/11/2026. Đặt bằng `npm run doi-mk -w mira-be -- danhthu 123456`.

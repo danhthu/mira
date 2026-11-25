@@ -43,6 +43,16 @@ export const env = {
    * `constants.ts` đã hứa như vậy từ lâu mà chưa làm.
    */
   wakingHoursPerDay: Number(process.env['WAKING_HOURS_PER_DAY'] ?? 16),
+  /**
+   * Client ID của Google, dùng làm `aud` khi kiểm ID token.
+   *
+   * Rỗng = chưa bật đăng nhập Google, và `/auth/google` trả 503 chứ không chạy nửa vời.
+   * **Không phải bí mật** — nó nằm công khai trong mã trình duyệt. Thứ bí mật là việc
+   * kiểm chữ ký, và chữ ký thì Google giữ.
+   *
+   * Nhiều client ID thì ngăn bằng dấu phẩy (web và app có thể khác nhau).
+   */
+  googleClientId: process.env['GOOGLE_CLIENT_ID'] ?? '',
   /** Có cấu hình CSDL chưa — thiếu thì máy chủ không khởi động được. */
   hasDatabase: (process.env['DB_NAME'] ?? '') !== '' || (process.env['DB_HOST'] ?? '') !== '',
 };

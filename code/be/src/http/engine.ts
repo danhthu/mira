@@ -54,7 +54,8 @@ export function buildDeps(
   db: IDatabase,
   jwtSecret: string,
   ttlSeconds: number,
-  wakingMinutesPerWeek?: number,
+  wakingMinutesPerWeek: number | undefined,
+  googleClientId: string,
 ): AppDeps {
   const users = new UserRepository(db);
   return {
@@ -66,7 +67,7 @@ export function buildDeps(
     goals: new GoalRepository(db),
     money: new MoneyRepository(db),
     habits: new HabitRepository(db),
-    auth: { users, jwtSecret, ttlSeconds },
+    auth: { users, jwtSecret, ttlSeconds, googleClientId },
   };
 }
 

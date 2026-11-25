@@ -1,0 +1,328 @@
+/* Màn chào. Khuôn bố cục theo PUKATO WelcomePage.css, màu và bo góc lấy từ tokens.css
+   của Mira — không đặt màu cứng ở đây trừ khi nó chỉ dùng đúng một lần. */
+
+.wel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+  gap: 12px;
+  background: var(--screen);
+}
+
+.wel__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+}
+.wel__logo {
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.wel__skip {
+  font-size: 14px;
+  color: var(--fg-dim);
+  padding: 6px 2px;
+}
+
+/* Rãnh vuốt ngang. scroll-snap giữ mỗi trang dừng đúng mép. */
+.wel__track {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  margin: 0 -20px;
+}
+.wel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.wel__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  /* Căn giữa dọc: không có nó thì trang nào ít nội dung sẽ để một mảng trống lớn giữa
+     đoạn mô tả và hàng chấm, trông như thiếu mất một khối. */
+  justify-content: center;
+  padding: 0 20px;
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.wel__slide::-webkit-scrollbar {
+  display: none;
+}
+
+/* `min-height` chứ không phải `height`.
+   Chiều cao cố định giữ được tiêu đề bốn trang trên cùng một dòng khi vuốt, nhưng trang
+   nào nội dung cao hơn thì nó **tràn đè lên tiêu đề** — và tràn là lỗi, còn tiêu đề lệch
+   vài chục pixel chỉ là chưa đẹp. Sàn 280px vẫn giữ các trang ngắn ngang nhau. */
+.wel__art {
+  flex: 0 0 auto;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.wel__h {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin: 18px 0 0;
+  color: var(--fg);
+}
+.wel__p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--fg-dim);
+  margin: 8px 0 0;
+}
+
+.wel__card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: 0 1px 2px rgb(24 32 46 / 6%);
+}
+.wel__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wel__k {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+.wel__muted {
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+.wel__tag {
+  font-size: 12px;
+  color: var(--fg-muted);
+  background: var(--line);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+/* ── trang 1: bốn thanh thay cho donut (ở cỡ này thanh đọc nhanh hơn vòng tròn) */
+.wel__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 14px;
+}
+.wel__bline {
+  display: grid;
+  grid-template-columns: 68px 1fr 58px;
+  align-items: center;
+  gap: 9px;
+}
+.wel__bname {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+.wel__btrack {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.wel__btrack > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.wel__bnum {
+  font-size: 13px;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── trang 2 */
+.wel__meter {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+  margin-bottom: 11px;
+}
+.wel__meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+}
+.wel__dark {
+  background: var(--navy);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  color: #fff;
+}
+.wel__dark-k {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  color: #8ea0bb;
+}
+.wel__big {
+  display: block;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 4px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.wel__dark-s {
+  font-size: 13px;
+  color: #8ea0bb;
+}
+
+/* ── trang 3 */
+.wel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.wel__hat {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+.wel__candy,
+.wel__salt {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin-top: 3px;
+}
+/* Kẹo tròn, muối vuông — phân biệt bằng hình chứ không chỉ bằng màu. */
+.wel__candy {
+  border-radius: 999px;
+  background: var(--candy);
+}
+.wel__salt {
+  border-radius: 3px;
+  background: var(--salt);
+}
+.wel__two {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  min-width: 0;
+}
+.wel__ask {
+  margin-top: 12px;
+}
+.wel__ask p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-style: italic;
+}
+.wel__chips {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.wel__chips > span {
+  font-size: 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: var(--fg-dim);
+}
+
+/* ── trang 4 */
+.wel__feats {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.wel__feat .wel__two b {
+  font-size: 15px;
+}
+.wel__pills {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.wel__pills > span {
+  font-size: 12px;
+  color: var(--fg-muted);
+  background: var(--line);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+
+/* ── chấm và nút */
+.wel__dots {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  padding: 4px 0;
+}
+.wel__dots > button {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #cfd7e2;
+  padding: 0;
+  transition: width 0.18s ease, background 0.18s ease;
+}
+.wel__dots > button.is-on {
+  width: 20px;
+  background: var(--navy);
+}
+
+.wel__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  align-items: center;
+}
+.wel__go {
+  width: 100%;
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 15px;
+  font-weight: 600;
+  font-size: 16px;
+}
+.wel__link {
+  font-size: 14px;
+  color: var(--fg-dim);
+  padding: 4px;
+}
+.wel__link b {
+  color: var(--fg);
+}
+
+/* Màn hình thấp (điện thoại nhỏ, hoặc trình duyệt còn thanh địa chỉ): khối minh hoạ co
+   lại trước, vì chữ mới là thứ phải đọc được. */
+@media (max-height: 700px) {
+  .wel__art {
+    min-height: 210px;
+  }
+  .wel__h {
+    font-size: 22px;
+    margin-top: 12px;
+  }
+}

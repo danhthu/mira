@@ -26,8 +26,15 @@ export interface Credentials {
   readonly password: string;
 }
 
-export interface RegisterRequest extends Credentials {
-  readonly displayName?: string | null;
+/**
+ * Đăng nhập bằng Google. `idToken` là chuỗi Google Identity Services trả về ở trình
+ * duyệt; máy chủ tự kiểm chữ ký, audience và `email_verified` trước khi tin.
+ *
+ * Không có `RegisterRequest`: từ 25/11/2026 không còn đăng ký bằng mật khẩu. Người mới
+ * vào bằng Google, và lần đầu đăng nhập chính là lần tài khoản được tạo.
+ */
+export interface GoogleCredentials {
+  readonly idToken: string;
 }
 
 export interface AuthResponse {
@@ -37,7 +44,7 @@ export interface AuthResponse {
   readonly expiresIn: number;
 }
 
-/** Độ dài tối thiểu của mật khẩu. Ngắn hơn thì máy chủ từ chối đăng ký. */
+/** Độ dài tối thiểu của mật khẩu. Chỉ còn ý nghĩa với công cụ dòng lệnh đặt lại mật khẩu. */
 export const MIN_PASSWORD_LENGTH = 8;
 
 // ─────────────────────────────────────────────────────────── nhóm việc (catalog)

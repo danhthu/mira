@@ -1,39 +1,68 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { User } from '@mira/contract';
-import { MIN_PASSWORD_LENGTH } from '@mira/contract';
 import { store } from '../../lib/store';
 import { moPhien } from '../../lib/phien';
+import { googleBat, veNutGoogle } from '../../lib/google';
 
 /**
- * Màn đăng nhập và đăng ký.
+ * Màn đăng nhập.
  *
- * Mật khẩu chỉ tồn tại trong ô nhập cho tới lúc gửi đi — không lưu, không ghi lại, không
- * điền sẵn. Thông báo lỗi lấy nguyên văn từ máy chủ, vì chính máy chủ mới biết đăng nhập
- * sai ở đâu, và nó cố tình không nói rõ sai tên hay sai mật khẩu.
+ * KHÔNG CÒN ĐĂNG KÝ. Từ 25/11/2026 người mới vào bằng Google, và lần đầu đăng nhập chính
+ * là lần tài khoản được tạo — không có màn riêng để tạo.
+ *
+ * Mật khẩu vẫn còn, nhưng xuống dưới và phải bấm mới mở: nó là đường cho các tài khoản
+ * đã có từ trước, không phải đường chính. Mật khẩu chỉ tồn tại trong ô nhập cho tới lúc
+ * gửi đi — không lưu, không ghi lại, không điền sẵn.
+ *
+ * Thông báo lỗi lấy nguyên văn từ máy chủ, vì chính máy chủ mới biết sai ở đâu, và nó cố
+ * tình không nói rõ sai tên hay sai mật khẩu.
  */
 export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) {
-  const [dangKy, setDangKy] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [tenHienThi, setTenHienThi] = useState('');
+  const [moMatKhau, setMoMatKhau] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
   const [dangGui, setDangGui] = useState(false);
+  const oNut = useRef<HTMLDivElement>(null);
 
-  async function gui(): Promise<void> {
+  useEffect(() => {
+    if (!googleBat || oNut.current === null) return;
+    let conHieuLuc = true;
+
+    void veNutGoogle(oNut.current, (idToken) => {
+      if (!conHieuLuc) return;
+      setDangGui(true);
+      setLoi(null);
+      store
+        .google({ idToken })
+        .then((kq) => {
+          moPhien(kq.token);
+          onVao(kq.user);
+        })
+        .catch((cause: unknown) => {
+          setLoi(cause instanceof Error ? cause.message : 'Không kết nối được máy chủ.');
+        })
+        .finally(() => {
+          if (conHieuLuc) setDangGui(false);
+        });
+    }).catch((cause: unknown) => {
+      if (conHieuLuc) setLoi(cause instanceof Error ? cause.message : 'Không tải được Google.');
+    });
+
+    return () => {
+      conHieuLuc = false;
+    };
+  }, [onVao]);
+
+  async function guiMatKhau(): Promise<void> {
     if (username.trim() === '' || password === '') return;
     setDangGui(true);
     setLoi(null);
     try {
-      const ketQua = dangKy
-        ? await store.register({
-            username: username.trim(),
-            password,
-            displayName: tenHienThi.trim() === '' ? null : tenHienThi.trim(),
-          })
-        : await store.login({ username: username.trim(), password });
-      moPhien(ketQua.token);
+      const kq = await store.login({ username: username.trim(), password });
+      moPhien(kq.token);
       setPassword('');
-      onVao(ketQua.user);
+      onVao(kq.user);
     } catch (cause: unknown) {
       setLoi(cause instanceof Error ? cause.message : 'Không kết nối được máy chủ.');
     } finally {
@@ -57,46 +86,13 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
           Mira
         </div>
         <p className="sm" style={{ marginTop: 6, lineHeight: 1.5 }}>
-          {dangKy
-            ? 'Tạo tài khoản để dữ liệu theo bạn qua mọi máy.'
-            : 'Đăng nhập để mở nhật ký của bạn.'}
+          Đăng nhập để mở nhật ký của bạn.
         </p>
       </div>
 
-      <input
-        id="auth-username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Tên đăng nhập"
-        autoComplete="username"
-        autoCapitalize="none"
-        spellCheck={false}
-        style={o}
-      />
-
-      {dangKy && (
-        <input
-          id="auth-display"
-          value={tenHienThi}
-          onChange={(e) => setTenHienThi(e.target.value)}
-          placeholder="Tên hiển thị (không bắt buộc)"
-          autoComplete="name"
-          style={o}
-        />
+      {googleBat && (
+        <div ref={oNut} style={{ display: 'flex', justifyContent: 'center', minHeight: 44 }} />
       )}
-
-      <input
-        id="auth-password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') void gui();
-        }}
-        placeholder={dangKy ? `Mật khẩu — ít nhất ${MIN_PASSWORD_LENGTH} ký tự` : 'Mật khẩu'}
-        autoComplete={dangKy ? 'new-password' : 'current-password'}
-        style={o}
-      />
 
       {loi !== null && (
         <p className="empty" style={{ color: 'var(--amber)' }}>
@@ -104,33 +100,58 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
         </p>
       )}
 
-      <button
-        type="button"
-        onClick={() => void gui()}
-        disabled={dangGui}
-        style={{
-          background: 'var(--navy)',
-          color: '#fff',
-          borderRadius: 13,
-          padding: '13px 15px',
-          fontWeight: 600,
-          fontSize: 16,
-          opacity: dangGui ? 0.6 : 1,
-        }}
-      >
-        {dangGui ? 'Đang gửi…' : dangKy ? 'Tạo tài khoản' : 'Đăng nhập'}
-      </button>
+      {!moMatKhau && (
+        <button
+          type="button"
+          onClick={() => setMoMatKhau(true)}
+          style={{ fontSize: 14, color: 'var(--fg-dim)', marginTop: 4 }}
+        >
+          Đăng nhập bằng mật khẩu
+        </button>
+      )}
 
-      <button
-        type="button"
-        onClick={() => {
-          setDangKy(!dangKy);
-          setLoi(null);
-        }}
-        style={{ fontSize: 14, color: 'var(--fg-dim)' }}
-      >
-        {dangKy ? 'Đã có tài khoản? Đăng nhập' : 'Chưa có tài khoản? Tạo mới'}
-      </button>
+      {moMatKhau && (
+        <>
+          <input
+            id="auth-username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Tên đăng nhập"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            style={o}
+          />
+          <input
+            id="auth-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void guiMatKhau();
+            }}
+            placeholder="Mật khẩu"
+            autoComplete="current-password"
+            style={o}
+          />
+          <button
+            type="button"
+            onClick={() => void guiMatKhau()}
+            disabled={dangGui}
+            style={{
+              background: 'var(--navy)',
+              color: '#fff',
+              borderRadius: 13,
+              padding: '13px 15px',
+              fontWeight: 600,
+              fontSize: 16,
+              opacity: dangGui ? 0.6 : 1,
+            }}
+          >
+            {dangGui ? 'Đang gửi…' : 'Đăng nhập'}
+          </button>
+        </>
+      )}
 
       <p className="empty" style={{ marginTop: 10 }}>
         Dữ liệu của bạn nằm trên máy chủ Mira và chỉ bạn đọc được. Không ai khác thấy nhật

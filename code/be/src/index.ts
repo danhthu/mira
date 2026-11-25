@@ -25,7 +25,7 @@ async function main(): Promise<void> {
 
   const db = new PostgresAdapter();
   const app = buildApp({
-    deps: buildDeps(db, env.jwtSecret, env.jwtTtlSec, env.wakingHoursPerDay * 60 * 7),
+    deps: buildDeps(db, env.jwtSecret, env.jwtTtlSec, env.wakingHoursPerDay * 60 * 7, env.googleClientId),
     corsOrigins: env.corsOrigins,
     logger: env.logger,
   });
