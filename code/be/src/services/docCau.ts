@@ -16,14 +16,41 @@
  * Nó chỉ đọc câu và trả về **đề xuất**. Người dùng duyệt rồi mới ghi. Bài học từ nếp còn
  * nguyên: đây là chỗ máy viết vào nhật ký của người, và một dòng bịa làm hỏng niềm tin
  * vào cả trăm dòng thật.
+ *
+ * BA THỨ TẦNG NÀY PHẢI TỰ ĐỌC, KHÔNG ĐƯỢC ĐẨY SANG LLM
+ *
+ * 1. **Ngày.** "hôm qua ngủ 7 tiếng" trước đây đọc ra 420 phút rồi client ghi vào *hôm
+ *    nay*. Sai ngày mà không ai báo: tệ hơn hẳn việc nói thẳng là không hiểu. Giờ mỗi ý
+ *    chí mang theo `ngay` của chính nó, và client ghi đúng cái đó.
+ * 2. **Danh mục của người dùng.** Người dùng đặt tên việc rồi thì tên đó là từ khoá tốt
+ *    nhất đang có, tốt hơn mọi danh sách tôi gõ cứng ở dưới. Khớp tên thì lấy luôn ô và
+ *    cờ giờ vàng của danh mục, nên câu chat ghi ra mục *đã phân loại* — nếu không thì
+ *    màn Thời gian đầy dòng trắng và cái danh mục vừa làm thành vô dụng.
+ * 3. **Câu nhiều việc.** "sáng họp 3 tiếng, chiều đón con 30 phút" là cách người ta kể
+ *    một ngày. Trước đây nó rơi xuống LLM, tức là chưa có khoá thì chết.
+ *
+ * VÀ KHI ĐỌC ĐƯỢC MỘT PHẦN THÌ PHẢI NÓI RA PHẦN CÒN LẠI. Mảnh nào có số mà không ai đọc
+ * được thì trả về `chuaHieu` kèm nguyên văn mảnh đó. Im lặng bỏ bớt một mảnh có số là
+ * làm mất một mục người dùng tưởng đã ghi.
  */
 import type { TimeBucket } from '../shared/types/enums';
 
 export type YChi =
-  | { readonly loai: 'gio'; readonly bucket: TimeBucket; readonly minutes: number; readonly ten: string; readonly golden: boolean }
-  | { readonly loai: 'hat'; readonly kind: 'candy' | 'salt'; readonly text: string }
-  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number }
-  | { readonly loai: 'khongGhi'; readonly viSao: string };
+  | {
+      readonly loai: 'gio';
+      readonly bucket: TimeBucket;
+      readonly minutes: number;
+      readonly ten: string;
+      readonly golden: boolean;
+      /** YYYY-MM-DD. Suy từ câu ("hôm qua", "thứ 3"), mặc định là ngày client gửi lên. */
+      readonly ngay: string;
+      /** Danh mục khớp được theo tên, nếu có. */
+      readonly danhMucId: string | null;
+    }
+  | { readonly loai: 'hat'; readonly kind: 'candy' | 'salt'; readonly text: string; readonly ngay: string }
+  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number; readonly thang: string }
+  | { readonly loai: 'khongGhi'; readonly viSao: string }
+  | { readonly loai: 'chuaHieu'; readonly doan: string };
 
 export type OTien = 'netIncome' | 'monthlyExpense' | 'debtPayment' | 'debtBalance' | 'netWorth';
 
@@ -33,13 +60,42 @@ export interface KetQuaDoc {
   readonly nguon: 'luat' | 'ai' | 'chiu';
 }
 
-/** Bỏ dấu để so khớp, vì người ta gõ "ngu" lẫn "ngủ". */
+/** Danh mục rút gọn, đủ để khớp tên. */
+export interface DanhMucGon {
+  readonly id: string;
+  readonly name: string;
+  readonly bucket: TimeBucket;
+  readonly golden: boolean;
+}
+
+/**
+ * Bối cảnh của một lần đọc.
+ *
+ * `homNay` do **client** gửi lên, không lấy từ đồng hồ máy chủ: máy chủ ở múi giờ nào là
+ * chuyện của máy chủ, còn "hôm qua" là hôm qua của người đang gõ.
+ */
+export interface BoiCanhDoc {
+  readonly homNay: string;
+  readonly danhMuc: readonly DanhMucGon[];
+}
+
+/**
+ * Bỏ dấu để so khớp, vì người ta gõ "ngu" lẫn "ngủ".
+ *
+ * **HẠ CHỮ THƯỜNG TRƯỚC, BỎ DẤU SAU.** "Đ" hoa là U+0110, một ký tự riêng không tách
+ * được bằng NFD, nên nó không rơi vào lớp dấu thanh ở dưới. Hạ chữ sau cùng thì `đ` →
+ * `d` đã chạy xong từ trước và "Đ" còn nguyên: câu "Đi làm 8 tiếng" ra "đi lam 8 tieng",
+ * từ khoá `di lam` không khớp, và cả câu rơi xuống LLM.
+ *
+ * Mà người ta viết hoa chữ đầu câu — "Đi làm", "Đón con", "Đọc sách" — nên lỗi này ăn
+ * đúng vào những câu hay gõ nhất.
+ */
 const boDau = (s: string): string =>
   s
+    .toLowerCase()
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .toLowerCase();
+    .replace(/đ/g, 'd');
 
 /**
  * Từ khoá → ô. Xếp theo thứ tự ưu tiên: cái cụ thể trước cái chung.
@@ -47,6 +103,8 @@ const boDau = (s: string): string =>
  * Danh sách này **cố tình ngắn**. Nhồi hai trăm từ vào đây thì nó bắt đầu đoán sai một
  * cách tự tin, mà đoán sai là thứ đắt nhất ở đây. Câu nào luật không chắc thì đẩy sang
  * LLM, và LLM còn biết nói "tôi không hiểu".
+ *
+ * Danh mục của người dùng được khớp TRƯỚC danh sách này, vì tên họ tự đặt nói đúng hơn.
  */
 const TU_KHOA: ReadonlyArray<readonly [RegExp, TimeBucket, boolean]> = [
   [/\b(hop|lam viec|di lam|cong ty|cong viec|deadline|du an|khach hang|email|bao cao)\b/, 'work', false],
@@ -113,8 +171,73 @@ function docPhut(cau: string): number | null {
   return null;
 }
 
+// ── ngày: bốn hàm chuỗi, không kéo thư viện ngày tháng vào
+
+const themNgay = (ngay: string, so: number): string => {
+  const d = new Date(`${ngay}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + so);
+  return d.toISOString().slice(0, 10);
+};
+
+/** Thứ theo ISO: thứ hai là 1, chủ nhật là 7. */
+const thuIso = (ngay: string): number => {
+  const d = new Date(`${ngay}T00:00:00Z`);
+  return ((d.getUTCDay() + 6) % 7) + 1;
+};
+
+/** Xa nhất cho phép lùi. Quá một năm thì gần như chắc là gõ sai, không phải ý thật. */
+const TOI_DA_LUI = 365;
+
 /**
- * Cắt phần số và đơn vị ra khỏi câu để lấy tên việc.
+ * Tách cụm chỉ ngày ra khỏi mảnh câu, trả về số ngày lùi và mảnh đã sạch.
+ *
+ * Phải **cắt cụm đó khỏi câu** rồi mới đọc số giờ và số tiền: "3 ngày trước họp 2 tiếng"
+ * có hai con số, và nếu để nguyên thì có lúc "3" bị đọc thành thời lượng.
+ */
+function tachNgay(manh: string): { readonly lui: number | null; readonly conLai: string } {
+  const cat = (re: RegExp, lui: number) => ({ lui, conLai: manh.replace(re, ' ') });
+
+  if (/\bhom nay\b/.test(manh)) return cat(/\bhom nay\b/g, 0);
+  if (/\bhom qua\b/.test(manh)) return cat(/\bhom qua\b/g, 1);
+  if (/\btoi qua\b/.test(manh)) return cat(/\btoi qua\b/g, 1);
+  if (/\bhom kia\b/.test(manh)) return cat(/\bhom kia\b/g, 2);
+
+  const soNgay = /\b(\d+)\s*ngay truoc\b/.exec(manh);
+  if (soNgay !== null) {
+    const n = Number(soNgay[1]);
+    if (Number.isFinite(n) && n >= 0 && n <= TOI_DA_LUI) return cat(/\b\d+\s*ngay truoc\b/g, n);
+  }
+
+  return { lui: null, conLai: manh };
+}
+
+/**
+ * "thứ 3" là thứ 3 **gần nhất đã qua**, kể cả hôm nay.
+ *
+ * Người ta kể lại việc đã làm, không hẹn việc sắp làm — màn này là nhật ký. Hiểu ngược
+ * chiều là ghi vào tương lai, và một mục giờ ở ngày chưa tới thì mọi tổng tuần đều lệch.
+ */
+function tachThu(manh: string, homNay: string): { readonly ngay: string | null; readonly conLai: string } {
+  const m = /\bthu ([2-7])\b/.exec(manh);
+  const dich = m !== null ? Number(m[1]) - 1 : /\bchu nhat\b/.test(manh) ? 7 : null;
+  if (dich === null) return { ngay: null, conLai: manh };
+
+  const lui = (thuIso(homNay) - dich + 7) % 7;
+  return {
+    ngay: themNgay(homNay, -lui),
+    conLai: manh.replace(/\bthu [2-7]\b/g, ' ').replace(/\bchu nhat\b/g, ' '),
+  };
+}
+
+/** "tháng trước" → tháng liền trước của `thang` (YYYY-MM). */
+function thangTruoc(thang: string): string {
+  const nam = Number(thang.slice(0, 4));
+  const thg = Number(thang.slice(5, 7));
+  return thg === 1 ? `${nam - 1}-12` : `${nam}-${String(thg - 1).padStart(2, '0')}`;
+}
+
+/**
+ * Cắt phần số, đơn vị và cụm chỉ thời điểm ra khỏi câu để lấy tên việc.
  *
  * Mỗi lớp ký tự phải chứa cả dạng **không dấu**. Người ta gõ "2 tieng" nhiều ngang gõ
  * "2 tiếng", và thiếu chữ `e` trần trong `ti[ếêe]ng` thì tên việc ra "Hop 2 tieng" —
@@ -122,8 +245,17 @@ function docPhut(cau: string): number | null {
  */
 function tenViec(goc: string): string {
   const sach = goc
-    .replace(/\d+(?:[.,]\d+)?\s*(?:ti[ếêe]ng|gi[ờo]|h|ph[úu]t|p)\b/gi, ' ')
-    .replace(/\b(h[ôo]m nay|s[áa]ng nay|chi[ềe]u nay|t[ốo]i nay|s[áa]ng|chi[ềe]u|t[ốo]i|nay)\b/gi, ' ')
+    // `(?![\p{L}])` thay cho `\b`: chữ `h` trần mà chốt bằng `\b` thì trong "thứ 6 họp"
+    // nó ăn luôn "6 h" của "họp" — vì "ọ" không phải `\w`, nên `\b` sau "h" lại đúng.
+    // Tên việc ra "Thứ ọp", và cụm "thứ 6" ở dưới không còn gì để cắt.
+    .replace(/\d+(?:[.,]\d+)?\s*(?:ti[ếêe]ng|gi[ờo]|h|ph[úu]t|p)(?![\p{L}])/giu, ' ')
+    .replace(/\b\d+\s*ng[àa]y tr[uư][ớo]c\b/gi, ' ')
+    .replace(/\bth[ứu] [2-7]\b/gi, ' ')
+    .replace(/\bch[ủu] nh[ậa]t\b/gi, ' ')
+    .replace(
+      /\b(h[ôo]m nay|h[ôo]m qua|h[ôo]m kia|t[ốo]i qua|s[áa]ng nay|chi[ềe]u nay|t[ốo]i nay|s[áa]ng|chi[ềe]u|t[ốo]i|nay)\b/gi,
+      ' ',
+    )
     .replace(/\s+/g, ' ')
     .trim();
   if (sach === '') return 'Ghi tay';
@@ -131,45 +263,152 @@ function tenViec(goc: string): string {
 }
 
 /**
- * Đọc một câu. Trả `nguon: 'chiu'` khi luật không chắc — lúc đó tầng trên gọi LLM.
+ * Khớp danh mục theo tên.
+ *
+ * Tên dài khớp trước tên ngắn: có cả "Họp" và "Họp khách hàng" thì câu "họp khách hàng 1
+ * tiếng" phải vào cái cụ thể hơn.
+ *
+ * Tên dưới ba ký tự thì bỏ qua. Một danh mục tên "A" sẽ khớp gần như mọi câu, và một cú
+ * khớp sai đưa giờ vào sai ô — đắt hơn hẳn việc bỏ sót.
  */
-export function docBangLuat(cauGoc: string): KetQuaDoc {
-  const cau = boDau(cauGoc.trim());
-  if (cau === '') return { yChi: [], nguon: 'chiu' };
+const TEN_TOI_THIEU = 3;
 
-  // Việc không ghi được phải chặn TRƯỚC mọi thứ khác: "rút atm 2 triệu" có số tiền, và
-  // nếu không chặn thì luật tiền bên dưới sẽ nhét nó vào một ô nào đó.
-  for (const [re, viSao] of KHONG_GHI) {
-    if (re.test(cau)) return { yChi: [{ loai: 'khongGhi', viSao }], nguon: 'luat' };
+function khopDanhMuc(manh: string, ds: readonly DanhMucGon[]): DanhMucGon | null {
+  let thang: DanhMucGon | null = null;
+  let dai = 0;
+  for (const dm of ds) {
+    const ten = boDau(dm.name.trim());
+    if (ten.length < TEN_TOI_THIEU || ten.length <= dai) continue;
+    if (manh.includes(ten)) {
+      thang = dm;
+      dai = ten.length;
+    }
   }
+  return thang;
+}
+
+/** Số lượng mảnh tối đa trong một câu. Dài hơn thế thì là đoạn văn, để LLM đọc. */
+const TOI_DA_MANH = 6;
+
+/**
+ * Tách câu thành mảnh.
+ *
+ * Chỉ tách ở dấu phẩy, chấm phẩy và chữ "rồi". **Không tách ở "và"**: "chơi với con và
+ * vợ 1 tiếng" mà tách ra thì mảnh đầu không có số giờ, mảnh sau còn "vợ 1 tiếng" không
+ * khớp từ khoá nào — tách sai làm mất nguyên một mục.
+ *
+ * DẤU PHẨY GIỮA HAI CHỮ SỐ LÀ DẤU THẬP PHÂN, KHÔNG PHẢI DẤU NGẮT. Người Việt viết "1,5h".
+ * Tách ở đó thì "họp 1,5h" thành "họp 1" và "5h", và cả câu chết.
+ */
+const tachManh = (cau: string): readonly string[] =>
+  cau
+    .split(/;|\br[ồo]i\b|(?<!\d),|,(?!\d)/i)
+    .map((s) => s.trim())
+    .filter((s) => s !== '')
+    .slice(0, TOI_DA_MANH);
+
+interface KetQuaManh {
+  readonly y: YChi | null;
+  /** Có chữ số nhưng không đọc được: phải nói ra, không được im lặng bỏ. */
+  readonly coSo: boolean;
+}
+
+function docMotManh(goc: string, bc: BoiCanhDoc): KetQuaManh {
+  const coSo = /\d/.test(goc);
+  const thoNgay = boDau(goc);
+
+  // Cắt cụm chỉ ngày TRƯỚC khi đọc số, để con số của ngày không bị đọc thành thời lượng.
+  const { lui, conLai: sauLui } = tachNgay(thoNgay);
+  const { ngay: ngayThu, conLai: manh } = tachThu(sauLui, bc.homNay);
+  const ngay = ngayThu ?? (lui === null ? bc.homNay : themNgay(bc.homNay, -lui));
 
   // Tiền: cần cả từ khoá ô lẫn số tiền. Thiếu một trong hai thì không đoán.
-  const tien = docTien(cau);
+  const tien = docTien(manh);
   if (tien !== null) {
+    const thang = /\bthang truoc\b/.test(manh) ? thangTruoc(bc.homNay.slice(0, 7)) : bc.homNay.slice(0, 7);
     for (const [re, o] of O_TIEN) {
-      if (re.test(cau)) return { yChi: [{ loai: 'tien', o, vnd: tien }], nguon: 'luat' };
+      if (re.test(manh)) return { y: { loai: 'tien', o, vnd: tien, thang }, coSo };
     }
   }
 
-  // Giờ: cần cả thời lượng lẫn từ khoá ô.
-  const phut = docPhut(cau);
+  // Giờ: cần thời lượng, cộng với một danh mục khớp tên HOẶC một từ khoá.
+  const phut = docPhut(manh);
   if (phut !== null && phut > 0 && phut <= 1440) {
+    const dm = khopDanhMuc(manh, bc.danhMuc);
+    if (dm !== null) {
+      return {
+        y: {
+          loai: 'gio',
+          bucket: dm.bucket,
+          minutes: phut,
+          ten: dm.name,
+          golden: dm.golden,
+          ngay,
+          danhMucId: dm.id,
+        },
+        coSo,
+      };
+    }
     for (const [re, bucket, vang] of TU_KHOA) {
-      if (re.test(cau)) {
+      if (re.test(manh)) {
         return {
-          yChi: [{ loai: 'gio', bucket, minutes: phut, ten: tenViec(cauGoc), golden: vang }],
-          nguon: 'luat',
+          y: {
+            loai: 'gio',
+            bucket,
+            minutes: phut,
+            ten: tenViec(goc),
+            golden: vang,
+            ngay,
+            danhMucId: null,
+          },
+          coSo,
         };
       }
     }
   }
 
-  // Hạt: chỉ nhận khi KHÔNG có số giờ. "mệt quá, họp 3 tiếng" nói về giờ, không phải
-  // một hạt muối — và đoán sai chiều đó là bỏ mất mục giờ người ta định ghi.
-  if (phut === null && tien === null) {
-    if (VUI.test(cau)) return { yChi: [{ loai: 'hat', kind: 'candy', text: cauGoc.trim() }], nguon: 'luat' };
-    if (BUON.test(cau)) return { yChi: [{ loai: 'hat', kind: 'salt', text: cauGoc.trim() }], nguon: 'luat' };
+  return { y: null, coSo };
+}
+
+/**
+ * Đọc một câu. Trả `nguon: 'chiu'` khi luật không chắc — lúc đó tầng trên gọi LLM.
+ */
+export function docBangLuat(cauGoc: string, bc: BoiCanhDoc): KetQuaDoc {
+  const cauSach = cauGoc.trim();
+  if (cauSach === '') return { yChi: [], nguon: 'chiu' };
+
+  const caCau = boDau(cauSach);
+
+  // Việc không ghi được phải chặn TRƯỚC mọi thứ khác: "rút atm 2 triệu" có số tiền, và
+  // nếu không chặn thì luật tiền bên dưới sẽ nhét nó vào một ô nào đó.
+  for (const [re, viSao] of KHONG_GHI) {
+    if (re.test(caCau)) return { yChi: [{ loai: 'khongGhi', viSao }], nguon: 'luat' };
   }
 
-  return { yChi: [], nguon: 'chiu' };
+  const manh = tachManh(cauSach);
+  const yChi: YChi[] = [];
+  const boSot: string[] = [];
+
+  for (const m of manh) {
+    const r = docMotManh(m, bc);
+    if (r.y !== null) yChi.push(r.y);
+    else if (r.coSo) boSot.push(m);
+  }
+
+  // Hạt: chỉ nhận khi KHÔNG đọc được giờ hay tiền, và xét trên CẢ CÂU chứ không từng
+  // mảnh. "mệt quá, cả ngày căng thẳng" là một hạt muối, không phải hai — mà hũ muối có
+  // nhịp hỏi lại 42 ngày, nên nhân đôi một hạt là làm nhiễu đúng chỗ đang đếm.
+  if (yChi.length === 0) {
+    const { lui, conLai } = tachNgay(caCau);
+    const ngay = lui === null ? bc.homNay : themNgay(bc.homNay, -lui);
+    if (VUI.test(conLai)) return { yChi: [{ loai: 'hat', kind: 'candy', text: cauSach, ngay }], nguon: 'luat' };
+    if (BUON.test(conLai)) return { yChi: [{ loai: 'hat', kind: 'salt', text: cauSach, ngay }], nguon: 'luat' };
+    return { yChi: [], nguon: 'chiu' };
+  }
+
+  // Đọc được một phần thì nói ra phần còn lại. Mảnh có số mà bỏ đi lặng lẽ là làm mất
+  // một mục người dùng tưởng đã ghi.
+  for (const b of boSot) yChi.push({ loai: 'chuaHieu', doan: b });
+
+  return { yChi, nguon: 'luat' };
 }

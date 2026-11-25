@@ -64,7 +64,7 @@ export function ChatScreen() {
     setDong((d) => [...d, { id: (demDong += 1), ai: 'toi', chu: text }]);
     setDangDoc(true);
     try {
-      const ketQua = await store.doc(text);
+      const ketQua = await store.doc(text, day);
       setDong((d) => [...d, { id: (demDong += 1), ai: 'mira', ketQua }]);
     } catch (cause: unknown) {
       setDong((d) => [
@@ -80,20 +80,28 @@ export function ChatScreen() {
     }
   }
 
+  /**
+   * Ghi theo **ngày của từng ý chí**, không phải hôm nay.
+   *
+   * "hôm qua ngủ 7 tiếng" trước đây ghi vào hôm nay: đúng số phút, sai ngày, và không có
+   * chỗ nào trên giao diện báo. Giờ máy chủ trả `ngay` kèm mỗi mục và client ghi đúng
+   * cái đó. Danh mục cũng vậy — khớp được thì mục giờ ra đã phân loại.
+   */
   async function ghi(id: number, yChi: readonly YChi[]): Promise<void> {
     for (const y of yChi) {
       if (y.loai === 'gio') {
         await store.createTimeEntry({
-          date: day,
+          date: y.ngay,
           minutes: y.minutes,
           bucket: y.bucket,
           golden: y.golden,
-          note: y.ten,
+          note: y.danhMucId === null ? y.ten : null,
+          danhMucId: y.danhMucId,
         });
       } else if (y.loai === 'hat') {
-        await store.createMoment({ date: day, kind: y.kind, text: y.text });
+        await store.createMoment({ date: y.ngay, kind: y.kind, text: y.text });
       } else if (y.loai === 'tien') {
-        await store.saveMoney(monthOf(day), { [y.o]: y.vnd });
+        await store.saveMoney(y.thang, { [y.o]: y.vnd });
       }
     }
     setDong((d) => d.map((x) => (x.id === id ? { ...x, daGhi: true } : x)));
@@ -162,7 +170,12 @@ export function ChatScreen() {
           <div key={d.id} className={d.ai === 'toi' ? 'bong bong--toi' : 'bong bong--mira'}>
             {d.chu !== undefined && <p className="bong__chu">{d.chu}</p>}
             {d.ketQua !== undefined && (
-              <TraLoi ketQua={d.ketQua} daGhi={d.daGhi === true} onGhi={() => void ghi(d.id, d.ketQua?.yChi ?? [])} />
+              <TraLoi
+                ketQua={d.ketQua}
+                daGhi={d.daGhi === true}
+                homNay={day}
+                onGhi={() => void ghi(d.id, d.ketQua?.yChi ?? [])}
+              />
             )}
           </div>
         ))}
@@ -193,10 +206,12 @@ function TraLoi({
   ketQua,
   daGhi,
   onGhi,
+  homNay,
 }: {
   readonly ketQua: KetQuaDoc;
   readonly daGhi: boolean;
   readonly onGhi: () => void;
+  readonly homNay: string;
 }) {
   const [dangGhi, setDangGhi] = useState(false);
 
@@ -209,15 +224,20 @@ function TraLoi({
     );
   }
 
-  const chiLaKhongGhi = ketQua.yChi.every((y) => y.loai === 'khongGhi');
+  // Có gì ghi được thì mới hiện nút. `khongGhi` và `chuaHieu` đều không ghi được, nên
+  // một câu chỉ gồm hai loại đó thì cái nút "Ghi" sẽ không làm gì — và một cái nút bấm
+  // vào không có chuyện gì xảy ra là chỗ người dùng mất tin vào cả màn hình.
+  const coGhiDuoc = ketQua.yChi.some(
+    (y) => y.loai === 'gio' || y.loai === 'hat' || y.loai === 'tien',
+  );
 
   return (
     <>
       {ketQua.yChi.map((y, i) => (
-        <TheY key={i} y={y} />
+        <TheY key={i} y={y} homNay={homNay} />
       ))}
 
-      {!chiLaKhongGhi &&
+      {coGhiDuoc &&
         (daGhi ? (
           <p className="bong__xong">Đã ghi.</p>
         ) : (
@@ -237,9 +257,24 @@ function TraLoi({
   );
 }
 
-function TheY({ y }: { readonly y: YChi }) {
+/**
+ * Một đề xuất.
+ *
+ * Ngày chỉ hiện khi **khác hôm nay**. Hiện "Hôm nay" trên mọi thẻ thì nó thành chữ trang
+ * trí ai cũng bỏ qua, và đúng lúc nó ghi "Thứ 3" thì cũng không ai đọc nữa. Chỗ cần người
+ * dùng nhìn là chỗ Mira đã suy ra một ngày khác với mặc định.
+ */
+function TheY({ y, homNay }: { readonly y: YChi; readonly homNay: string }) {
   if (y.loai === 'khongGhi') {
     return <p className="y y--khong">{y.viSao}</p>;
+  }
+  if (y.loai === 'chuaHieu') {
+    return (
+      <p className="y y--khong">
+        Chỗ này Mira chưa đọc được: «{y.doan}». Những mục trên vẫn ghi được; chỗ này thì
+        ghi tay ở tab Thời gian.
+      </p>
+    );
   }
   if (y.loai === 'gio') {
     return (
@@ -248,6 +283,7 @@ function TheY({ y }: { readonly y: YChi }) {
         <span>
           {fmtMinutes(y.minutes)} · {BUCKET_LABEL_VI[y.bucket]}
           {y.golden ? ' · giờ vàng' : ''}
+          {y.ngay !== homNay ? ` · ${labelDay(y.ngay)}` : ''}
         </span>
       </div>
     );
@@ -257,6 +293,7 @@ function TheY({ y }: { readonly y: YChi }) {
       <div className="y">
         <b>
           <i className={y.kind === 'candy' ? 'y__keo' : 'y__muoi'} /> {y.kind === 'candy' ? 'Viên kẹo' : 'Hạt muối'}
+          {y.ngay !== homNay ? ` · ${labelDay(y.ngay)}` : ''}
         </b>
         <span>{y.text}</span>
       </div>
@@ -265,7 +302,10 @@ function TheY({ y }: { readonly y: YChi }) {
   return (
     <div className="y">
       <b>{O_TIEN_LABEL_VI[y.o]}</b>
-      <span>{vnd(y.vnd)}</span>
+      <span>
+        {vnd(y.vnd)}
+        {y.thang !== monthOf(homNay) ? ` · tháng ${y.thang.slice(5)}/${y.thang.slice(0, 4)}` : ''}
+      </span>
     </div>
   );
 }

@@ -146,10 +146,27 @@ export const DANH_MUC_CAP = 6;
  * route ghi đã có.
  */
 export type YChi =
-  | { readonly loai: 'gio'; readonly bucket: TimeBucket; readonly minutes: number; readonly ten: string; readonly golden: boolean }
-  | { readonly loai: 'hat'; readonly kind: MomentKind; readonly text: string }
-  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number }
-  | { readonly loai: 'khongGhi'; readonly viSao: string };
+  | {
+      readonly loai: 'gio';
+      readonly bucket: TimeBucket;
+      readonly minutes: number;
+      readonly ten: string;
+      readonly golden: boolean;
+      /**
+       * YYYY-MM-DD. Suy từ câu ("hôm qua", "thứ 3"), mặc định là ngày client gửi lên.
+       *
+       * Client phải ghi vào **ngày này**, không phải hôm nay. Trước đây "hôm qua ngủ 7
+       * tiếng" đọc ra 420 phút rồi ghi vào hôm nay: sai ngày mà không báo gì.
+       */
+      readonly ngay: string;
+      /** Danh mục khớp được theo tên, nếu có. Client gửi kèm khi ghi. */
+      readonly danhMucId: string | null;
+    }
+  | { readonly loai: 'hat'; readonly kind: MomentKind; readonly text: string; readonly ngay: string }
+  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number; readonly thang: string }
+  | { readonly loai: 'khongGhi'; readonly viSao: string }
+  /** Mảnh câu có số mà không ai đọc được. Nói ra, vì bỏ lặng lẽ là làm mất một mục. */
+  | { readonly loai: 'chuaHieu'; readonly doan: string };
 
 export type OTien = 'netIncome' | 'monthlyExpense' | 'debtPayment' | 'debtBalance' | 'netWorth';
 

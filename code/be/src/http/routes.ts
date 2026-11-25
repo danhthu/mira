@@ -206,14 +206,24 @@ const postDoc: Handler = async (req, deps, userId) => {
   if (cau === '') throw badRequest('Chưa có câu nào để đọc.');
   if (cau.length > 500) throw badRequest('Câu dài quá 500 ký tự.');
 
+  // Ngày "hôm nay" do client gửi: máy chủ ở múi giờ nào là chuyện của máy chủ, còn "hôm
+  // qua" là hôm qua của người đang gõ. Thiếu thì mới lấy đồng hồ máy chủ.
+  const homNay = assertDate(String(b.ngay ?? new Date().toISOString().slice(0, 10)), 'ngay');
+
   // Chặn dò khoá: mỗi lần gọi AI là tiền thật.
   const ip = req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for'] ?? '';
   kiemDoLuong(ip, `doc|${userId}`, NGUONG_DOC);
 
-  const luat = docBangLuat(cau);
+  // Danh mục người dùng tự đặt là từ khoá tốt nhất đang có — tốt hơn danh sách gõ cứng
+  // trong `docCau`. Khớp được thì câu chat ghi ra mục ĐÃ phân loại, nên màn Thời gian
+  // không đầy dòng trắng và cái danh mục họ vừa làm không thành vô dụng.
+  const danhMuc = await deps.danhMuc.findActive(userId);
+  const bc = { homNay, danhMuc };
+
+  const luat = docBangLuat(cau, bc);
   if (luat.nguon === 'luat') return { status: 200, body: luat };
 
-  const ai = await docBangAi(deps.ai, cau);
+  const ai = await docBangAi(deps.ai, cau, bc);
   return { status: 200, body: ai };
 };
 

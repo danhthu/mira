@@ -6,9 +6,19 @@
  * nó **phải im** chứ không chỉ chỗ nó phải hiểu.
  */
 import { describe, it, expect } from 'vitest';
-import { docBangLuat } from '../docCau';
+import { docBangLuat, type DanhMucGon } from '../docCau';
 
-const doc = (cau: string) => docBangLuat(cau);
+/** 25/11/2026 là thứ 4. Chọn cố định để test thứ trong tuần không đổi theo ngày chạy. */
+const HOM_NAY = '2026-11-25';
+
+const DANH_MUC: readonly DanhMucGon[] = [
+  { id: 'dm-hop', name: 'Họp dự án A', bucket: 'work', golden: false },
+  { id: 'dm-con', name: 'Đọc sách cho con', bucket: 'family', golden: true },
+  { id: 'dm-gym', name: 'Gym', bucket: 'personal', golden: false },
+];
+
+const doc = (cau: string, danhMuc: readonly DanhMucGon[] = []) =>
+  docBangLuat(cau, { homNay: HOM_NAY, danhMuc });
 
 describe('docBangLuat — giờ', () => {
   it('đọc "sáng nay họp 3 tiếng"', () => {
@@ -55,6 +65,24 @@ describe('docBangLuat — giờ', () => {
     expect(doc('sáng nay họp 3 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
   });
 
+  it('⚑ viết hoa chữ Đ đầu câu vẫn khớp từ khoá', () => {
+    // "Đ" hoa là U+0110, một ký tự riêng mà NFD không tách được, nên nó không rơi vào
+    // lớp dấu thanh. Hạ chữ thường SAU khi đổi `đ`→`d` thì "Đi làm" ra "đi lam", từ khoá
+    // `di lam` không khớp, và cả câu rơi xuống LLM — tức là chết khi chưa có khoá API.
+    //
+    // Người ta viết hoa chữ đầu câu, nên lỗi này ăn đúng vào những câu hay gõ nhất.
+    expect(doc('Đi làm 8 tiếng').yChi[0]).toMatchObject({ bucket: 'work', minutes: 480 });
+    expect(doc('Đón con 30 phút').yChi[0]).toMatchObject({ bucket: 'family', minutes: 30 });
+    expect(doc('Đọc sách 1 tiếng').yChi[0]).toMatchObject({ bucket: 'personal', minutes: 60 });
+  });
+
+  it('⚑ chữ "h" trần không được ăn vào chữ cái có dấu đứng sau', () => {
+    // Chốt bằng `\b` thì trong "thứ 6 họp" nó cắt luôn "6 h" của "họp" — vì "ọ" không
+    // phải `\w` nên `\b` sau "h" lại đúng. Tên việc ra "Thứ ọp".
+    expect(doc('thứ 6 họp 2 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
+    expect(doc('5 ngày trước học 2 tiếng').yChi[0]).toMatchObject({ ten: 'Học' });
+  });
+
   it('có số giờ mà không có từ khoá nào thì CHỊU, không đoán ô', () => {
     // "làm cái đó 2 tiếng" — không biết cái đó thuộc ô nào. Đoán bừa tệ hơn im.
     expect(doc('làm cái đó 2 tiếng').nguon).toBe('chiu');
@@ -62,6 +90,149 @@ describe('docBangLuat — giờ', () => {
 
   it('số giờ vô lý thì không nhận', () => {
     expect(doc('họp 30 tiếng').nguon).toBe('chiu');
+  });
+});
+
+describe('docBangLuat — ngày', () => {
+  it('không nói gì về thời điểm thì là hôm nay', () => {
+    expect(doc('họp 2 tiếng').yChi[0]).toMatchObject({ ngay: HOM_NAY });
+  });
+
+  it('⚑ "hôm qua ngủ 7 tiếng" ghi vào HÔM QUA', () => {
+    // Trước đây câu này đọc ra 420 phút rồi client ghi vào hôm nay: đúng số phút, sai
+    // ngày, và không có chỗ nào trên giao diện báo. Sai ngày âm thầm là thứ tệ nhất ở
+    // đây — mọi tổng tuần lệch theo mà người dùng không biết vì sao.
+    const r = doc('hôm qua ngủ 7 tiếng');
+    expect(r.nguon).toBe('luat');
+    expect(r.yChi[0]).toMatchObject({ loai: 'gio', minutes: 420, ngay: '2026-11-24' });
+  });
+
+  it('"hôm kia" lùi hai ngày, "tối qua" lùi một', () => {
+    expect(doc('hôm kia họp 1 tiếng').yChi[0]).toMatchObject({ ngay: '2026-11-23' });
+    expect(doc('tối qua lướt điện thoại 30 phút').yChi[0]).toMatchObject({ ngay: '2026-11-24' });
+  });
+
+  it('"3 ngày trước" lùi ba ngày, và con số đó KHÔNG bị đọc thành thời lượng', () => {
+    // "3 ngày trước họp 2 tiếng" có hai con số. Không cắt cụm ngày ra trước thì có lúc
+    // "3" thành thời lượng và mục giờ ghi sai 60 phút.
+    const r = doc('3 ngày trước họp 2 tiếng');
+    expect(r.yChi[0]).toMatchObject({ ngay: '2026-11-22', minutes: 120, ten: 'Họp' });
+  });
+
+  it('⚑ "thứ N" là thứ N GẦN NHẤT ĐÃ QUA, không phải thứ N tới', () => {
+    // Màn này là nhật ký: người ta kể việc đã làm. Hiểu ngược chiều là ghi vào tương
+    // lai, và một mục giờ ở ngày chưa tới làm lệch mọi tổng tuần.
+    expect(doc('thứ 4 họp 2 tiếng').yChi[0]).toMatchObject({ ngay: HOM_NAY }); // hôm nay là thứ 4
+    expect(doc('thứ 3 họp 2 tiếng').yChi[0]).toMatchObject({ ngay: '2026-11-24' });
+    expect(doc('thứ 2 họp 2 tiếng').yChi[0]).toMatchObject({ ngay: '2026-11-23' });
+    expect(doc('thứ 6 họp 2 tiếng').yChi[0]).toMatchObject({ ngay: '2026-11-20' });
+    expect(doc('chủ nhật ngủ 9 tiếng').yChi[0]).toMatchObject({ ngay: '2026-11-22' });
+  });
+
+  it('không bao giờ trả ngày ở tương lai', () => {
+    for (const cau of ['thứ 2 họp 1 tiếng', 'thứ 7 họp 1 tiếng', 'chủ nhật họp 1 tiếng']) {
+      const y = doc(cau).yChi[0] as { ngay: string };
+      expect(y.ngay <= HOM_NAY).toBe(true);
+    }
+  });
+
+  it('tên việc không giữ lại cụm chỉ ngày', () => {
+    expect(doc('hôm qua họp 2 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
+    expect(doc('thứ 6 họp 2 tiếng').yChi[0]).toMatchObject({ ten: 'Họp' });
+  });
+
+  it('hạt cũng mang ngày của nó', () => {
+    expect(doc('hôm qua mệt quá').yChi[0]).toMatchObject({ loai: 'hat', kind: 'salt', ngay: '2026-11-24' });
+  });
+});
+
+describe('docBangLuat — danh mục người dùng', () => {
+  it('⚑ khớp tên danh mục thì lấy ô và cờ giờ vàng CỦA DANH MỤC', () => {
+    // Không khớp thì mục giờ ghi ra không có danh mục, màn Thời gian đầy dòng trắng, và
+    // cái danh mục người dùng vừa đặt thành vô dụng.
+    const r = doc('đọc sách cho con 30 phút', DANH_MUC);
+    expect(r.yChi[0]).toMatchObject({
+      loai: 'gio',
+      bucket: 'family',
+      golden: true,
+      danhMucId: 'dm-con',
+      ten: 'Đọc sách cho con',
+      minutes: 30,
+    });
+  });
+
+  it('danh mục cứu được câu mà danh sách từ khoá gõ cứng không đọc nổi', () => {
+    // "dự án A" không có trong TU_KHOA. Có danh mục thì đọc được; không có thì chịu.
+    expect(doc('họp dự án A 90 phút', DANH_MUC).yChi[0]).toMatchObject({ danhMucId: 'dm-hop' });
+    expect(doc('gym 1 tiếng', DANH_MUC).yChi[0]).toMatchObject({ danhMucId: 'dm-gym', bucket: 'personal' });
+    expect(doc('gym 1 tiếng').nguon).toBe('chiu');
+  });
+
+  it('tên dài khớp trước tên ngắn', () => {
+    const ds: readonly DanhMucGon[] = [
+      { id: 'ngan', name: 'Họp', bucket: 'work', golden: false },
+      { id: 'dai', name: 'Họp khách hàng', bucket: 'work', golden: false },
+    ];
+    expect(doc('họp khách hàng 1 tiếng', ds).yChi[0]).toMatchObject({ danhMucId: 'dai' });
+  });
+
+  it('⚑ tên dưới ba ký tự thì BỎ QUA', () => {
+    // Một danh mục tên "A" khớp gần như mọi câu, và khớp sai là đưa giờ vào sai ô — đắt
+    // hơn hẳn việc bỏ sót.
+    const ds: readonly DanhMucGon[] = [{ id: 'x', name: 'A', bucket: 'waste', golden: false }];
+    expect(doc('ngủ 7 tiếng', ds).yChi[0]).toMatchObject({ bucket: 'personal', danhMucId: null });
+  });
+
+  it('không khớp danh mục nào thì danhMucId là null, không phải chuỗi rỗng', () => {
+    expect(doc('họp 2 tiếng', DANH_MUC).yChi[0]).toMatchObject({ danhMucId: null });
+  });
+});
+
+describe('docBangLuat — câu nhiều việc', () => {
+  it('⚑ tách được "sáng họp 3 tiếng, chiều đón con 30 phút"', () => {
+    // Đây là cách người ta kể một ngày. Trước đây cả câu rơi xuống LLM, tức là chưa có
+    // khoá API thì chết hẳn.
+    const r = doc('sáng họp 3 tiếng, chiều đón con 30 phút');
+    expect(r.nguon).toBe('luat');
+    expect(r.yChi).toHaveLength(2);
+    expect(r.yChi[0]).toMatchObject({ bucket: 'work', minutes: 180 });
+    expect(r.yChi[1]).toMatchObject({ bucket: 'family', minutes: 30 });
+  });
+
+  it('tách ở chữ "rồi"', () => {
+    const r = doc('ăn tối 30 phút rồi dọn nhà 30 phút');
+    expect(r.yChi).toHaveLength(2);
+  });
+
+  it('⚑ KHÔNG tách ở chữ "và"', () => {
+    // Tách ra thì mảnh đầu không có số giờ, mảnh sau còn "vợ 1 tiếng" không khớp từ
+    // khoá nào, và mất nguyên một mục.
+    const r = doc('chơi với con và vợ 1 tiếng');
+    expect(r.yChi).toHaveLength(1);
+    expect(r.yChi[0]).toMatchObject({ bucket: 'family', minutes: 60 });
+  });
+
+  it('mỗi mảnh giữ ngày riêng của nó', () => {
+    const r = doc('hôm qua họp 2 tiếng, hôm nay ngủ 7 tiếng');
+    expect(r.yChi[0]).toMatchObject({ ngay: '2026-11-24' });
+    expect(r.yChi[1]).toMatchObject({ ngay: HOM_NAY });
+  });
+
+  it('⚑ mảnh có số mà không đọc được thì NÓI RA, không im lặng bỏ', () => {
+    // Bỏ lặng lẽ một mảnh có số là làm mất một mục người dùng tưởng đã ghi — họ bấm
+    // "Ghi", thấy "Đã ghi", và hai hôm sau mới phát hiện thiếu.
+    const r = doc('họp 3 tiếng, làm cái gì đó 2 tiếng');
+    expect(r.nguon).toBe('luat');
+    expect(r.yChi[0]).toMatchObject({ loai: 'gio', minutes: 180 });
+    expect(r.yChi[1]).toMatchObject({ loai: 'chuaHieu' });
+    expect((r.yChi[1] as { doan: string }).doan).toContain('làm cái gì đó');
+  });
+
+  it('mảnh KHÔNG có số thì bỏ im lặng, vì nó là chữ đệm', () => {
+    // "mệt quá" không phải một mục bị mất; nhắc nó ra chỉ làm nhiễu.
+    const r = doc('mệt quá, họp 3 tiếng');
+    expect(r.yChi).toHaveLength(1);
+    expect(r.yChi[0]?.loai).toBe('gio');
   });
 });
 
@@ -73,6 +244,11 @@ describe('docBangLuat — hạt', () => {
 
   it('đọc câu nặng thành hạt muối', () => {
     expect(doc('mệt quá, cả ngày căng thẳng').yChi[0]).toMatchObject({ loai: 'hat', kind: 'salt' });
+  });
+
+  it('⚑ một câu nặng nhiều mảnh vẫn chỉ ra MỘT hạt', () => {
+    // Hũ muối có nhịp hỏi lại 42 ngày. Nhân đôi một hạt là làm nhiễu đúng chỗ đang đếm.
+    expect(doc('mệt quá, cả ngày căng thẳng, chán').yChi).toHaveLength(1);
   });
 
   it('⚑ câu có cảm xúc KÈM số giờ thì ưu tiên giờ, không thành hạt', () => {
@@ -94,6 +270,7 @@ describe('docBangLuat — tiền', () => {
       loai: 'tien',
       o: 'netIncome',
       vnd: 18_000_000,
+      thang: '2026-11',
     });
   });
 
@@ -103,6 +280,10 @@ describe('docBangLuat — tiền', () => {
 
   it('đọc "1,5tr"', () => {
     expect(doc('trả nợ 1,5tr').yChi[0]).toMatchObject({ o: 'debtPayment', vnd: 1_500_000 });
+  });
+
+  it('"tháng trước" ghi vào tháng liền trước', () => {
+    expect(doc('tháng trước lương 18 triệu').yChi[0]).toMatchObject({ thang: '2026-10' });
   });
 
   it('có số tiền mà không biết ô nào thì CHỊU', () => {
@@ -132,10 +313,5 @@ describe('docBangLuat — im lặng', () => {
 
   it('câu ngoài ba thứ Mira ghi', () => {
     expect(doc('mai trời có mưa không').nguon).toBe('chiu');
-  });
-
-  it('không bao giờ trả về nhiều hơn một ý chí ở tầng luật', () => {
-    // Câu nhiều việc là việc của LLM. Tầng luật mà cố tách câu thì nó bắt đầu sai.
-    expect(doc('sáng họp 3 tiếng, chiều đưa con đi học 30 phút').yChi.length).toBeLessThanOrEqual(1);
   });
 });

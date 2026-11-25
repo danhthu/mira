@@ -55,11 +55,26 @@ export function buildApp(options: AppOptions): FastifyInstance {
     });
   }
 
-  // Lỗi không phải DomainError là lỗi lập trình: ghi log đầy đủ, trả ra ngoài một
-  // câu chung, không rò chi tiết nội bộ cho client.
+  /**
+   * Lỗi không phải DomainError là lỗi lập trình: ghi log đầy đủ, trả ra ngoài một câu
+   * chung, không rò chi tiết nội bộ cho client.
+   *
+   * NHƯNG LỖI 4xX CỦA CHÍNH FASTIFY THÌ GIỮ NGUYÊN MÃ. Gửi sai `content-type` là lỗi
+   * 415 của người gọi; gộp nó thành 500 "Lỗi máy chủ" là nói với người gọi rằng máy chủ
+   * sập, và họ đi tìm ở đúng chỗ không có gì. Tôi vừa mất mấy phút vào đúng cái đó.
+   *
+   * Thân lỗi cũng phải khớp: trả `code: 'bad_request'` kèm `status: 500` là hai câu nói
+   * ngược nhau trong cùng một phản hồi.
+   */
   app.setErrorHandler((error, request, reply) => {
     request.log.error({ err: error }, 'unhandled error');
-    reply.status(500).send({ code: 'bad_request', message: 'Lỗi máy chủ' });
+    const e = error as { statusCode?: number; message?: string };
+    const status = e.statusCode ?? 500;
+    if (status >= 400 && status < 500) {
+      reply.status(status).send({ code: 'bad_request', message: e.message ?? 'Yêu cầu không hợp lệ' });
+      return;
+    }
+    reply.status(500).send({ code: 'internal', message: 'Lỗi máy chủ' });
   });
 
   return app;

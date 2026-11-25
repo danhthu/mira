@@ -132,7 +132,13 @@ export function createClient(options: ClientOptions) {
 
     // ───────────────────────────────────────── đọc câu
     /** Đọc một câu thành đề xuất. KHÔNG ghi gì cả. */
-    doc: (cau: string) => call<KetQuaDoc>('POST', '/doc', { cau }),
+    /**
+     * Đọc một câu thành đề xuất. **Không ghi gì cả.**
+     *
+     * `ngay` là hôm nay **theo đồng hồ người dùng**, bắt buộc gửi: "hôm qua" là hôm qua
+     * của người đang gõ, không phải của múi giờ máy chủ.
+     */
+    doc: (cau: string, ngay: string) => call<KetQuaDoc>('POST', '/doc', { cau, ngay }),
 
     // ───────────────────────────────────────── danh mục
     listDanhMuc: () => call<DanhMuc[]>('GET', '/danh-muc'),
