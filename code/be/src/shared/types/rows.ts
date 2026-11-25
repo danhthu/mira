@@ -20,6 +20,7 @@ export interface TimeEntryRow {
   golden: boolean;
   note: string | null;
   source: string;
+  nep_id: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

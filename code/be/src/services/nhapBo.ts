@@ -13,6 +13,7 @@ import { MomentRepository } from '../database/repositories/MomentRepository';
 import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
+import { NepRepository } from '../database/repositories/NepRepository';
 import type { TimeBucket } from '../shared/types/enums';
 import { TIME_BUCKETS } from '../shared/constants';
 import { badRequest } from '../shared/errors';
@@ -24,15 +25,21 @@ export interface KetQuaNhap {
   readonly mucTieu: number;
   readonly thoiQuen: number;
   readonly lanDanhDau: number;
+  readonly nep: number;
 }
 
 const XOA = [
+  // Thứ tự có ý nghĩa: `time_entry.nep_id` trỏ tới `nep`, nên hàng giờ phải đi trước.
+  // Và nếp PHẢI bị xoá: nhập bộ mới mà để nếp cũ sống thì lần mở app sau nó sinh lại
+  // hàng theo luật của bộ dữ liệu đã bị thay, tức là bộ vừa nhập không còn nguyên vẹn.
   'DELETE FROM habit_check WHERE user_id = $1',
   'DELETE FROM habit WHERE user_id = $1',
   'DELETE FROM goal WHERE user_id = $1',
   'DELETE FROM money WHERE user_id = $1',
   'DELETE FROM moment WHERE user_id = $1',
   'DELETE FROM time_entry WHERE user_id = $1',
+  'DELETE FROM nep_bo_qua WHERE user_id = $1',
+  'DELETE FROM nep WHERE user_id = $1',
 ] as const;
 
 const laBucket = (x: unknown): x is TimeBucket =>
@@ -55,17 +62,40 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
     const goals = new GoalRepository(tx);
     const money = new MoneyRepository(tx);
     const habits = new HabitRepository(tx);
+    const nepRepo = new NepRepository(tx);
+
+    // Nếp phải vào TRƯỚC hàng giờ: hàng giờ trỏ về nếp, và id trong file là id cũ nên
+    // phải giữ bảng tra sang id mới, y như thói quen.
+    const nepIdMoi = new Map<string, string>();
+    let nep = 0;
+    for (const x of mang('nep')) {
+      const n = x as Record<string, unknown>;
+      if (typeof n.title !== 'string' || !laBucket(n.bucket) || !soNguyen(n.minutes)) continue;
+      if (typeof n.days !== 'string' || !/^[1-7]{1,7}$/.test(n.days)) continue;
+      const tao = await nepRepo.create(userId, {
+        title: n.title,
+        bucket: n.bucket,
+        minutes: n.minutes,
+        golden: n.golden === true,
+        days: n.days,
+      });
+      if (typeof n.id === 'string') nepIdMoi.set(n.id, tao.id);
+      nep += 1;
+    }
 
     let gio = 0;
     for (const x of mang('timeEntries')) {
       const e = x as Record<string, unknown>;
       if (typeof e.date !== 'string' || !soNguyen(e.minutes) || !laBucket(e.bucket)) continue;
+      const cu = typeof e.nepId === 'string' ? nepIdMoi.get(e.nepId) : undefined;
       await timeEntries.create(userId, {
         date: e.date,
         minutes: e.minutes,
         bucket: e.bucket,
         golden: e.golden === true,
         note: chuoiHoacNull(e.note),
+        source: cu === undefined ? undefined : 'nep',
+        nepId: cu ?? null,
       });
       gio += 1;
     }
@@ -132,6 +162,6 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
       lanDanhDau += 1;
     }
 
-    return { gio, hat, thang, mucTieu, thoiQuen, lanDanhDau };
+    return { gio, hat, thang, mucTieu, thoiQuen, lanDanhDau, nep };
   });
 }

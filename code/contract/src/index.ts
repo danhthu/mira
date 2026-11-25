@@ -67,7 +67,47 @@ export const BUCKET_LABEL_VI: Record<TimeBucket, string> = {
 /** Giờ tỉnh mặc định mỗi tuần: 16 giờ/ngày × 7. Người dùng sửa được trong Tôi. */
 export const DEFAULT_WAKING_MINUTES_PER_WEEK = 16 * 60 * 7;
 
-export type TimeEntrySource = 'manual' | 'widget';
+/** `nep` là hàng do một nếp đã khai sinh ra, không phải thứ người dùng ngồi gõ. */
+export type TimeEntrySource = 'manual' | 'widget' | 'nep';
+
+/**
+ * Nếp: một luật người dùng khai, thay cho việc gõ lại mỗi ngày.
+ *
+ * `days` là thứ trong tuần theo ISO, "1234567" là mỗi ngày, "12345" là thứ hai tới thứ
+ * sáu. Mặc định của nếp là **đã làm**; người dùng chỉ động tay khi không làm.
+ */
+export interface Nep {
+  readonly id: string;
+  readonly title: string;
+  readonly bucket: TimeBucket;
+  readonly minutes: number;
+  readonly golden: boolean;
+  readonly days: string;
+  readonly startedOn: string;
+  readonly endedOn: string | null;
+}
+
+export interface NepCreate {
+  readonly title: string;
+  readonly bucket: TimeBucket;
+  readonly minutes: number;
+  readonly golden?: boolean;
+  readonly days: string;
+}
+
+/** Một ngày của một nếp sau khi chạy. */
+export interface NgayCuaNep {
+  readonly nepId: string;
+  readonly title: string;
+  readonly bucket: TimeBucket;
+  readonly minutes: number;
+  readonly golden: boolean;
+  readonly date: string;
+  readonly trangThai: 'da-ghi' | 'bo-qua';
+}
+
+/** Trần số nếp đang chạy. */
+export const NEP_CAP = 8;
 
 export interface TimeEntry {
   readonly id: string;
@@ -79,6 +119,8 @@ export interface TimeEntry {
   readonly golden: boolean;
   readonly note: string | null;
   readonly source: TimeEntrySource;
+  /** Nếp đã sinh ra hàng này, hoặc null nếu người dùng tự ghi. */
+  readonly nepId: string | null;
 }
 
 export interface TimeEntryCreate {

@@ -9,7 +9,7 @@ const muc = (
   note: string | null = 'Ăn tối',
   bucket: TimeEntry['bucket'] = 'personal',
   golden = false,
-): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note, source: 'manual' });
+): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note, source: 'manual', nepId: null });
 
 const ngay = (n: number) => `2026-11-${String(n).padStart(2, '0')}`;
 

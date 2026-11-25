@@ -11,6 +11,8 @@ export interface TimeEntry {
   readonly golden: boolean;
   readonly note: string | null;
   readonly source: TimeEntrySource;
+  /** Nếp đã sinh ra hàng này, hoặc null nếu người dùng tự ghi. */
+  readonly nepId: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly deletedAt: string | null;

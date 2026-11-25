@@ -7,6 +7,7 @@ import { addDays, labelDay, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, perMille } from '../../lib/format';
 import { Donut, Legend } from '../../ui/Donut';
 import { GoiY, timNep } from './GoiY';
+import { NepSection } from './NepSection';
 
 const COLOR: Record<TimeBucket, string> = {
   work: 'var(--deep)',
@@ -23,17 +24,22 @@ export function TimeScreen() {
   const day = today();
   const week = weekStartOf(day);
   const state = useAsync(async () => {
-    const [summary, entries, truoc] = await Promise.all([
+    // Chạy nếp TRƯỚC khi đọc: hàng do nếp sinh phải có mặt trong tổng tuần ngay lần
+    // mở đầu tiên, không phải chờ lần mở sau.
+    const ngayNep = await store.chayNep(day);
+    const [summary, entries, truoc, nep] = await Promise.all([
       store.weekSummary(week),
       store.listTimeEntries(week, addDays(week, 6)),
       // Bốn tuần trước, chỉ để tìm nếp cho gợi ý một chạm.
       store.listTimeEntries(addDays(week, -28), addDays(week, -1)),
+      store.listNep(),
     ]);
-    return { summary, entries, truoc };
+    return { summary, entries, truoc, nep, ngayNep };
   }, [week]);
 
   const [bucket, setBucket] = useState<TimeBucket>('family');
   const [hours, setHours] = useState('1');
+  const [note, setNote] = useState('');
   const [golden, setGolden] = useState(false);
   const [boGoiY, setBoGoiY] = useState(false);
 
@@ -45,7 +51,9 @@ export function TimeScreen() {
       minutes: value,
       bucket,
       golden: bucket === 'family' && golden,
+      note: note.trim() === '' ? null : note.trim(),
     });
+    setNote('');
     state.reload();
   }
 
@@ -183,6 +191,27 @@ export function TimeScreen() {
             </button>
           ))}
         </div>
+        {/* Ghi chú. Thiếu ô này thì mọi mục tự ghi đều hiện là "Ghi tay", và một danh
+            sách toàn "Ghi tay" thì mở ra chẳng để làm gì. */}
+        <input
+          id="time-note"
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') void add();
+          }}
+          placeholder="Làm gì? (không bắt buộc)"
+          style={{
+            width: '100%',
+            marginTop: 12,
+            background: 'var(--surface)',
+            border: '1.5px solid #d7dfe9',
+            borderRadius: 12,
+            padding: '10px 13px',
+            fontSize: 16,
+          }}
+        />
+
         <div className="row" style={{ marginTop: 12 }}>
           <input
             id="time-hours"
@@ -228,6 +257,13 @@ export function TimeScreen() {
           </label>
         )}
       </div>
+
+      <NepSection
+        nep={state.data?.nep ?? []}
+        ngay={state.data?.ngayNep ?? []}
+        homNay={day}
+        onDoi={state.reload}
+      />
 
       <div className="row" style={{ marginTop: 6 }}>
         <div className="label">Ghi gần đây</div>

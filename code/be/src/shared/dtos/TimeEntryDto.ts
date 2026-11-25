@@ -7,6 +7,7 @@ export interface CreateTimeEntryDto {
   golden?: boolean;
   note?: string | null;
   source?: TimeEntrySource;
+  nepId?: string | null;
 }
 
 export interface UpdateTimeEntryDto {

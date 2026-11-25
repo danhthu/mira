@@ -71,6 +71,7 @@ export class TimeEntryRepository {
       dto.golden ?? false,
       dto.note ?? null,
       dto.source ?? DEFAULT_TIME_ENTRY_SOURCE,
+      dto.nepId ?? null,
       now,
       now,
     ]);

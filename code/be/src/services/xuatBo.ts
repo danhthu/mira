@@ -25,15 +25,18 @@ import { MomentRepository } from '../database/repositories/MomentRepository';
 import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
+import { NepRepository } from '../database/repositories/NepRepository';
 
 export async function xuatBo(db: IDatabase, userId: string): Promise<Record<string, unknown>> {
-  const [timeEntries, moments, goals, thang, thoiQuen] = await Promise.all([
+  const [timeEntries, moments, goals, thang, thoiQuen, nep] = await Promise.all([
     new TimeEntryRepository(db).findAll(userId),
     new MomentRepository(db).findAll(userId),
     new GoalRepository(db).findAll(userId),
     // Khoảng rộng hết mức: Mira mới có từ 2026, và lấy thừa thì không mất gì.
     new MoneyRepository(db).findRange(userId, '2000-01', '2099-12'),
     new HabitRepository(db).findAllForExport(userId),
+    // Cả nếp đã dừng: đây là bản sao lưu, không phải một màn hình.
+    new NepRepository(db).findAll(userId),
   ]);
 
   // `money` là object khoá theo tháng, đúng hình dạng `nhapBo` chờ nhận.
@@ -47,5 +50,6 @@ export async function xuatBo(db: IDatabase, userId: string): Promise<Record<stri
     goals,
     habits: thoiQuen.habits,
     habitChecks: thoiQuen.checks,
+    nep,
   };
 }

@@ -2,6 +2,9 @@ import type {
   ApiError,
   AuthResponse,
   GoogleCredentials,
+  Nep,
+  NepCreate,
+  NgayCuaNep,
   Credentials,
   User,
   Goal,
@@ -108,7 +111,7 @@ export function createClient(options: ClientOptions) {
 
     /** Nhập cả bộ, thay toàn bộ dữ liệu đang có của tài khoản này. */
     importAll: (snapshot: unknown) =>
-      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number }>(
+      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number; nep: number }>(
         'POST',
         '/import',
         snapshot,
@@ -123,6 +126,15 @@ export function createClient(options: ClientOptions) {
     deleteTimeEntry: (id: string) => call<void>('DELETE', `/time-entries/${id}`),
     weekSummary: (weekStart: string) =>
       call<WeekSummary>('GET', `/time-entries/week${query({ weekStart })}`),
+
+    // ───────────────────────────────────────── nếp
+    listNep: () => call<Nep[]>('GET', '/nep'),
+    createNep: (nep: NepCreate) => call<Nep>('POST', '/nep', nep),
+    /** Chạy mọi nếp tới ngày này. Gọi lại nhiều lần không sinh trùng. */
+    chayNep: (date: string) => call<NgayCuaNep[]>('POST', '/nep/chay', { date }),
+    endNep: (id: string) => call<Nep>('POST', `/nep/${id}/end`),
+    tuChoiNep: (id: string, date: string) => call<void>('POST', `/nep/${id}/tu-choi`, { date }),
+    nhanLaiNep: (id: string, date: string) => call<void>('POST', `/nep/${id}/nhan-lai`, { date }),
 
     // ───────────────────────────────────────── hũ
     listMoments: (from: string, to: string) =>

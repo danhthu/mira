@@ -575,3 +575,81 @@ input {
   font-weight: 600;
   font-size: 14px;
 }
+
+/* ─────────────────────────────── nếp
+
+   Mặc định là ĐÃ LÀM. Nút ở mỗi dòng là nút phủ nhận, không phải nút xác nhận, nên nó
+   nhạt và nhỏ: thao tác thường gặp là không làm gì cả. */
+
+.nep-ngay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+}
+
+.nep-ngay + .nep-ngay {
+  border-top: 1px solid var(--line);
+}
+
+.nep-ngay__t {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+}
+
+/* Ngày đã bỏ: gạch ngang chữ, không xoá khỏi danh sách. Còn thấy thì còn nhận lại được. */
+.nep-ngay__t.is-bo {
+  text-decoration: line-through;
+  color: var(--fg-faint);
+}
+
+.nep-ngay > button {
+  font-size: 13px;
+  color: var(--fg-dim);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  flex: none;
+}
+
+.nep-dong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+}
+
+.nep-dong + .nep-dong {
+  border-top: 1px solid var(--line);
+}
+
+.nep-them {
+  font-size: 14px;
+  color: var(--fg-dim);
+  padding: 11px 0 2px;
+}
+
+/* Bảy nút thứ trong tuần. */
+.nep-thu {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.nep-thu > button {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 0;
+}
+
+.nep-thu > button.is-on {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}

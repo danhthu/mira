@@ -11,7 +11,8 @@ export type DunbarRing = 5 | 15 | 50;
 
 /** Catalog nhóm việc sau migration 002. Không có nhóm suy ra, không có chỉ số gộp. */
 export type TimeBucket = 'work' | 'family' | 'personal' | 'waste';
-export type TimeEntrySource = 'manual' | 'widget';
+/** `nep` là hàng do một nếp đã khai sinh ra, không phải thứ người dùng ngồi gõ. */
+export type TimeEntrySource = 'manual' | 'widget' | 'nep';
 
 /** Viên kẹo là ngày vui, hạt muối là ngày nặng. Không có mức độ ở giữa. */
 export type MomentKind = 'candy' | 'salt';

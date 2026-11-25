@@ -14,6 +14,7 @@ import type {
   SaltAnswer,
   TimeBucket,
   TimeEntry,
+  TimeEntrySource,
 } from '@mira/contract';
 import type { AppDeps, Handler, PublicHandler, Req, Res } from './engine';
 import { asObject, requireQuery } from './engine';
@@ -30,6 +31,7 @@ import { createHabit, habitWeek, toggleCheck } from '../services/habit';
 import { dangNhap, dangNhapGoogle } from '../services/auth';
 import { nhapBo } from '../services/nhapBo';
 import { xuatBo } from '../services/xuatBo';
+import { chayNep, dungNep, nhanLaiNgay, taoNep, tuChoiNgay } from '../services/nep';
 import { kiemDoLuong, xoaDem } from './chanDoLuong';
 import type { Money } from '../entities/Money';
 
@@ -74,12 +76,14 @@ const toContractEntry = (e: {
   bucket: TimeBucket;
   golden: boolean;
   note: string | null;
-  source: 'manual' | 'widget';
+  source: TimeEntrySource;
+  nepId: string | null;
 }): TimeEntry => ({
   id: e.id,
   date: e.date,
   minutes: e.minutes,
   bucket: e.bucket,
+  nepId: e.nepId,
   golden: e.golden,
   note: e.note,
   source: e.source,
@@ -178,6 +182,63 @@ const getMe: Handler = async (_req, deps, userId) => {
     status: 200,
     body: { id: user.id, username: user.username, displayName: user.displayName },
   };
+};
+
+// ── nếp: khai một luật, Mira tự ghi, người dùng từ chối khi không đạt
+
+const listNep: Handler = async (_req, deps, userId) => ({
+  status: 200,
+  body: await deps.nep.findActive(userId),
+});
+
+const postNep: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  const nep = await taoNep({ nep: deps.nep, timeEntries: deps.timeEntries }, userId, {
+    title: String(b.title ?? ''),
+    bucket: b.bucket,
+    minutes: b.minutes,
+    golden: b.golden,
+    days: b.days,
+  });
+  return { status: 201, body: nep };
+};
+
+/** Chạy mọi nếp tới hôm nay. Gọi lại nhiều lần không sinh trùng. */
+const postChayNep: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  const ra = await chayNep(
+    { nep: deps.nep, timeEntries: deps.timeEntries },
+    userId,
+    String(b.date ?? ''),
+  );
+  return { status: 200, body: ra };
+};
+
+const postNepEnd: Handler = async (req, deps, userId) => ({
+  status: 200,
+  body: await dungNep({ nep: deps.nep, timeEntries: deps.timeEntries }, userId, req.params.id ?? ''),
+});
+
+const postTuChoi: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  await tuChoiNgay(
+    { nep: deps.nep, timeEntries: deps.timeEntries },
+    userId,
+    req.params.id ?? '',
+    String(b.date ?? ''),
+  );
+  return { status: 204, body: undefined };
+};
+
+const postNhanLai: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  await nhanLaiNgay(
+    { nep: deps.nep, timeEntries: deps.timeEntries },
+    userId,
+    req.params.id ?? '',
+    String(b.date ?? ''),
+  );
+  return { status: 204, body: undefined };
 };
 
 const listTimeEntries: Handler = async (req, deps, userId) => {
@@ -404,6 +465,13 @@ export const routes: readonly Route[] = [
 
   { method: 'POST', path: '/import', handler: postImport },
   { method: 'GET', path: '/export', handler: getExport },
+
+  { method: 'GET', path: '/nep', handler: listNep },
+  { method: 'POST', path: '/nep', handler: postNep },
+  { method: 'POST', path: '/nep/chay', handler: postChayNep },
+  { method: 'POST', path: '/nep/:id/end', handler: postNepEnd },
+  { method: 'POST', path: '/nep/:id/tu-choi', handler: postTuChoi },
+  { method: 'POST', path: '/nep/:id/nhan-lai', handler: postNhanLai },
 
   { method: 'GET', path: '/habits/week', handler: getHabitWeek },
   { method: 'POST', path: '/habits', handler: postHabit },

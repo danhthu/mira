@@ -13,6 +13,7 @@ export function toTimeEntry(row: TimeEntryRow): TimeEntry {
     golden: row.golden,
     note: row.note,
     source: row.source as TimeEntrySource,
+    nepId: row.nep_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
