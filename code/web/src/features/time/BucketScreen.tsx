@@ -58,6 +58,7 @@ export function BucketScreen() {
 
   const tong = entries.reduce((t, e) => t + e.minutes, 0);
   const vang = entries.filter((e) => e.golden).reduce((t, e) => t + e.minutes, 0);
+  const dungNhat = Math.max(1, ...entries.map((e) => e.minutes));
 
   return (
     <div className="screen-body">
@@ -131,10 +132,20 @@ export function BucketScreen() {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 600 }}>
-              {e.note === null || e.note.trim() === '' ? labelDay(e.date) : e.note}
+              {e.note === null || e.note.trim() === '' ? 'Ghi tay' : e.note}
             </div>
-            <div className="sm" style={{ marginTop: 2 }}>
-              {e.note === null || e.note.trim() === '' ? e.date : labelDay(e.date)}
+            {/* Thanh tỉ lệ so với mục dài nhất. Lấy từ Focus Tracker (N-219): đọc một
+                danh sách số thì mắt so chiều dài nhanh hơn so chữ số. */}
+            <div className="bar" style={{ marginTop: 6 }}>
+              <i
+                style={{
+                  width: `${Math.round((e.minutes * 100) / Math.max(1, dungNhat))}%`,
+                  background: MAU[nhom],
+                }}
+              />
+            </div>
+            <div className="sm" style={{ marginTop: 5 }}>
+              {labelDay(e.date)}
             </div>
           </div>
           <div style={{ fontWeight: 700, color: MAU[nhom] }}>{fmtMinutes(e.minutes)}</div>

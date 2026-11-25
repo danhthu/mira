@@ -33,6 +33,50 @@ Thư mục này khác `docs/nguon/kiem-ke*.md`: kiểm kê là bảng nguồn **
 | N-014 | 26/08/2026 | nguyen-lieu | ⚑ Ăn lương theo giờ → tình nguyện ít hơn 36% và kém vui hơn khi tình nguyện | vừa | [file](2026-08-26-nguyen-lieu.md) |
 | N-015 | 26/08/2026 | nguyen-lieu | Cập nhật N-008: 44 giờ/tuần chưa thành luật, trình Quốc hội dự kiến 10/2026 | vừa | [file](2026-08-26-nguyen-lieu.md) |
 | N-016 | 26/08/2026 | nguyen-lieu | World Happiness Report 2026: Việt Nam hạng 45/147, điểm 6,428 | vừa | [file](2026-08-26-nguyen-lieu.md) |
+| N-100 | 13/10/2026 | seo | Tính thu nhập theo giờ: SERP chỉ có máy tính dịch và bài luật | vừa | [file](2026-10-13-seo.md) |
+| N-101 | 13/10/2026 | seo | Cụm tự do tài chính: ngân hàng/chứng khoán chiếm top, thiếu công cụ tương tác VN | vừa | [file](2026-10-13-seo.md) |
+| N-102 | 13/10/2026 | seo | ⚑ Không có thời gian cho con: mặt bằng nói chất lượng hơn số lượng | vừa | [file](2026-10-13-seo.md) |
+| N-103 | 13/10/2026 | seo | Về quê/nhớ bố mẹ: top toàn tản văn, không có số liệu | vừa | [file](2026-10-13-seo.md) |
+| N-104 | 13/10/2026 | seo | Lương 30 triệu sống ở Sài Gòn: bài tâm sự, không tính theo giờ | vừa | [file](2026-10-13-seo.md) |
+| N-105 | 13/10/2026 | seo | Tăng ca không lương: top là bài luật, chưa ai quy ra giờ | vừa | [file](2026-10-13-seo.md) |
+| N-106 | 13/10/2026 | seo | Mua xe trả góp: top fintech, hỏi tổng trả không phải tiền góp tháng | vừa | [file](2026-10-13-seo.md) |
+| N-107 | 13/10/2026 | seo | Burnout/cân bằng công việc: SERP lệch tiếng Anh | thấp | [file](2026-10-13-seo.md) |
+| N-108 | 13/10/2026 | seo | Từ chối việc/họp: giọng khéo léo, họp lãng phí chỉ có EN | vừa | [file](2026-10-13-seo.md) |
+| N-109 | 13/10/2026 | seo | App quản lý thời gian tiếng Việt: gần như không có app VN thật | thấp | [file](2026-10-13-seo.md) |
+| N-110 | 13/10/2026 | seo | App chi tiêu offline: nhiều app quốc tế, app VN đồng bộ server | thấp | [file](2026-10-13-seo.md) |
+| N-111 | 13/10/2026 | seo | Lịch tuần cuộc đời: chưa thấy app tiếng Việt | thấp | [file](2026-10-13-seo.md) |
+| N-112 | 13/10/2026 | doi-thu | App ghi chi tiêu Việt: Money Lover 5M+, MISA 1M+, cùng định vị "sổ thu chi" | vừa | [file](2026-10-13-doi-thu.md) |
+| N-113 | 13/10/2026 | doi-thu | Time tracking: Toggl 1M+, aTimeLogger 1M+, ATracker 100K+ (3,6 sao), không nối giờ sang giá trị | vừa | [file](2026-10-13-doi-thu.md) |
+| N-114 | 13/10/2026 | doi-thu | ⚑ App "đếm ngược đời" nhỏ (10K+ đến 100K+) nhưng có nhu cầu thật, sát rủi ro đồng hồ cát | vừa | [file](2026-10-13-doi-thu.md) |
+| N-115 | 13/10/2026 | doi-thu | FIRE calculator trên Play gần trống (FireCalc 100+), chưa thấy bản tiếng Việt | thấp | [file](2026-10-13-doi-thu.md) |
+| N-116 | 13/10/2026 | doi-thu | App gia đình: Cozi 5M+ làm lịch chung, không đo thời gian bên nhau | vừa | [file](2026-10-13-doi-thu.md) |
+| N-200 | 24/11/2026 | muc-tieu | Mục tiêu cụ thể và khó thắng "cố hết sức", nhưng hiệu lực giảm khi việc phức tạp | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-201 | 24/11/2026 | muc-tieu | Kế hoạch "nếu–thì" d≈0,65 trên 94 phép thử — nền cho luật khai nguồn | cao | [file](2026-11-24-muc-tieu.md) |
+| N-202 | 24/11/2026 | muc-tieu | Theo dõi tiến độ có tác dụng, mạnh hơn khi ghi thành vật và khi công khai | cao | [file](2026-11-24-muc-tieu.md) |
+| N-203 | 24/11/2026 | muc-tieu | ⚑ Mục tiêu né tránh kém hơn mục tiêu hướng tới — hai mục tiêu đang vẽ là né tránh | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-204 | 24/11/2026 | muc-tieu | ⚑ Hy vọng hão: thất bại lặp lại làm người ta đặt lại mục tiêu to hơn, không bỏ cuộc | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-205 | 24/11/2026 | muc-tieu | ⚑ Buông mục tiêu chỉ có lợi khi có chỗ chuyển sang — buổi bỏ bớt phải có bước hai | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-206 | 24/11/2026 | muc-tieu | ⚑ Lập kế hoạch cho nhiều mục tiêu cùng lúc làm GIẢM cam kết — khai nguồn phải tách lượt | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-207 | 24/11/2026 | muc-tieu | Mốc thời gian làm tăng việc bắt đầu, không chứng minh duy trì (Dai & Milkman 2014) | cao | [file](2026-11-24-muc-tieu.md) |
+| N-208 | 24/11/2026 | muc-tieu | Người bỏ app tự theo dõi vì chi phí ghi vượt phần thưởng và app lặp lại chính nó | vừa | [file](2026-11-24-muc-tieu.md) |
+| N-209 | 24/11/2026 | muc-tieu | ⚑ Untime (ngân sách giờ tuần, Grow/Reduce) trùng concept nhất — chỉ 100+ lượt cài | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-210 | 24/11/2026 | muc-tieu | ⚑ Nhóm trên 1M lượt cài đều chạy bằng chuỗi/điểm/nhân vật — đúng thứ ràng buộc #3 cấm | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-211 | 24/11/2026 | muc-tieu | App mục tiêu "nghiêm túc" nhỏ và trả phí: Lifetick theo giá trị, Beyond Time theo giờ | thấp | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-212 | 24/11/2026 | muc-tieu | Không thấy app đặt mục tiêu cá nhân do VN làm; báo VN trỏ sang Trello/Notion/TickTick | thấp | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-213 | 24/11/2026 | muc-tieu | Trần 1–3 mục tiêu/quý đã là quy ước ngành OKR cá nhân — không phải điểm độc đáo của Mira | thấp | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-214 | 24/11/2026 | muc-tieu | ⚑⚑ Beyond Time = trụ Thời gian của Mira đã ship, kèm đồng hồ cát widget và thư Chủ nhật AI, 29,99 USD/năm | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-215 | 24/11/2026 | muc-tieu | ⚑ FocusOKR đã chết (domain rao bán) nhưng bài tổng hợp 2026 vẫn giới thiệu | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-216 | 24/11/2026 | muc-tieu | Lifetick xoay từ mục tiêu cá nhân sang đội nhóm và trường học | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-217 | 24/11/2026 | muc-tieu | Griply bán "Action-Purpose Gap", tháp 5 tầng Vision→Tasks, vẫn chỉ 1K+ lượt cài | cao | [file](2026-11-24-doi-thu-muc-tieu.md) |
+| N-218 | 25/11/2026 | giao-dien | ⚑ Verde Money Wrapped: khuôn cho màn "Sáu tháng của bạn", nhưng giọng ăn mừng lệch với dữ liệu Mira | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-219 | 25/11/2026 | giao-dien | Focus Tracker: khuôn màn chi tiết nhóm việc; bỏ phần giới hạn và nhắc nhở | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-220 | 25/11/2026 | giao-dien | Thalassa: giữ làm mẫu lưới thẻ, không phải mẫu cho cả hệ thống | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-221 | 25/11/2026 | giao-dien | Reflect: hàng chip trạng thái áp được cho câu hỏi lại hạt muối | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-222 | 25/11/2026 | giao-dien | One Day: lấy hàng ghi nhanh và thẻ ký ức cũ, tránh streak bảy chấm | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-223 | 25/11/2026 | giao-dien | Ba mẫu đã loại: Artifact, Lume, SimpleTime | vừa | [file](2026-11-25-mau-giao-dien.md) |
+| N-224 | 25/11/2026 | giao-dien | ⚑ Mira cần HAI ngôn ngữ giao diện: màn hằng ngày và màn kể chuyện | vừa | [file](2026-11-25-mau-giao-dien.md) |
+
+> Ghi chú: dải mã N-100 trở lên dành cho agent market-intelligence (tránh trùng mã với lane doi-thu chạy song song). Lane nguyen-lieu tiếp tục từ N-017. Dải N-200+ dành cho lane `muc-tieu`; lane `giao-dien` bắt đầu từ N-218.
 
 ## Hướng đã moi mà rỗng
 
