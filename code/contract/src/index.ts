@@ -163,7 +163,20 @@ export type YChi =
       readonly danhMucId: string | null;
     }
   | { readonly loai: 'hat'; readonly kind: MomentKind; readonly text: string; readonly ngay: string }
-  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number; readonly thang: string }
+  | {
+      readonly loai: 'tien';
+      readonly o: OTien;
+      readonly vnd: number;
+      readonly thang: string;
+      /**
+       * `true` cộng vào ô đang có, `false` đặt lại ô bằng con số này.
+       *
+       * Ba ô dòng chảy (thu nhập, chi tiêu, trả nợ) cộng; hai ô mức (dư nợ, tài sản
+       * ròng) đặt lại. Không có cờ này thì "tiêu 350k" đè chi tiêu cả tháng xuống còn
+       * 350 nghìn và xoá mất con số cũ.
+       */
+      readonly cong: boolean;
+    }
   | { readonly loai: 'khongGhi'; readonly viSao: string }
   /** Mảnh câu có số mà không ai đọc được. Nói ra, vì bỏ lặng lẽ là làm mất một mục. */
   | { readonly loai: 'chuaHieu'; readonly doan: string };

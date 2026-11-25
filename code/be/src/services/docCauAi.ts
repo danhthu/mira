@@ -108,8 +108,11 @@ MIRA GHI ĐƯỢC ĐÚNG BA THỨ:
    tài sản ròng.
 
 MIRA KHÔNG PHẢI SỔ THU CHI. Nó không ghi từng giao dịch. Việc nào không làm đổi một
-trong năm ô trên thì trả loai="khongGhi" kèm viSao nói thẳng. Ví dụ: rút tiền ATM không
-làm đổi tài sản ròng vì tiền chỉ đi từ tài khoản sang ví.
+trong năm ô trên thì trả loai="khongGhi" kèm viSao nói thẳng. Ví dụ: chuyển tiền giữa hai
+tài khoản của chính người dùng, hay gửi tiết kiệm — tổng tài sản không đổi.
+
+NHƯNG RÚT TIỀN MẶT THÌ VẪN GHI, vào ô monthlyExpense. Người gõ "rút atm 2 triệu" đang nói
+họ vừa lấy tiền ra để tiêu, không hỏi một câu kế toán.
 
 ĐỪNG ĐOÁN KHI KHÔNG CHẮC. Câu mơ hồ, thiếu số, hay nói chuyện ngoài ba thứ trên thì trả
 yChi rỗng. Một dòng bịa làm hỏng niềm tin vào cả trăm dòng thật; im lặng rẻ hơn nhiều.
@@ -197,7 +200,10 @@ const layYChi = (x: unknown, bc: BoiCanhDoc): YChi | null => {
       const o = O_TIEN_HOP_LE.find((k) => k === y.o);
       if (o === undefined || !Number.isInteger(y.vnd)) return null;
       const thang = typeof y.thang === 'string' && LA_THANG.test(y.thang) ? y.thang : bc.homNay.slice(0, 7);
-      return { loai: 'tien', o, vnd: y.vnd as number, thang };
+      // Ba ô dòng chảy cộng dồn, hai ô mức đặt lại. Không để mô hình tự chọn: đoán sai
+      // chiều này là đè mất con số cũ của cả tháng.
+      const cong = o === 'netIncome' || o === 'monthlyExpense' || o === 'debtPayment';
+      return { loai: 'tien', o, vnd: y.vnd as number, thang, cong };
     }
     case 'khongGhi':
       if (typeof y.viSao !== 'string' || y.viSao.trim() === '') return null;

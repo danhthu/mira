@@ -4,6 +4,7 @@ import {
   BUCKET_LABEL_VI,
   O_TIEN_LABEL_VI,
   type KetQuaDoc,
+  type MoneyMonthUpdate,
   type YChi,
 } from '@mira/contract';
 import { store } from '../../lib/store';
@@ -32,8 +33,26 @@ interface Dong {
   readonly ai: 'toi' | 'mira';
   readonly chu?: string;
   readonly ketQua?: KetQuaDoc;
-  /** Đã ghi rồi thì không cho ghi lại. */
   readonly daGhi?: boolean;
+  /** Đang ghi: hiện "Đang ghi…" chứ không hiện nút gì. */
+  readonly dangGhi?: boolean;
+  /** Đủ thông tin để gỡ lại đúng những gì vừa ghi. */
+  readonly veT?: VetGhi;
+  readonly daHoanTac?: boolean;
+  /** Ghi hỏng giữa chừng thì phải nói ra, không được im. */
+  readonly loiGhi?: string;
+}
+
+/**
+ * Vết của một lần ghi, để hoàn tác.
+ *
+ * Mục giờ và hạt gỡ bằng id. Ô tiền thì **không có id để xoá** — nó là một con số của cả
+ * tháng — nên phải chụp lại giá trị cũ trước khi đổi rồi đặt về đúng cái đó.
+ */
+interface VetGhi {
+  readonly gio: string[];
+  readonly hat: string[];
+  readonly tien: { readonly thang: string; readonly truoc: MoneyMonthUpdate }[];
 }
 
 let demDong = 0;
@@ -65,7 +84,13 @@ export function ChatScreen() {
     setDangDoc(true);
     try {
       const ketQua = await store.doc(text, day);
-      setDong((d) => [...d, { id: (demDong += 1), ai: 'mira', ketQua }]);
+      const id = (demDong += 1);
+      const coGhiDuoc = ketQua.yChi.some(
+        (y) => y.loai === 'gio' || y.loai === 'hat' || y.loai === 'tien',
+      );
+      setDong((d) => [...d, { id, ai: 'mira', ketQua, dangGhi: coGhiDuoc }]);
+      // Ghi ngay, không chờ bấm nút. Đổi lại phải có đường gỡ: xem `ghi`.
+      if (coGhiDuoc) void ghi(id, ketQua.yChi);
     } catch (cause: unknown) {
       setDong((d) => [
         ...d,
@@ -88,23 +113,62 @@ export function ChatScreen() {
    * cái đó. Danh mục cũng vậy — khớp được thì mục giờ ra đã phân loại.
    */
   async function ghi(id: number, yChi: readonly YChi[]): Promise<void> {
-    for (const y of yChi) {
-      if (y.loai === 'gio') {
-        await store.createTimeEntry({
-          date: y.ngay,
-          minutes: y.minutes,
-          bucket: y.bucket,
-          golden: y.golden,
-          note: y.danhMucId === null ? y.ten : null,
-          danhMucId: y.danhMucId,
-        });
-      } else if (y.loai === 'hat') {
-        await store.createMoment({ date: y.ngay, kind: y.kind, text: y.text });
-      } else if (y.loai === 'tien') {
-        await store.saveMoney(y.thang, { [y.o]: y.vnd });
+    const veT: VetGhi = { gio: [], hat: [], tien: [] };
+    try {
+      for (const y of yChi) {
+        if (y.loai === 'gio') {
+          const ra = await store.createTimeEntry({
+            date: y.ngay,
+            minutes: y.minutes,
+            bucket: y.bucket,
+            golden: y.golden,
+            note: y.danhMucId === null ? y.ten : null,
+            danhMucId: y.danhMucId,
+          });
+          veT.gio.push(ra.id);
+        } else if (y.loai === 'hat') {
+          const ra = await store.createMoment({ date: y.ngay, kind: y.kind, text: y.text });
+          veT.hat.push(ra.id);
+        } else if (y.loai === 'tien') {
+          // Đọc trước khi ghi: vừa để cộng dồn, vừa để giữ giá trị cũ cho nút Hoàn tác.
+          const hienCo = (await store.getMoney(y.thang)).month;
+          const cu = hienCo[y.o];
+          veT.tien.push({ thang: y.thang, truoc: { [y.o]: cu } });
+          await store.saveMoney(y.thang, { [y.o]: y.cong ? (cu ?? 0) + y.vnd : y.vnd });
+        }
       }
+      setDong((d) => d.map((x) => (x.id === id ? { ...x, daGhi: true, dangGhi: false, veT } : x)));
+    } catch (cause: unknown) {
+      // Hỏng giữa chừng: phần đã ghi vẫn còn, nên phải nói ra và vẫn cho gỡ phần đó.
+      setDong((d) =>
+        d.map((x) =>
+          x.id === id
+            ? {
+                ...x,
+                dangGhi: false,
+                daGhi: true,
+                veT,
+                loiGhi: cause instanceof Error ? cause.message : 'Ghi hỏng giữa chừng.',
+              }
+            : x,
+        ),
+      );
     }
-    setDong((d) => d.map((x) => (x.id === id ? { ...x, daGhi: true } : x)));
+    tomTat.reload();
+  }
+
+  /**
+   * Gỡ lại đúng những gì vừa ghi.
+   *
+   * Không có nút này thì "tự động ghi" là máy viết vào nhật ký của người mà người không
+   * cản được. Founder nói "auto ghi, người dùng reject nếu không đạt" — muốn reject thì
+   * phải có đường gỡ, nếu không thì nửa sau câu đó không tồn tại.
+   */
+  async function hoanTac(id: number, veT: VetGhi): Promise<void> {
+    for (const gioId of veT.gio) await store.deleteTimeEntry(gioId);
+    for (const hatId of veT.hat) await store.deleteMoment(hatId);
+    for (const t of veT.tien) await store.saveMoney(t.thang, t.truoc);
+    setDong((d) => d.map((x) => (x.id === id ? { ...x, daHoanTac: true } : x)));
     tomTat.reload();
   }
 
@@ -160,8 +224,9 @@ export function ChatScreen() {
               <li>lương tháng này 18 triệu</li>
             </ul>
             <p className="chat__nho">
-              Mira đọc xong sẽ hỏi lại trước khi ghi. Việc nào ngày nào cũng làm thì khai
-              một nếp bên <Link to="/thoi-gian">Thời gian</Link>, khỏi gõ lại.
+              Mira ghi luôn, không hỏi lại. Đọc sai thì bấm Hoàn tác. Việc nào ngày nào
+              cũng làm thì khai một nếp bên <Link to="/thoi-gian">Thời gian</Link>, khỏi gõ
+              lại.
             </p>
           </div>
         )}
@@ -172,9 +237,11 @@ export function ChatScreen() {
             {d.ketQua !== undefined && (
               <TraLoi
                 ketQua={d.ketQua}
-                daGhi={d.daGhi === true}
+                dong={d}
                 homNay={day}
-                onGhi={() => void ghi(d.id, d.ketQua?.yChi ?? [])}
+                onHoanTac={() => {
+                  if (d.veT !== undefined) void hoanTac(d.id, d.veT);
+                }}
               />
             )}
           </div>
@@ -204,16 +271,16 @@ export function ChatScreen() {
 
 function TraLoi({
   ketQua,
-  daGhi,
-  onGhi,
+  dong,
+  onHoanTac,
   homNay,
 }: {
   readonly ketQua: KetQuaDoc;
-  readonly daGhi: boolean;
-  readonly onGhi: () => void;
+  readonly dong: Dong;
+  readonly onHoanTac: () => void;
   readonly homNay: string;
 }) {
-  const [dangGhi, setDangGhi] = useState(false);
+  const [dangGo, setDangGo] = useState(false);
 
   if (ketQua.nguon === 'chiu' || ketQua.yChi.length === 0) {
     return (
@@ -224,9 +291,8 @@ function TraLoi({
     );
   }
 
-  // Có gì ghi được thì mới hiện nút. `khongGhi` và `chuaHieu` đều không ghi được, nên
-  // một câu chỉ gồm hai loại đó thì cái nút "Ghi" sẽ không làm gì — và một cái nút bấm
-  // vào không có chuyện gì xảy ra là chỗ người dùng mất tin vào cả màn hình.
+  // `khongGhi` và `chuaHieu` không ghi được, nên câu chỉ gồm hai loại đó thì không có gì
+  // để gỡ và cũng không hiện dòng trạng thái nào.
   const coGhiDuoc = ketQua.yChi.some(
     (y) => y.loai === 'gio' || y.loai === 'hat' || y.loai === 'tien',
   );
@@ -237,22 +303,29 @@ function TraLoi({
         <TheY key={i} y={y} homNay={homNay} />
       ))}
 
+      {dong.loiGhi !== undefined && <p className="y y--khong">Ghi hỏng: {dong.loiGhi}</p>}
+
       {coGhiDuoc &&
-        (daGhi ? (
-          <p className="bong__xong">Đã ghi.</p>
-        ) : (
-          <button
-            type="button"
-            className="bong__ghi"
-            disabled={dangGhi}
-            onClick={() => {
-              setDangGhi(true);
-              onGhi();
-            }}
-          >
-            {dangGhi ? 'Đang ghi…' : 'Ghi'}
-          </button>
-        ))}
+        (dong.dangGhi === true ? (
+          <p className="bong__xong">Đang ghi…</p>
+        ) : dong.daHoanTac === true ? (
+          <p className="bong__xong">Đã gỡ lại.</p>
+        ) : dong.daGhi === true ? (
+          <p className="bong__xong">
+            Đã ghi.{' '}
+            <button
+              type="button"
+              className="bong__go"
+              disabled={dangGo || dong.veT === undefined}
+              onClick={() => {
+                setDangGo(true);
+                onHoanTac();
+              }}
+            >
+              {dangGo ? 'Đang gỡ…' : 'Hoàn tác'}
+            </button>
+          </p>
+        ) : null)}
     </>
   );
 }
@@ -303,7 +376,8 @@ function TheY({ y, homNay }: { readonly y: YChi; readonly homNay: string }) {
     <div className="y">
       <b>{O_TIEN_LABEL_VI[y.o]}</b>
       <span>
-        {vnd(y.vnd)}
+        {y.cong ? `+ ${vnd(y.vnd)}` : vnd(y.vnd)}
+        {y.cong ? '' : ' · đặt lại'}
         {y.thang !== monthOf(homNay) ? ` · tháng ${y.thang.slice(5)}/${y.thang.slice(0, 4)}` : ''}
       </span>
     </div>

@@ -292,17 +292,42 @@ describe('docBangLuat — tiền', () => {
 });
 
 describe('docBangLuat — việc Mira không ghi', () => {
-  it('⚑ "hôm nay rút atm 2 triệu" nói thẳng là không ghi', () => {
-    // Rút tiền không làm đổi tài sản ròng. Không chặn thì luật tiền bên dưới sẽ nhét
-    // 2 triệu vào một ô nào đó, và con số của người dùng sai mà không ai biết.
+  it('⚑ "rút atm 2 triệu" VẪN GHI, vào Chi tiêu tháng', () => {
+    // Về kế toán thì rút tiền không đổi tài sản ròng, và Mira từng từ chối ghi vì lý do
+    // đó. Founder bác: người gõ câu này vào nhật ký đời sống đang nói "tôi vừa lấy 2
+    // triệu ra để tiêu", không hỏi một câu kế toán.
     const r = doc('hôm nay rút atm 2 triệu');
     expect(r.nguon).toBe('luat');
-    expect(r.yChi[0]?.loai).toBe('khongGhi');
-    expect((r.yChi[0] as { viSao: string }).viSao).toContain('tài sản ròng');
+    expect(r.yChi[0]).toMatchObject({ loai: 'tien', o: 'monthlyExpense', vnd: 2_000_000, cong: true });
   });
 
-  it('chuyển khoản cũng không ghi', () => {
+  it('⚑ "rút 2 triệu để tiêu" không bị chữ "tiêu" kéo sang luật khác', () => {
+    // Cả hai luật cùng trỏ về monthlyExpense nên kết quả giống nhau, nhưng thứ tự khớp
+    // phải cố định: rút tiền xét trước.
+    expect(doc('rút tiền 2 triệu để tiêu').yChi[0]).toMatchObject({ o: 'monthlyExpense', cong: true });
+  });
+
+  it('chuyển tiền giữa tài khoản của mình thì vẫn không ghi', () => {
+    // Đây mới thật sự là không đổi gì: tiền sang sổ tiết kiệm vẫn là tiền của mình, ghi
+    // thành chi tiêu là báo sai rằng tháng này tiêu nhiều hơn thực tế.
     expect(doc('chuyển khoản 5 triệu sang tiết kiệm').yChi[0]?.loai).toBe('khongGhi');
+  });
+});
+
+describe('docBangLuat — cộng dồn hay đặt lại', () => {
+  it('⚑ ba ô dòng chảy thì CỘNG, không đè', () => {
+    // Không có cờ này thì "tiêu 350k" đè chi tiêu cả tháng xuống còn 350 nghìn, xoá mất
+    // con số cũ mà không ai báo — và từ khi chat ghi tự động thì nó xoá không cần bấm.
+    expect(doc('chi tiêu 350k').yChi[0]).toMatchObject({ o: 'monthlyExpense', cong: true });
+    expect(doc('lương tháng này 18 triệu').yChi[0]).toMatchObject({ o: 'netIncome', cong: true });
+    expect(doc('trả nợ 1,5tr').yChi[0]).toMatchObject({ o: 'debtPayment', cong: true });
+  });
+
+  it('⚑ hai ô mức thì ĐẶT LẠI, không cộng', () => {
+    // Dư nợ và tài sản ròng là ảnh chụp tại một thời điểm. Cộng dồn là nhân đôi tài sản
+    // của người ta mỗi lần họ khai lại.
+    expect(doc('dư nợ 300 triệu').yChi[0]).toMatchObject({ o: 'debtBalance', cong: false });
+    expect(doc('tài sản ròng 500 triệu').yChi[0]).toMatchObject({ o: 'netWorth', cong: false });
   });
 });
 

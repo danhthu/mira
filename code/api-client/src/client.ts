@@ -161,6 +161,8 @@ export function createClient(options: ClientOptions) {
     listMoments: (from: string, to: string) =>
       call<Moment[]>('GET', `/moments${query({ from, to })}`),
     createMoment: (moment: MomentCreate) => call<Moment>('POST', '/moments', moment),
+    /** Xoá mềm. Cần cho nút Hoàn tác của màn chat, vì chat ghi tự động. */
+    deleteMoment: (id: string) => call<void>('DELETE', `/moments/${id}`),
     momentsDue: (on: string) => call<Moment[]>('GET', `/moments/due${query({ on })}`),
     answerRevisit: (id: string, answer: SaltAnswer) =>
       call<Moment>('POST', `/moments/${id}/revisit`, { answer }),

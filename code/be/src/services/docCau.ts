@@ -48,7 +48,23 @@ export type YChi =
       readonly danhMucId: string | null;
     }
   | { readonly loai: 'hat'; readonly kind: 'candy' | 'salt'; readonly text: string; readonly ngay: string }
-  | { readonly loai: 'tien'; readonly o: OTien; readonly vnd: number; readonly thang: string }
+  | {
+      readonly loai: 'tien';
+      readonly o: OTien;
+      readonly vnd: number;
+      readonly thang: string;
+      /**
+       * `true` cộng vào ô đang có, `false` đặt lại ô bằng con số này.
+       *
+       * Ba ô **dòng chảy** — thu nhập, chi tiêu, trả nợ — là tổng của nhiều lần trong
+       * tháng, nên mỗi câu là một lần cộng thêm. Hai ô **mức** — dư nợ, tài sản ròng —
+       * là ảnh chụp tại một thời điểm, nên câu sau thay câu trước.
+       *
+       * Không có cờ này thì "tiêu 350k" ĐÈ chi tiêu cả tháng xuống còn 350 nghìn, xoá
+       * mất con số cũ mà không ai báo.
+       */
+      readonly cong: boolean;
+    }
   | { readonly loai: 'khongGhi'; readonly viSao: string }
   | { readonly loai: 'chuaHieu'; readonly doan: string };
 
@@ -118,13 +134,31 @@ const TU_KHOA: ReadonlyArray<readonly [RegExp, TimeBucket, boolean]> = [
 const VUI = /\b(vui|hanh phuc|tuyet|thich|cuoi|am|de chiu|nhe nhom|thanh cong|dc viec|duoc viec)\b/;
 const BUON = /\b(met|buon|te|chan|cang|stress|ap luc|cai nhau|gian|lo|that vong|kiet suc)\b/;
 
-const O_TIEN: ReadonlyArray<readonly [RegExp, OTien]> = [
-  [/\b(thu nhap|luong|nhan luong|ve tay)\b/, 'netIncome'],
-  [/\b(chi tieu|tieu|chi phi|xai)\b/, 'monthlyExpense'],
-  [/\b(tra no|tra gop|tra ngan hang)\b/, 'debtPayment'],
-  [/\b(du no|con no|no con|khoan no)\b/, 'debtBalance'],
-  [/\b(tai san|tai san rong|tong tai san|net worth)\b/, 'netWorth'],
+/**
+ * Từ khoá → ô tiền, kèm cờ cộng dồn.
+ *
+ * Ba ô đầu là **dòng chảy**: tổng của nhiều lần trong tháng, nên cộng. Hai ô cuối là
+ * **mức**: ảnh chụp tại một thời điểm, nên đặt lại.
+ */
+const O_TIEN: ReadonlyArray<readonly [RegExp, OTien, boolean]> = [
+  [/\b(thu nhap|luong|nhan luong|ve tay|thuong)\b/, 'netIncome', true],
+  [/\b(chi tieu|tieu|chi phi|xai|mua|an uong)\b/, 'monthlyExpense', true],
+  [/\b(tra no|tra gop|tra ngan hang)\b/, 'debtPayment', true],
+  [/\b(du no|con no|no con|khoan no)\b/, 'debtBalance', false],
+  [/\b(tai san|tai san rong|tong tai san|net worth)\b/, 'netWorth', false],
 ];
+
+/**
+ * Rút tiền mặt → cộng vào Chi tiêu tháng.
+ *
+ * Về kế toán thì rút tiền không làm đổi tài sản ròng: tiền đi từ tài khoản sang ví.
+ * Mira từng trả lời đúng như vậy rồi **từ chối ghi**, và Founder bác: người gõ "rút atm
+ * 2 triệu" vào một cuốn nhật ký đời sống là đang nói "tôi vừa lấy 2 triệu ra để tiêu",
+ * chứ không hỏi một câu kế toán.
+ *
+ * Phải khớp TRƯỚC `O_TIEN`, vì câu "rút 2 triệu để tiêu" có cả chữ "tiêu".
+ */
+const RUT_TIEN = /\b(rut tien|rut atm|rut o atm|rut the)\b/;
 
 /**
  * Việc **không làm đổi gì** mà người ta vẫn hay gõ.
@@ -134,10 +168,6 @@ const O_TIEN: ReadonlyArray<readonly [RegExp, OTien]> = [
  * chi, nên câu trả lời đúng là nói thẳng chứ không nhét bừa vào một ô nào đó.
  */
 const KHONG_GHI: ReadonlyArray<readonly [RegExp, string]> = [
-  [
-    /\b(rut tien|rut atm|rut o atm|rut the)\b/,
-    'Rút tiền không làm đổi tài sản ròng của bạn: tiền đi từ tài khoản sang ví, tổng vẫn thế. Mira không ghi từng giao dịch. Nếu tháng này bạn tiêu nhiều hơn dự tính thì sửa ô Chi tiêu tháng.',
-  ],
   [
     /\b(chuyen khoan|chuyen tien|nap tien|gui tiet kiem)\b/,
     'Chuyển tiền giữa các tài khoản của bạn không làm đổi tổng tài sản. Mira chỉ cần năm con số mỗi tháng, không cần từng lần chuyển.',
@@ -326,8 +356,13 @@ function docMotManh(goc: string, bc: BoiCanhDoc): KetQuaManh {
   const tien = docTien(manh);
   if (tien !== null) {
     const thang = /\bthang truoc\b/.test(manh) ? thangTruoc(bc.homNay.slice(0, 7)) : bc.homNay.slice(0, 7);
-    for (const [re, o] of O_TIEN) {
-      if (re.test(manh)) return { y: { loai: 'tien', o, vnd: tien, thang }, coSo };
+
+    // Rút tiền khớp trước, vì "rút 2 triệu để tiêu" có cả chữ "tiêu".
+    if (RUT_TIEN.test(manh)) {
+      return { y: { loai: 'tien', o: 'monthlyExpense', vnd: tien, thang, cong: true }, coSo };
+    }
+    for (const [re, o, cong] of O_TIEN) {
+      if (re.test(manh)) return { y: { loai: 'tien', o, vnd: tien, thang, cong }, coSo };
     }
   }
 

@@ -170,18 +170,25 @@
   background: var(--salt);
 }
 
-.bong__ghi {
-  margin-top: 10px;
-  background: var(--navy);
-  color: #fff;
-  border-radius: 11px;
-  padding: 9px 20px;
+/*
+ * Nút Hoàn tác: chữ gạch chân, KHÔNG phải nút đặc như nút Ghi cũ.
+ *
+ * Mira ghi tự động, nên dòng này xuất hiện sau MỌI câu ghi được. Một nút xanh đậm lặp
+ * lại hai chục lần mỗi ngày sẽ hút mắt hơn cả nội dung vừa ghi, mà việc cần nhìn là con
+ * số chứ không phải cái nút gỡ hiếm khi dùng tới.
+ */
+.bong__go {
+  background: none;
+  color: var(--ink-3, #6b7280);
+  font-size: 13px;
   font-weight: 600;
-  font-size: 14px;
+  text-decoration: underline;
+  padding: 0;
 }
 
-.bong__ghi:disabled {
-  opacity: 0.6;
+.bong__go:disabled {
+  opacity: 0.5;
+  text-decoration: none;
 }
 
 .bong__xong {

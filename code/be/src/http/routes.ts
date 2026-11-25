@@ -397,6 +397,21 @@ const listDueMoments: Handler = async (req, deps, userId) => {
   return { status: 200, body: rows.map(toContractMoment) };
 };
 
+/**
+ * Xoá mềm một hạt.
+ *
+ * Mở đường này vì màn chat ghi **tự động**: không có nút Ghi thì một câu đọc nhầm thành
+ * hạt muối sẽ nằm trong hũ 42 ngày mà không gỡ được. Hũ đếm hạt để biết tuần nặng hay
+ * nhẹ, nên một hạt sai làm lệch đúng chỗ đang đếm.
+ *
+ * `softDelete` đã có sẵn trong repository từ trước; ở đây chỉ nối dây ra ngoài.
+ */
+const deleteMoment: Handler = async (req, deps, userId) => {
+  const ra = await deps.moments.softDelete(userId, req.params.id ?? '');
+  if (ra === null) throw notFound('Không có hạt nào như vậy.');
+  return { status: 204, body: undefined };
+};
+
 const postRevisit: Handler = async (req, deps, userId) => {
   const body = asObject(req.body);
   const moment = await answerRevisit(deps, userId, req.params.id ?? '', {
@@ -541,6 +556,7 @@ export const routes: readonly Route[] = [
   { method: 'POST', path: '/moments', handler: postMoment },
   { method: 'GET', path: '/moments/due', handler: listDueMoments },
   { method: 'POST', path: '/moments/:id/revisit', handler: postRevisit },
+  { method: 'DELETE', path: '/moments/:id', handler: deleteMoment },
 
   { method: 'GET', path: '/money/:month', handler: getMoney },
   { method: 'PUT', path: '/money/:month', handler: putMoney },
