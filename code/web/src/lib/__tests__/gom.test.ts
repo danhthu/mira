@@ -9,7 +9,7 @@ const muc = (
   note: string | null = 'Ăn tối',
   bucket: TimeEntry['bucket'] = 'personal',
   golden = false,
-): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note, source: 'manual', nepId: null });
+): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note, source: 'manual', nepId: null, danhMucId: null });
 
 const ngay = (n: number) => `2026-11-${String(n).padStart(2, '0')}`;
 
@@ -130,6 +130,29 @@ describe('gomMuc', () => {
     expect((ra[0] as NhomMuc).note).toBe('');
   });
 
+  it('⚑ danh mục thắng ghi chú: cùng danh mục, khác lời nhận xét, vẫn một nhóm', () => {
+    // Ghi chú là lời riêng cho một ngày. Gom theo nó khi đã có danh mục thì ba buổi
+    // "Ăn tối" khác lời lại thành ba nếp khác nhau, và màn hình quay về cảnh cũ.
+    const dm = (date: string, note: string): TimeEntry => ({
+      ...muc(date, 30, note),
+      danhMucId: 'dm-an-toi',
+    });
+    const ra = gomMuc([dm(ngay(23), 'vui'), dm(ngay(24), 'vội'), dm(ngay(25), 'cả nhà đủ')]);
+    expect(ra).toHaveLength(1);
+    expect((ra[0] as NhomMuc).soLan).toBe(3);
+    expect((ra[0] as NhomMuc).danhMucId).toBe('dm-an-toi');
+  });
+
+  it('hai danh mục khác nhau thì không gom lẫn, dù trùng tên ghi chú', () => {
+    const a = (date: string): TimeEntry => ({ ...muc(date, 30, 'x'), danhMucId: 'dm-a' });
+    const b = (date: string): TimeEntry => ({ ...muc(date, 30, 'x'), danhMucId: 'dm-b' });
+    const ra = gomMuc([
+      a(ngay(21)), a(ngay(22)), a(ngay(23)),
+      b(ngay(21)), b(ngay(22)), b(ngay(23)),
+    ]);
+    expect(ra.filter(laNhom)).toHaveLength(2);
+  });
+
   it('xếp theo ngày mới nhất, dòng gom không nhảy lên đầu vì gom nhiều', () => {
     const ra = gomMuc([
       muc(ngay(10), 30, 'Cũ'),
@@ -153,6 +176,7 @@ describe('nhipCua', () => {
   const nhom = (soLan: number, tuNgay: string, denNgay: string): NhomMuc => ({
     bucket: 'personal',
     note: 'Ăn tối',
+    danhMucId: null,
     golden: false,
     deu: true,
     phutThuong: 30,

@@ -32,6 +32,12 @@ import { dangNhap, dangNhapGoogle } from '../services/auth';
 import { nhapBo } from '../services/nhapBo';
 import { xuatBo } from '../services/xuatBo';
 import { chayNep, dungNep, nhanLaiNgay, taoNep, tuChoiNgay } from '../services/nep';
+import {
+  catDanhMuc,
+  docDanhMuc,
+  doiTenDanhMuc,
+  taoDanhMuc,
+} from '../services/danhMuc';
 import { kiemDoLuong, xoaDem } from './chanDoLuong';
 import type { Money } from '../entities/Money';
 
@@ -78,12 +84,14 @@ const toContractEntry = (e: {
   note: string | null;
   source: TimeEntrySource;
   nepId: string | null;
+  danhMucId: string | null;
 }): TimeEntry => ({
   id: e.id,
   date: e.date,
   minutes: e.minutes,
   bucket: e.bucket,
   nepId: e.nepId,
+  danhMucId: e.danhMucId,
   golden: e.golden,
   note: e.note,
   source: e.source,
@@ -184,6 +192,38 @@ const getMe: Handler = async (_req, deps, userId) => {
   };
 };
 
+// ── danh mục: tên việc người dùng tự đặt, nằm trong một trong bốn ô
+
+const listDanhMuc: Handler = async (_req, deps, userId) => ({
+  status: 200,
+  body: await deps.danhMuc.findActive(userId),
+});
+
+const postDanhMuc: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return {
+    status: 201,
+    body: await taoDanhMuc(deps, userId, { name: b.name, bucket: b.bucket, golden: b.golden }),
+  };
+};
+
+const patchDanhMuc: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return {
+    status: 200,
+    body: await doiTenDanhMuc(deps, userId, req.params.id ?? '', {
+      name: b.name,
+      golden: b.golden,
+    }),
+  };
+};
+
+/** Cất đi, không xoá: mục giờ cũ còn trỏ về nó và lịch sử không được đổi. */
+const postDanhMucCat: Handler = async (req, deps, userId) => ({
+  status: 200,
+  body: await catDanhMuc(deps, userId, req.params.id ?? ''),
+});
+
 // ── nếp: khai một luật, Mira tự ghi, người dùng từ chối khi không đạt
 
 const listNep: Handler = async (_req, deps, userId) => ({
@@ -193,13 +233,19 @@ const listNep: Handler = async (_req, deps, userId) => ({
 
 const postNep: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  const nep = await taoNep({ nep: deps.nep, timeEntries: deps.timeEntries }, userId, {
-    title: String(b.title ?? ''),
-    bucket: b.bucket,
-    minutes: b.minutes,
-    golden: b.golden,
-    days: b.days,
-  });
+  const dm = await docDanhMuc(deps, userId, b.danhMucId);
+  const nep = await taoNep(
+    { nep: deps.nep, timeEntries: deps.timeEntries },
+    userId,
+    {
+      title: String(b.title ?? ''),
+      bucket: b.bucket,
+      minutes: b.minutes,
+      golden: b.golden,
+      days: b.days,
+    },
+    dm,
+  );
   return { status: 201, body: nep };
 };
 
@@ -250,12 +296,16 @@ const listTimeEntries: Handler = async (req, deps, userId) => {
 
 const createTimeEntry: Handler = async (req, deps, userId) => {
   const body = asObject(req.body);
+  const dm = await docDanhMuc(deps, userId, body.danhMucId);
   const entry = await deps.timeEntries.create(userId, {
     date: assertDate(String(body.date ?? ''), 'date'),
     minutes: readMinutes(body.minutes, 'minutes'),
-    bucket: readBucket(body.bucket, 'bucket'),
-    golden: body.golden === true,
+    // Có danh mục thì ô lấy TỪ DANH MỤC, không lấy từ client. Client gửi ô khác với ô
+    // của danh mục thì một trong hai sai, và danh mục mới là thứ người dùng đã khai.
+    bucket: dm?.bucket ?? readBucket(body.bucket, 'bucket'),
+    golden: dm === null ? body.golden === true : body.golden === undefined ? dm.golden : body.golden === true,
     note: readText(body.note, 'note'),
+    danhMucId: dm?.id ?? null,
   });
   return { status: 201, body: toContractEntry(entry) };
 };
@@ -263,11 +313,13 @@ const createTimeEntry: Handler = async (req, deps, userId) => {
 const patchTimeEntry: Handler = async (req, deps, userId) => {
   const body = asObject(req.body);
   const id = req.params.id ?? '';
+  const dm = body.danhMucId === undefined ? null : await docDanhMuc(deps, userId, body.danhMucId);
   const updated = await deps.timeEntries.update(userId, id, {
     minutes: body.minutes === undefined ? undefined : readMinutes(body.minutes, 'minutes'),
-    bucket: body.bucket === undefined ? undefined : readBucket(body.bucket, 'bucket'),
+    bucket: dm?.bucket ?? (body.bucket === undefined ? undefined : readBucket(body.bucket, 'bucket')),
     golden: body.golden === undefined ? undefined : body.golden === true,
     note: body.note === undefined ? undefined : readText(body.note, 'note'),
+    danhMucId: body.danhMucId === undefined ? undefined : (dm?.id ?? null),
   });
   if (updated === null) throw notFound('Không có mục giờ với id này');
   return { status: 200, body: toContractEntry(updated) };
@@ -465,6 +517,11 @@ export const routes: readonly Route[] = [
 
   { method: 'POST', path: '/import', handler: postImport },
   { method: 'GET', path: '/export', handler: getExport },
+
+  { method: 'GET', path: '/danh-muc', handler: listDanhMuc },
+  { method: 'POST', path: '/danh-muc', handler: postDanhMuc },
+  { method: 'PATCH', path: '/danh-muc/:id', handler: patchDanhMuc },
+  { method: 'POST', path: '/danh-muc/:id/cat', handler: postDanhMucCat },
 
   { method: 'GET', path: '/nep', handler: listNep },
   { method: 'POST', path: '/nep', handler: postNep },

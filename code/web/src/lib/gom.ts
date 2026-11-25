@@ -38,6 +38,7 @@ export interface NhomMuc {
   /** Khoá gom: nhóm việc, ghi chú, có phải giờ vàng không. */
   readonly bucket: TimeEntry['bucket'];
   readonly note: string;
+  readonly danhMucId: string | null;
   readonly golden: boolean;
   /**
    * Nếp **cứng** hay **mềm**.
@@ -76,8 +77,15 @@ const TOI_THIEU = 3;
  */
 const NGUONG_DEU = 1 / 3;
 
+/**
+ * Khoá gom. **Danh mục thắng ghi chú**: danh mục là thứ người dùng đã khai là "việc gì",
+ * còn ghi chú là lời riêng cho một ngày. Gom theo ghi chú khi đã có danh mục thì hai
+ * buổi "Ăn tối" khác lời nhận xét lại thành hai nếp khác nhau.
+ */
 const khoaCua = (e: TimeEntry): string =>
-  `${e.bucket}|${(e.note ?? '').trim().toLowerCase()}|${e.golden ? 'v' : ''}`;
+  e.danhMucId !== null
+    ? `dm:${e.danhMucId}|${e.golden ? 'v' : ''}`
+    : `${e.bucket}|${(e.note ?? '').trim().toLowerCase()}|${e.golden ? 'v' : ''}`;
 
 /**
  * Trả về danh sách đã trộn: nhóm nào đủ lặp thì thành một `NhomMuc`, còn lại giữ nguyên
@@ -112,6 +120,7 @@ export function gomMuc(entries: readonly TimeEntry[]): (NhomMuc | TimeEntry)[] {
     ra.push({
       bucket: cuoi.bucket,
       note: (cuoi.note ?? '').trim(),
+      danhMucId: cuoi.danhMucId,
       golden: cuoi.golden,
       deu: ngayKhac.length <= muc.length * NGUONG_DEU,
       phutThuong,

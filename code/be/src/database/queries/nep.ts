@@ -22,8 +22,8 @@ export const NEP_QUERIES = {
   `,
 
   insert: `
-    INSERT INTO nep (id, user_id, title, bucket, minutes, golden, days, started_on, created_at, updated_at)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
+    INSERT INTO nep (id, user_id, title, bucket, minutes, golden, days, started_on, danh_muc_id, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)
     RETURNING *
   `,
 

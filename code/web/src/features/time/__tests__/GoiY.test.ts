@@ -22,6 +22,7 @@ const muc = (date: string, minutes: number, bucket: TimeEntry['bucket'], golden 
   note: null,
   source: 'manual',
   nepId: null,
+  danhMucId: null,
 });
 
 describe('timNep', () => {

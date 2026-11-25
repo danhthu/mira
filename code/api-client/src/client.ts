@@ -2,6 +2,8 @@ import type {
   ApiError,
   AuthResponse,
   GoogleCredentials,
+  DanhMuc,
+  DanhMucCreate,
   Nep,
   NepCreate,
   NgayCuaNep,
@@ -111,7 +113,7 @@ export function createClient(options: ClientOptions) {
 
     /** Nhập cả bộ, thay toàn bộ dữ liệu đang có của tài khoản này. */
     importAll: (snapshot: unknown) =>
-      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number; nep: number }>(
+      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number; nep: number; danhMuc: number }>(
         'POST',
         '/import',
         snapshot,
@@ -126,6 +128,14 @@ export function createClient(options: ClientOptions) {
     deleteTimeEntry: (id: string) => call<void>('DELETE', `/time-entries/${id}`),
     weekSummary: (weekStart: string) =>
       call<WeekSummary>('GET', `/time-entries/week${query({ weekStart })}`),
+
+    // ───────────────────────────────────────── danh mục
+    listDanhMuc: () => call<DanhMuc[]>('GET', '/danh-muc'),
+    createDanhMuc: (dm: DanhMucCreate) => call<DanhMuc>('POST', '/danh-muc', dm),
+    renameDanhMuc: (id: string, body: { name: string; golden?: boolean }) =>
+      call<DanhMuc>('PATCH', `/danh-muc/${id}`, body),
+    /** Cất đi, không xoá: mục giờ cũ còn trỏ về nó. */
+    catDanhMuc: (id: string) => call<DanhMuc>('POST', `/danh-muc/${id}/cat`),
 
     // ───────────────────────────────────────── nếp
     listNep: () => call<Nep[]>('GET', '/nep'),

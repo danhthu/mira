@@ -11,6 +11,7 @@ import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
 import { NepRepository } from '../database/repositories/NepRepository';
+import { DanhMucRepository } from '../database/repositories/DanhMucRepository';
 import { UserRepository } from '../database/repositories/UserRepository';
 import type { AuthDeps } from '../services/auth';
 import { DomainError } from '../shared/errors';
@@ -48,6 +49,7 @@ export interface AppDeps {
   readonly money: MoneyRepository;
   readonly habits: HabitRepository;
   readonly nep: NepRepository;
+  readonly danhMuc: DanhMucRepository;
   readonly auth: AuthDeps;
   readonly wakingMinutesPerWeek?: number;
 }
@@ -70,6 +72,7 @@ export function buildDeps(
     money: new MoneyRepository(db),
     habits: new HabitRepository(db),
     nep: new NepRepository(db),
+    danhMuc: new DanhMucRepository(db),
     auth: { users, jwtSecret, ttlSeconds, googleClientId },
   };
 }

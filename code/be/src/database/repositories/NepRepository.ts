@@ -13,6 +13,7 @@ export interface NepRec {
   readonly days: string;
   readonly startedOn: string;
   readonly endedOn: string | null;
+  readonly danhMucId: string | null;
 }
 
 interface NepRow {
@@ -24,6 +25,7 @@ interface NepRow {
   days: string;
   started_on: string;
   ended_on: string | null;
+  danh_muc_id: string | null;
 }
 
 const toNep = (r: NepRow): NepRec => ({
@@ -35,6 +37,7 @@ const toNep = (r: NepRow): NepRec => ({
   days: r.days,
   startedOn: r.started_on,
   endedOn: r.ended_on,
+  danhMucId: r.danh_muc_id,
 });
 
 export class NepRepository {
@@ -62,7 +65,7 @@ export class NepRepository {
 
   async create(
     userId: string,
-    dto: { title: string; bucket: TimeBucket; minutes: number; golden: boolean; days: string },
+    dto: { title: string; bucket: TimeBucket; minutes: number; golden: boolean; days: string; danhMucId?: string | null },
   ): Promise<NepRec> {
     const now = new Date().toISOString();
     const row = await this.db.queryOne<NepRow>(NEP_QUERIES.insert, [
@@ -74,6 +77,7 @@ export class NepRepository {
       dto.golden,
       dto.days,
       now.slice(0, 10),
+      dto.danhMucId ?? null,
       now,
     ]);
     if (row === null) throw new Error('Không tạo được nếp.');

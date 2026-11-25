@@ -14,6 +14,7 @@ import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
 import { NepRepository } from '../database/repositories/NepRepository';
+import { DanhMucRepository } from '../database/repositories/DanhMucRepository';
 import type { TimeBucket } from '../shared/types/enums';
 import { TIME_BUCKETS } from '../shared/constants';
 import { badRequest } from '../shared/errors';
@@ -26,6 +27,7 @@ export interface KetQuaNhap {
   readonly thoiQuen: number;
   readonly lanDanhDau: number;
   readonly nep: number;
+  readonly danhMuc: number;
 }
 
 const XOA = [
@@ -40,6 +42,7 @@ const XOA = [
   'DELETE FROM time_entry WHERE user_id = $1',
   'DELETE FROM nep_bo_qua WHERE user_id = $1',
   'DELETE FROM nep WHERE user_id = $1',
+  'DELETE FROM danh_muc WHERE user_id = $1',
 ] as const;
 
 const laBucket = (x: unknown): x is TimeBucket =>
@@ -63,6 +66,23 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
     const money = new MoneyRepository(tx);
     const habits = new HabitRepository(tx);
     const nepRepo = new NepRepository(tx);
+    const danhMucRepo = new DanhMucRepository(tx);
+
+    // Danh mục vào trước cả nếp lẫn hàng giờ: cả hai đều trỏ về nó.
+    const dmIdMoi = new Map<string, string>();
+    let danhMuc = 0;
+    for (const x of mang('danhMuc')) {
+      const d = x as Record<string, unknown>;
+      if (typeof d.name !== 'string' || !laBucket(d.bucket)) continue;
+      const tao = await danhMucRepo.create(userId, {
+        name: d.name,
+        bucket: d.bucket,
+        golden: d.golden === true,
+      });
+      if (tao === null) continue;
+      if (typeof d.id === 'string') dmIdMoi.set(d.id, tao.id);
+      danhMuc += 1;
+    }
 
     // Nếp phải vào TRƯỚC hàng giờ: hàng giờ trỏ về nếp, và id trong file là id cũ nên
     // phải giữ bảng tra sang id mới, y như thói quen.
@@ -78,6 +98,7 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
         minutes: n.minutes,
         golden: n.golden === true,
         days: n.days,
+        danhMucId: typeof n.danhMucId === 'string' ? (dmIdMoi.get(n.danhMucId) ?? null) : null,
       });
       if (typeof n.id === 'string') nepIdMoi.set(n.id, tao.id);
       nep += 1;
@@ -96,6 +117,7 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
         note: chuoiHoacNull(e.note),
         source: cu === undefined ? undefined : 'nep',
         nepId: cu ?? null,
+        danhMucId: typeof e.danhMucId === 'string' ? (dmIdMoi.get(e.danhMucId) ?? null) : null,
       });
       gio += 1;
     }
@@ -162,6 +184,6 @@ export async function nhapBo(db: IDatabase, userId: string, raw: unknown): Promi
       lanDanhDau += 1;
     }
 
-    return { gio, hat, thang, mucTieu, thoiQuen, lanDanhDau, nep };
+    return { gio, hat, thang, mucTieu, thoiQuen, lanDanhDau, nep, danhMuc };
   });
 }

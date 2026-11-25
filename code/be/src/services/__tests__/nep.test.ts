@@ -57,6 +57,7 @@ const mauNep = (over: Partial<NepRec> = {}): NepRec => ({
   days: '1234567',
   startedOn: '2026-01-01',
   endedOn: null,
+  danhMucId: null,
   ...over,
 });
 

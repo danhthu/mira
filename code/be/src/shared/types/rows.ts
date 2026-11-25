@@ -21,6 +21,7 @@ export interface TimeEntryRow {
   note: string | null;
   source: string;
   nep_id: string | null;
+  danh_muc_id: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

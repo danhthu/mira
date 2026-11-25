@@ -72,6 +72,7 @@ export class TimeEntryRepository {
       dto.note ?? null,
       dto.source ?? DEFAULT_TIME_ENTRY_SOURCE,
       dto.nepId ?? null,
+      dto.danhMucId ?? null,
       now,
       now,
     ]);
@@ -95,6 +96,7 @@ export class TimeEntryRepository {
       dto.bucket ?? current.bucket,
       dto.golden ?? current.golden,
       dto.note === undefined ? current.note : dto.note,
+      dto.danhMucId === undefined ? current.danhMucId : dto.danhMucId,
       new Date().toISOString(),
       userId,
     ]);

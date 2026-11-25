@@ -39,6 +39,18 @@ export interface NepDeps {
 }
 
 /**
+ * Nếp gắn vào một danh mục thì **lấy tên, ô và cờ giờ vàng từ danh mục đó**, không lấy
+ * từ tham số client gửi lên. Đổi tên danh mục thì tên nếp đổi theo — đó là điều người
+ * dùng mong đợi khi họ đổi tên một việc họ làm mỗi ngày.
+ */
+export interface DanhMucChoNep {
+  readonly id: string;
+  readonly name: string;
+  readonly bucket: TimeBucket;
+  readonly golden: boolean;
+}
+
+/**
  * Trần số nếp đang chạy. Cùng tinh thần với trần mục tiêu và trần thói quen: khai hai
  * mươi nếp thì không còn là khai nếp nữa, là lập thời khoá biểu cho một đời sống tưởng
  * tượng.
@@ -66,12 +78,14 @@ export async function taoNep(
   deps: NepDeps,
   userId: string,
   dto: { title: string; bucket: unknown; minutes: unknown; golden: unknown; days: unknown },
+  danhMuc: DanhMucChoNep | null = null,
 ): Promise<NepRec> {
-  const title = String(dto.title ?? '').trim();
+  const title = danhMuc?.name ?? String(dto.title ?? '').trim();
   if (title === '') throw badRequest('Nếp phải có tên.');
   if (title.length > 120) throw badRequest('Tên nếp dài quá 120 ký tự.');
 
-  if (typeof dto.bucket !== 'string' || !TIME_BUCKETS.includes(dto.bucket as TimeBucket)) {
+  const bucket = danhMuc?.bucket ?? dto.bucket;
+  if (typeof bucket !== 'string' || !TIME_BUCKETS.includes(bucket as TimeBucket)) {
     throw badRequest(`bucket phải là một trong: ${TIME_BUCKETS.join(', ')}`);
   }
   if (typeof dto.minutes !== 'number' || !Number.isInteger(dto.minutes) || dto.minutes <= 0) {
@@ -93,10 +107,11 @@ export async function taoNep(
 
   return deps.nep.create(userId, {
     title,
-    bucket: dto.bucket as TimeBucket,
+    bucket: bucket as TimeBucket,
     minutes: dto.minutes,
-    golden: dto.golden === true && dto.bucket === 'family',
+    golden: (danhMuc?.golden ?? dto.golden === true) && bucket === 'family',
     days: sach,
+    danhMucId: danhMuc?.id ?? null,
   });
 }
 
@@ -164,6 +179,7 @@ export async function chayNep(
           note: n.title,
           source: 'nep',
           nepId: n.id,
+          danhMucId: n.danhMucId,
         });
       }
       ra.push({ ...rut(n), date: ngay, trangThai: 'da-ghi' });

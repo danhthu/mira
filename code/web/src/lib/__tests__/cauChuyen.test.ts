@@ -20,7 +20,7 @@ const muc = (
   minutes: number,
   bucket: TimeBucket,
   golden = false,
-): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note: null, source: 'manual', nepId: null });
+): TimeEntry => ({ id: `e${(dem += 1)}`, date, minutes, bucket, golden, note: null, source: 'manual', nepId: null, danhMucId: null });
 
 const hat = (date: string, kind: Moment['kind']): Moment => ({
   id: `m${(dem += 1)}`,

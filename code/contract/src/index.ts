@@ -88,11 +88,13 @@ export interface Nep {
 }
 
 export interface NepCreate {
-  readonly title: string;
-  readonly bucket: TimeBucket;
+  /** Bỏ qua khi có `danhMucId`: tên lấy từ danh mục. */
+  readonly title?: string;
+  readonly bucket?: TimeBucket;
   readonly minutes: number;
   readonly golden?: boolean;
   readonly days: string;
+  readonly danhMucId?: string | null;
 }
 
 /** Một ngày của một nếp sau khi chạy. */
@@ -109,6 +111,32 @@ export interface NgayCuaNep {
 /** Trần số nếp đang chạy. */
 export const NEP_CAP = 8;
 
+/**
+ * Danh mục: tên việc do người dùng đặt, nằm **bên trong** một trong bốn ô.
+ *
+ * Bốn ô không đổi vì chúng gánh ba lời hứa của sản phẩm: giờ vàng chỉ có trong `family`,
+ * mục tiêu rút giờ từ `waste`, và màn Sáu tháng phán tuần vui hay nặng theo từng ô.
+ * Danh mục chỉ thêm một tầng tên bên dưới, nên mọi công thức giữ nguyên.
+ *
+ * `golden` là mặc định của danh mục, chỉ có nghĩa khi `bucket` là `family`.
+ */
+export interface DanhMuc {
+  readonly id: string;
+  readonly name: string;
+  readonly bucket: TimeBucket;
+  readonly golden: boolean;
+  readonly archivedAt: string | null;
+}
+
+export interface DanhMucCreate {
+  readonly name: string;
+  readonly bucket: TimeBucket;
+  readonly golden?: boolean;
+}
+
+/** Trần danh mục **mỗi ô**, không phải tổng. */
+export const DANH_MUC_CAP = 6;
+
 export interface TimeEntry {
   readonly id: string;
   /** YYYY-MM-DD theo giờ địa phương của người dùng. */
@@ -121,14 +149,18 @@ export interface TimeEntry {
   readonly source: TimeEntrySource;
   /** Nếp đã sinh ra hàng này, hoặc null nếu người dùng tự ghi. */
   readonly nepId: string | null;
+  /** Danh mục người dùng tự đặt, hoặc null nếu chỉ phân theo ô. */
+  readonly danhMucId: string | null;
 }
 
 export interface TimeEntryCreate {
   readonly date: string;
   readonly minutes: number;
+  /** Bỏ qua khi có `danhMucId`: ô lấy từ danh mục, vì danh mục mới là thứ đã khai. */
   readonly bucket: TimeBucket;
   readonly golden?: boolean;
   readonly note?: string | null;
+  readonly danhMucId?: string | null;
 }
 
 export type TimeEntryUpdate = Partial<TimeEntryCreate>;
@@ -305,6 +337,7 @@ export type ErrorCode =
   | 'bad_request'
   | 'unauthorized'
   | 'username_taken'
+  | 'name_taken'
   | 'not_found'
   | 'tier_full'
   | 'not_enough_source'

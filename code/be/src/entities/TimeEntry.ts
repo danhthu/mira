@@ -13,6 +13,8 @@ export interface TimeEntry {
   readonly source: TimeEntrySource;
   /** Nếp đã sinh ra hàng này, hoặc null nếu người dùng tự ghi. */
   readonly nepId: string | null;
+  /** Danh mục người dùng tự đặt, hoặc null nếu chỉ phân theo ô. */
+  readonly danhMucId: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly deletedAt: string | null;

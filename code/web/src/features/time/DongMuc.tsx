@@ -17,13 +17,19 @@ export function Dong({
   mau,
   dungNhat,
   onDoi,
+  tenDanhMuc,
 }: {
   readonly e: TimeEntry;
   readonly mau: string;
   readonly dungNhat: number;
   readonly onDoi: () => void;
+  readonly tenDanhMuc: (id: string | null) => string | null;
 }) {
   const [mo, setMo] = useState(false);
+  // Danh mục là thứ người dùng đã khai là "việc gì"; ghi chú chỉ là lời riêng cho một
+  // ngày. Có danh mục thì nó làm tiêu đề, ghi chú xuống dòng dưới.
+  const ten = tenDanhMuc(e.danhMucId) ?? (e.note === null || e.note.trim() === '' ? 'Ghi tay' : e.note);
+  const phu = tenDanhMuc(e.danhMucId) !== null && e.note !== null && e.note.trim() !== '' ? e.note : null;
 
   return (
     <div className="list-row" style={{ alignItems: 'flex-start' }}>
@@ -39,7 +45,7 @@ export function Dong({
         >
           <div className="row" style={{ alignItems: 'baseline' }}>
             <div style={{ fontSize: 15, fontWeight: 600 }}>
-              {e.note === null || e.note.trim() === '' ? 'Ghi tay' : e.note}
+              {ten}
               <span className={mo ? 'gom-mui is-mo' : 'gom-mui'} aria-hidden>
                 ›
               </span>
@@ -55,6 +61,7 @@ export function Dong({
           </div>
           <div className="sm" style={{ marginTop: 5 }}>
             {labelDay(e.date)}
+            {phu === null ? '' : ` · ${phu}`}
           </div>
         </button>
 
@@ -157,12 +164,15 @@ export function NhomDong({
   nhom,
   mau,
   dungNhat,
+  tenDanhMuc,
 }: {
   readonly nhom: NhomMuc;
   readonly mau: string;
   readonly dungNhat: number;
+  readonly tenDanhMuc: (id: string | null) => string | null;
 }) {
   const [mo, setMo] = useState(false);
+  const ten = tenDanhMuc(nhom.danhMucId) ?? (nhom.note === '' ? 'Ghi tay' : nhom.note);
 
   return (
     <div className="list-row" style={{ alignItems: 'flex-start' }}>
@@ -177,7 +187,7 @@ export function NhomDong({
       <button type="button" className="gom-nut" aria-expanded={mo} onClick={() => setMo(!mo)}>
         <div className="row" style={{ alignItems: 'baseline' }}>
           <div style={{ fontSize: 15, fontWeight: 600 }}>
-            {nhom.note === '' ? 'Ghi tay' : nhom.note}
+            {ten}
             <span className={mo ? 'gom-mui is-mo' : 'gom-mui'} aria-hidden>
               ›
             </span>

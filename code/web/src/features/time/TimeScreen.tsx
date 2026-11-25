@@ -8,6 +8,7 @@ import { minutes as fmtMinutes, perMille } from '../../lib/format';
 import { Donut, Legend } from '../../ui/Donut';
 import { GoiY, timNep } from './GoiY';
 import { NepSection } from './NepSection';
+import { DanhMucChon } from './DanhMucChon';
 
 const COLOR: Record<TimeBucket, string> = {
   work: 'var(--deep)',
@@ -27,19 +28,21 @@ export function TimeScreen() {
     // Chạy nếp TRƯỚC khi đọc: hàng do nếp sinh phải có mặt trong tổng tuần ngay lần
     // mở đầu tiên, không phải chờ lần mở sau.
     const ngayNep = await store.chayNep(day);
-    const [summary, entries, truoc, nep] = await Promise.all([
+    const [summary, entries, truoc, nep, danhMuc] = await Promise.all([
       store.weekSummary(week),
       store.listTimeEntries(week, addDays(week, 6)),
       // Bốn tuần trước, chỉ để tìm nếp cho gợi ý một chạm.
       store.listTimeEntries(addDays(week, -28), addDays(week, -1)),
       store.listNep(),
+      store.listDanhMuc(),
     ]);
-    return { summary, entries, truoc, nep, ngayNep };
+    return { summary, entries, truoc, nep, ngayNep, danhMuc };
   }, [week]);
 
   const [bucket, setBucket] = useState<TimeBucket>('family');
   const [hours, setHours] = useState('1');
   const [note, setNote] = useState('');
+  const [danhMucId, setDanhMucId] = useState<string | null>(null);
   const [golden, setGolden] = useState(false);
   const [boGoiY, setBoGoiY] = useState(false);
 
@@ -52,6 +55,7 @@ export function TimeScreen() {
       bucket,
       golden: bucket === 'family' && golden,
       note: note.trim() === '' ? null : note.trim(),
+      danhMucId,
     });
     setNote('');
     state.reload();
@@ -186,13 +190,32 @@ export function TimeScreen() {
         <div className="label">Ghi hôm nay</div>
         <div className="pills" style={{ marginTop: 10, flexWrap: 'wrap' }}>
           {TIME_BUCKETS.map((b) => (
-            <button key={b} type="button" aria-pressed={bucket === b} onClick={() => setBucket(b)}>
+            <button
+              key={b}
+              type="button"
+              aria-pressed={bucket === b}
+              onClick={() => {
+                setBucket(b);
+                // Danh mục thuộc về đúng một ô, nên đổi ô thì bỏ chọn.
+                setDanhMucId(null);
+              }}
+            >
               {BUCKET_LABEL_VI[b]}
             </button>
           ))}
         </div>
-        {/* Ghi chú. Thiếu ô này thì mọi mục tự ghi đều hiện là "Ghi tay", và một danh
-            sách toàn "Ghi tay" thì mở ra chẳng để làm gì. */}
+        <DanhMucChon
+          danhMuc={state.data?.danhMuc ?? []}
+          bucket={bucket}
+          chon={danhMucId}
+          onChon={setDanhMucId}
+          onTaoXong={(dm) => {
+            setDanhMucId(dm.id);
+            state.reload();
+          }}
+        />
+
+        {/* Ghi chú. Danh mục nói việc gì; ghi chú nói riêng hôm nay thế nào. */}
         <input
           id="time-note"
           value={note}
@@ -200,7 +223,7 @@ export function TimeScreen() {
           onKeyDown={(event) => {
             if (event.key === 'Enter') void add();
           }}
-          placeholder="Làm gì? (không bắt buộc)"
+          placeholder="Thêm một dòng cho hôm nay (không bắt buộc)"
           style={{
             width: '100%',
             marginTop: 12,

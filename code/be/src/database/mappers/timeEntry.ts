@@ -14,6 +14,7 @@ export function toTimeEntry(row: TimeEntryRow): TimeEntry {
     note: row.note,
     source: row.source as TimeEntrySource,
     nepId: row.nep_id,
+    danhMucId: row.danh_muc_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,

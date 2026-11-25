@@ -5,6 +5,7 @@ import { useAsync } from '../../lib/useAsync';
 import { addDays, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, perMille } from '../../lib/format';
 import { gomMuc, laNhom } from '../../lib/gom';
+import { DanhMucQuanLy } from './DanhMucQuanLy';
 import { Dong, NhomDong } from './DongMuc';
 
 const MAU: Record<TimeBucket, string> = {
@@ -32,13 +33,14 @@ export function BucketScreen() {
 
   const state = useAsync(async () => {
     if (nhom === null) return null;
+    const danhMuc = await store.listDanhMuc();
     const [entries, ...tuan] = await Promise.all([
       store.listTimeEntries(tuDau, addDays(tuanNay, 6)),
       ...Array.from({ length: SO_TUAN }, (_, i) =>
         store.weekSummary(addDays(tuanNay, -7 * (SO_TUAN - 1 - i))),
       ),
     ]);
-    return { entries: entries.filter((e) => e.bucket === nhom), tuan };
+    return { entries: entries.filter((e) => e.bucket === nhom), tuan, danhMuc };
   }, [nhom, tuanNay]);
 
   if (nhom === null) {
@@ -62,6 +64,11 @@ export function BucketScreen() {
   const vang = entries.filter((e) => e.golden).reduce((t, e) => t + e.minutes, 0);
   const dungNhat = Math.max(1, ...entries.map((e) => e.minutes));
   const gom = gomMuc(entries);
+  // Tra tên danh mục một lần cho cả danh sách, kể cả danh mục đã cất: mục giờ cũ vẫn
+  // trỏ về nó và vẫn phải đọc được tên.
+  const tenTheoId = new Map((state.data?.danhMuc ?? []).map((d) => [d.id, d.name]));
+  const tenDanhMuc = (id: string | null): string | null =>
+    id === null ? null : (tenTheoId.get(id) ?? null);
 
   return (
     <div className="screen-body">
@@ -118,6 +125,12 @@ export function BucketScreen() {
         </div>
       )}
 
+      <DanhMucQuanLy
+        bucket={nhom}
+        danhMuc={(state.data?.danhMuc ?? []).filter((d) => d.bucket === nhom)}
+        onDoi={state.reload}
+      />
+
       <div className="row" style={{ marginTop: 6 }}>
         <div className="label">Từng mục, bốn tuần gần đây</div>
         {gom.length < entries.length && (
@@ -135,9 +148,22 @@ export function BucketScreen() {
 
       {gom.map((x) =>
         laNhom(x) ? (
-          <NhomDong key={`${x.bucket}|${x.note}|${x.golden}`} nhom={x} mau={MAU[nhom]} dungNhat={dungNhat} />
+          <NhomDong
+            key={`${x.bucket}|${x.danhMucId ?? x.note}|${x.golden}`}
+            nhom={x}
+            mau={MAU[nhom]}
+            dungNhat={dungNhat}
+            tenDanhMuc={tenDanhMuc}
+          />
         ) : (
-          <Dong key={x.id} e={x} mau={MAU[nhom]} dungNhat={dungNhat} onDoi={state.reload} />
+          <Dong
+            key={x.id}
+            e={x}
+            mau={MAU[nhom]}
+            dungNhat={dungNhat}
+            onDoi={state.reload}
+            tenDanhMuc={tenDanhMuc}
+          />
         ),
       )}
     </div>

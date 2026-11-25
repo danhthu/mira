@@ -50,10 +50,10 @@ export const TIME_ENTRY_QUERIES = {
   insert: `
     INSERT INTO time_entry (
       id, user_id, date, minutes, bucket,
-      golden, note, source, nep_id,
+      golden, note, source, nep_id, danh_muc_id,
       created_at, updated_at
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *
   `,
 
@@ -64,9 +64,10 @@ export const TIME_ENTRY_QUERIES = {
       minutes    = $3,
       bucket     = $4,
       golden     = $5,
-      note       = $6,
-      updated_at = $7
-    WHERE id = $1 AND user_id = $8 AND deleted_at IS NULL
+      note        = $6,
+      danh_muc_id = $7,
+      updated_at  = $8
+    WHERE id = $1 AND user_id = $9 AND deleted_at IS NULL
     RETURNING *
   `,
 
