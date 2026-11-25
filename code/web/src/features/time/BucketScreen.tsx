@@ -137,7 +137,7 @@ export function BucketScreen() {
         laNhom(x) ? (
           <NhomDong key={`${x.bucket}|${x.note}|${x.golden}`} nhom={x} mau={MAU[nhom]} dungNhat={dungNhat} />
         ) : (
-          <Dong key={x.id} e={x} mau={MAU[nhom]} dungNhat={dungNhat} />
+          <Dong key={x.id} e={x} mau={MAU[nhom]} dungNhat={dungNhat} onDoi={state.reload} />
         ),
       )}
     </div>

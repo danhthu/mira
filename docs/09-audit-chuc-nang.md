@@ -1,5 +1,9 @@
 # Audit chức năng: xem, thêm, chi tiết, sửa, xoá
 
+> **Cập nhật 25/11/2026, cuối ngày.** Bốn mục đánh ✅ đã sửa xong và kiểm lại trên bản
+> chạy: sửa/xoá mục giờ, xuất file lấy đủ lịch sử, lùi tháng ở Tài chính. Phần còn lại
+> giữ nguyên. Thứ tự ở cuối file đã cập nhật theo.
+
 > Ngày 25/11/2026. Kiểm bằng tay trên bản chạy thật, tài khoản `danhthu`, không chỉ đọc mã.
 > Dữ liệu rác tạo lúc thử đã xoá bằng `npm run nap`.
 
@@ -9,9 +13,9 @@ Mỗi thực thể, năm việc. `API` là máy chủ có làm được không; 
 
 | Thực thể | Xem danh sách | Thêm | Chi tiết | Sửa | Xoá |
 |---|---|---|---|---|---|
-| **Giờ** | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ **UI ✗** | API ✓ **UI ✗** |
+| **Giờ** | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ ✅ | API ✓ UI ✓ ✅ |
 | **Hạt** (kẹo/muối) | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ | **không có** | **không có** |
-| **Tiền** | API ✓ **UI ✗** | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ | **không có** |
+| **Tiền** | API ✓ UI ✓ ✅ | API ✓ UI ✓ | API ✓ UI ✓ | API ✓ UI ✓ | **không có** |
 | **Mục tiêu** | API ✓ UI ✓ | API ✓ UI ✓ | **không có** | **không có** | kết thúc ✓ |
 | **Thói quen** | API ✓ UI ✓ | API ✓ UI ✓ | **không có** | **không có** | dừng ✓ |
 | **Tài khoản** | — | Google ✓ | ✓ tên hiển thị | **không có** | **không có** |
@@ -34,7 +38,7 @@ Thử tay từng cái trên máy, không đoán:
 
 ## Lỗi phải sửa
 
-### 1 ⚑ Xuất file làm mất lịch sử thói quen
+### 1 ⚑ ✅ ĐÃ SỬA — Xuất file làm mất lịch sử thói quen
 
 **Nặng nhất trong bảng này**, vì nó mất dữ liệu qua chính tính năng sao lưu.
 
@@ -56,7 +60,7 @@ Chủ ý đó đúng cho giao diện. Nhưng nó khiến **không có đường 
 người dùng muốn mang dữ liệu của chính mình đi. Phải thêm một route riêng cho xuất, tách khỏi
 route mà màn Thói quen dùng.
 
-### 2 ⚑ Ghi sai giờ thì chịu, không sửa không xoá được
+### 2 ⚑ ✅ ĐÃ SỬA — Ghi sai giờ thì chịu, không sửa không xoá được
 
 `PATCH /time-entries/:id` và `DELETE /time-entries/:id` **có trên máy chủ**, `updateTimeEntry`
 và `deleteTimeEntry` **có trong api-client**, và **không màn nào gọi**. Mã chết.
@@ -66,7 +70,7 @@ sửa là xuất file, sửa tay bằng text editor, nhập lại.
 
 Đây là lỗ dễ vá nhất trong danh sách: đường ống đã thông cả, chỉ thiếu nút bấm.
 
-### 3 Tài chính đóng cứng ở tháng hiện tại
+### 3 ✅ ĐÃ SỬA — Tài chính đóng cứng ở tháng hiện tại
 
 `MoneyScreen` đặt `const month = monthOf(today())`, không có nút lùi tháng. API `GET /money/:month`
 nhận mọi tháng, nhưng giao diện chỉ cho xem tháng này.
@@ -112,7 +116,7 @@ làm công tắc, hoặc bỏ câu.
 **Ngày hiển thị không nhất quán.** Màn Thời gian, mục "Ghi gần đây" in `2026-11-25`. Màn chi
 tiết in `Thứ 4, 25/11`. Cùng một dữ liệu, hai cách viết, cách thứ nhất là cách máy đọc.
 
-**Xuất file gọi 36 lần liên tiếp.** `xuat()` chạy `getMoney` 36 tháng, tuần tự, mỗi lần một
+**✅ ĐÃ SỬA — Xuất file gọi 36 lần liên tiếp.** `xuat()` chạy `getMoney` 36 tháng, tuần tự, mỗi lần một
 vòng mạng. Qua tunnel là hơn mười giây đứng im không báo gì. Chạy song song, hoặc thêm một
 route trả cả dải tháng.
 
@@ -125,9 +129,16 @@ nào đã bỏ bao nhiêu giờ vào nó — mà đó chính là câu hỏi "m�
 
 Xếp theo thiệt hại chia cho công sức, không theo thứ tự ở trên.
 
-1. **Nút sửa và xoá cho mục giờ.** Đường ống đã thông, chỉ thiếu nút. Nửa buổi.
-2. **Xuất file lấy đủ lịch sử thói quen.** Đang mất dữ liệu thật. Cần một route mới.
-3. **Lùi tuần, lùi tháng.** Hai màn, cùng một kiểu sửa. Mở ra toàn bộ phần "nhìn lại".
-4. **Chốt chuyện sửa hạt.** Cần Founder quyết trước, code sau.
-5. Sửa tên mục tiêu và thói quen.
-6. Đổi mật khẩu, quên mật khẩu, xoá tài khoản. Bắt buộc trước khi có người dùng ngoài.
+~~1. Nút sửa và xoá cho mục giờ.~~ ✅
+~~2. Xuất file lấy đủ lịch sử thói quen.~~ ✅ — thêm `GET /export`, gom ở máy chủ.
+~~3. Lùi tháng ở Tài chính.~~ ✅ — còn **lùi tuần ở màn Thời gian** thì chưa.
+
+Còn lại, xếp theo thiệt hại chia cho công sức:
+
+1. **Lùi tuần ở màn Thời gian.** Cùng kiểu sửa như Tài chính, chưa làm.
+2. **Chốt chuyện sửa hạt.** Cần Founder quyết trước, code sau.
+3. **Màn chi tiết cho mục tiêu.** Bấm vào một mục tiêu vẫn không ra gì.
+4. Sửa tên mục tiêu và thói quen.
+5. Đổi mật khẩu, quên mật khẩu, xoá tài khoản. Bắt buộc trước khi có người dùng ngoài.
+6. Công tắc đồng hồ cát, hoặc bỏ câu hứa suông ở màn Tôi.
+7. Cột `source` cho dữ liệu suy ra, để số máy rải không giống số người ghi.

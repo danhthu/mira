@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { store } from '../../lib/store';
-import { monthOf, today } from '../../lib/date';
+import { today } from '../../lib/date';
 
 /**
  * Mang dữ liệu vào và ra khỏi tài khoản.
@@ -36,9 +36,6 @@ function dem(raw: unknown): Dem | null {
     thoiQuen: n('habits'),
   };
 }
-
-/** Khoảng đủ rộng để gom hết: Mira mới có từ 2026. */
-const TU = '2020-01-01';
 
 export function NhapXuat() {
   const [choNhan, setChoNhan] = useState<{ raw: unknown; dem: Dem; ten: string } | null>(null);
@@ -83,40 +80,22 @@ export function NhapXuat() {
     }
   }
 
-  /** Gom mọi thứ từ máy chủ về đúng định dạng nhập lại được. */
+  /**
+   * Tải bản sao lưu. Máy chủ gom, không phải trình duyệt.
+   *
+   * Bản cũ gom ở đây và **làm mất lịch sử thói quen**: nó hỏi `habitWeek`, mà hàm đó chỉ
+   * trả thói quen đang chạy và đúng bảy ngày của tuần này. Nó còn gọi `getMoney` 36 lần
+   * tuần tự. Giờ là một lần gọi `/export`.
+   */
   async function xuat(): Promise<void> {
     setDangChay(true);
     setLoi(null);
     try {
-      const den = today();
-      const [timeEntries, moments, goals] = await Promise.all([
-        store.listTimeEntries(TU, den),
-        store.listMoments(TU, den),
-        store.listGoals(undefined, true),
-      ]);
-
-      // Tiền lưu theo tháng nên phải hỏi từng tháng; 36 tháng là quá đủ cho mọi tài khoản.
-      const money: Record<string, unknown> = {};
-      const nay = new Date(`${den}T00:00:00Z`);
-      for (let i = 0; i < 36; i += 1) {
-        const d = new Date(nay);
-        d.setUTCMonth(d.getUTCMonth() - i);
-        const thang = monthOf(d.toISOString().slice(0, 10));
-        const { month } = await store.getMoney(thang);
-        const coSo = [month.netIncome, month.monthlyExpense, month.debtPayment, month.debtBalance, month.netWorth]
-          .some((x) => x !== null);
-        if (coSo) money[thang] = month;
-      }
-
-      const tuan = await store.habitWeek(den);
-      const habits = tuan.map((t) => t.habit);
-      const habitChecks = tuan.flatMap((t) => t.dates.map((date) => ({ habitId: t.habit.id, date })));
-
-      const bo = { timeEntries, moments, money, goals, habits, habitChecks };
+      const bo = await store.exportAll();
       const url = URL.createObjectURL(new Blob([JSON.stringify(bo)], { type: 'application/json' }));
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mira-${den}.json`;
+      a.download = `mira-${today()}.json`;
       a.click();
       URL.revokeObjectURL(url);
       setXong(`Đã tải về ${moTa(dem(bo) ?? { gio: 0, hat: 0, thang: 0, mucTieu: 0, thoiQuen: 0 })}.`);

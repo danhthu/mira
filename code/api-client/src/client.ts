@@ -103,6 +103,9 @@ export function createClient(options: ClientOptions) {
     login: (body: Credentials) => call<AuthResponse>('POST', '/auth/login', body),
     me: () => call<User>('GET', '/auth/me'),
 
+    /** Bản sao lưu đầy đủ do máy chủ gom. Một lần gọi thay cho hơn bốn mươi vòng mạng. */
+    exportAll: () => call<Record<string, unknown>>('GET', '/export'),
+
     /** Nhập cả bộ, thay toàn bộ dữ liệu đang có của tài khoản này. */
     importAll: (snapshot: unknown) =>
       call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number }>(

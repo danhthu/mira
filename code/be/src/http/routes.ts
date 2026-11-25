@@ -29,6 +29,7 @@ import { createGoal, endGoal, goalBudget } from '../services/goal';
 import { createHabit, habitWeek, toggleCheck } from '../services/habit';
 import { dangNhap, dangNhapGoogle } from '../services/auth';
 import { nhapBo } from '../services/nhapBo';
+import { xuatBo } from '../services/xuatBo';
 import { kiemDoLuong, xoaDem } from './chanDoLuong';
 import type { Money } from '../entities/Money';
 
@@ -134,6 +135,12 @@ const toContractMoney = (month: string, m: Money | null): MoneyMonth => ({
 // ─────────────────────────────────────────────────────── handlers
 
 const health: PublicHandler = async (): Promise<Res> => ({ status: 200, body: { ok: true } });
+
+/** Bản sao lưu đầy đủ. Một lần gọi, lấy tất cả, kể cả thứ đã kết thúc hoặc đã dừng. */
+const getExport: Handler = async (_req, deps, userId) => ({
+  status: 200,
+  body: await xuatBo(deps.db, userId),
+});
 
 // ── tài khoản: ba route công khai, ngoài /health
 //
@@ -396,6 +403,7 @@ export const routes: readonly Route[] = [
   { method: 'POST', path: '/goals/:id/end', handler: postGoalEnd },
 
   { method: 'POST', path: '/import', handler: postImport },
+  { method: 'GET', path: '/export', handler: getExport },
 
   { method: 'GET', path: '/habits/week', handler: getHabitWeek },
   { method: 'POST', path: '/habits', handler: postHabit },

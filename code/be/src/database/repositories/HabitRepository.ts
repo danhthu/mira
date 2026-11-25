@@ -34,6 +34,18 @@ export class HabitRepository {
     return result.rows.map(toHabit);
   }
 
+  /** Mọi thói quen kể cả đã dừng, kèm mọi lần đánh dấu. Chỉ dùng cho xuất file. */
+  async findAllForExport(userId: string): Promise<{ habits: Habit[]; checks: { habitId: string; date: string }[] }> {
+    const [h, c] = await Promise.all([
+      this.db.query<HabitRow>(HABIT_QUERIES.findAll, [userId]),
+      this.db.query<{ habit_id: string; date: string }>(HABIT_QUERIES.allChecks, [userId]),
+    ]);
+    return {
+      habits: h.rows.map(toHabit),
+      checks: c.rows.map((r) => ({ habitId: r.habit_id, date: r.date })),
+    };
+  }
+
   async countActive(userId: string): Promise<number> {
     const row = await this.db.queryOne<{ n: number }>(HABIT_QUERIES.countActive, [userId]);
     return row === null ? 0 : row.n;

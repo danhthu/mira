@@ -16,11 +16,42 @@ const CELLS: ReadonlyArray<{ key: Cell; label: string; hint: string }> = [
 ];
 
 /**
- * Màn Tài chính. Năm ô nhập, ba mươi giây là xong. Ô chưa nhập hiện dấu hỏi xám —
- * app không đoán hộ, và không bôi đỏ tháng âm.
+ * Màn Tài chính. Năm ô nhập, ba mươi giây là xong. Ô chưa nhập hiện dấu hỏi xám: app
+ * không đoán hộ, và không bôi đỏ tháng âm.
+ *
+ * NHỊP Ở ĐÂY LÀ THÁNG, KHÔNG PHẢI TUẦN. Mọi số của Mira nói "bạn là ai" nhiều hơn "tuần
+ * này khác gì" (tỉ số ≥ 2,7), nhưng số tiền là rõ nhất. Nên tách: số tuần ở màn Thời
+ * gian, số tháng ở đây, và chọn mốc là Tháng · Quý · Năm.
+ *
+ * Nợ nói bằng **một câu**, không bằng ba con số rời. Quy nợ ra số tháng tự do có hệ số
+ * biến thiên 1,40, phân biệt mạnh nhất trong mười một số đã đo. Ba con số rời bắt người
+ * đọc tự nhân chia; một câu thì không.
  */
+type Moc = 'thang' | 'quy' | 'nam';
+
+const MOC: Record<Moc, { nhan: string; lui: number }> = {
+  thang: { nhan: 'Tháng', lui: 1 },
+  quy: { nhan: 'Quý', lui: 3 },
+  nam: { nhan: 'Năm', lui: 12 },
+};
+
+/** YYYY-MM lùi `n` tháng. */
+function luiThang(thang: string, n: number): string {
+  const [y, m] = thang.split('-').map(Number);
+  const d = new Date(Date.UTC(y ?? 2026, (m ?? 1) - 1 - n, 1));
+  return d.toISOString().slice(0, 7);
+}
+
+const tenThang = (thang: string): string => {
+  const [y, m] = thang.split('-');
+  return `Tháng ${Number(m)}/${y}`;
+};
+
 export function MoneyScreen() {
-  const month = monthOf(today());
+  const [moc, setMoc] = useState<Moc>('thang');
+  // Lùi bao nhiêu bước, mỗi bước dài bằng mốc đang chọn.
+  const [lui, setLui] = useState(0);
+  const month = luiThang(monthOf(today()), lui * MOC[moc].lui);
   const state = useAsync(() => store.getMoney(month), [month]);
 
   const [draft, setDraft] = useState<Record<Cell, string>>({
@@ -59,7 +90,35 @@ export function MoneyScreen() {
     <div className="screen-body">
       <div className="row">
         <div className="title">Tài chính</div>
-        <div className="sm">Tháng {month.slice(5)}</div>
+        <div className="sm">{tenThang(month)}</div>
+      </div>
+
+      <div className="pills">
+        {(['thang', 'quy', 'nam'] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            aria-pressed={moc === k}
+            onClick={() => {
+              setMoc(k);
+              setLui(0);
+            }}
+          >
+            {MOC[k].nhan}
+          </button>
+        ))}
+      </div>
+
+      {/* Lùi lại được. Trước đây màn này đóng cứng ở tháng hiện tại, mà một con số vốn
+          tự do đứng một mình không nói được nó đang lên hay xuống. */}
+      <div className="lui">
+        <button type="button" onClick={() => setLui(lui + 1)}>
+          ‹ {MOC[moc].nhan} trước
+        </button>
+        <span>{lui === 0 ? 'Mới nhất' : `Lùi ${lui} ${MOC[moc].nhan.toLowerCase()}`}</span>
+        <button type="button" disabled={lui === 0} onClick={() => setLui(Math.max(0, lui - 1))}>
+          {MOC[moc].nhan} sau ›
+        </button>
       </div>
 
       <div className="card">
@@ -79,33 +138,40 @@ export function MoneyScreen() {
         </div>
       </div>
 
-      {row !== null && row.debtBalance !== null && (
+      {/* Nợ nói bằng MỘT CÂU. Ba con số rời (dư nợ, trả mỗi tháng, bao lâu xong) bắt
+          người đọc tự nhân chia mới hiểu nó nặng tới đâu. Số tháng tự do bị giữ lại là
+          số phân biệt mạnh nhất trong mười một số đã đo, nên nó đứng đầu câu. */}
+      {row !== null && row.debtBalance !== null && row.debtBalance > 0 && (
         <div className="card">
           <div className="label">Nợ</div>
-          <div className="row" style={{ marginTop: 10 }}>
-            <div>
-              <div className="big" style={{ fontSize: 23 }}>
-                {vnd(row.debtBalance)}
-              </div>
-              <div className="sm">còn lại</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div className="big" style={{ fontSize: 23, color: 'var(--amber)' }}>
-                {vnd(row.debtPayment)}
-              </div>
-              <div className="sm">mỗi tháng</div>
-            </div>
-          </div>
-          <div className="sm" style={{ marginTop: 10 }}>
-            {derived?.monthsHeldByDebt == null
-              ? 'Nhập chi tiêu tháng để quy nợ ra số tháng tự do.'
-              : `Nợ đang giữ lại ${fmtMonths(derived.monthsHeldByDebt)} tháng tự do.`}
+          <p className="no">
+            {derived?.monthsHeldByDebt == null ? (
+              <>
+                Còn <b>{vnd(row.debtBalance)}</b>. Nhập chi tiêu tháng thì Mira quy được nó ra
+                bao nhiêu tháng tự do.
+              </>
+            ) : (
+              <>
+                Đang giữ lại <b>{fmtMonths(derived.monthsHeldByDebt)} tháng</b> tự do của bạn.
+              </>
+            )}
+          </p>
+          <div className="sm" style={{ marginTop: 10, lineHeight: 1.55 }}>
+            Còn {vnd(row.debtBalance)}
+            {row.debtPayment !== null && row.debtPayment > 0 ? (
+              <>
+                , trả {vnd(row.debtPayment)} mỗi tháng
+                {` · ${xongVao(row.debtBalance, row.debtPayment)}`}
+              </>
+            ) : (
+              '. Nhập khoản trả mỗi tháng để biết bao giờ xong.'
+            )}
           </div>
         </div>
       )}
 
       <div className="label" style={{ marginTop: 6 }}>
-        Năm ô nhập tháng này
+        Năm ô, mỗi tháng một lần
       </div>
 
       {CELLS.map((cell) => {
@@ -154,4 +220,22 @@ export function MoneyScreen() {
       </p>
     </div>
   );
+}
+
+/**
+ * Bao giờ trả xong, nếu giữ nguyên mức trả hiện tại.
+ *
+ * Cố tình **không tính lãi**. Mira không hỏi lãi suất, nên tính lãi là bịa một tham số.
+ * Con số này là mốc lạc quan nhất có thể, và câu chữ phải nói đúng như vậy.
+ */
+function xongVao(duNo: number, traMoiThang: number): string {
+  const soThang = Math.ceil(duNo / traMoiThang);
+  if (soThang > 12 * 60) return 'hơn sáu mươi năm nếu giữ mức trả này';
+  const d = new Date();
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + soThang);
+  const moc = `${d.getUTCMonth() + 1}/${d.getUTCFullYear()}`;
+  return soThang >= 12
+    ? `xong khoảng ${moc} nếu giữ mức trả này, chưa tính lãi`
+    : `xong khoảng ${moc}, chưa tính lãi`;
 }

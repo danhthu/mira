@@ -10,6 +10,32 @@ export const HABIT_QUERIES = {
     ORDER BY started_on ASC
   `,
 
+  /**
+   * MỌI thói quen, kể cả đã dừng. Chỉ dùng cho xuất file.
+   *
+   * Màn Thói quen cố tình chỉ đọc thói quen đang chạy và đúng bảy ngày của tuần đang
+   * xem, để không có cách nào tính được chuỗi ngày. Nhưng luật đó vắt sang cả xuất file
+   * thì thành mất dữ liệu: xuất rồi nhập lại là mất sạch thói quen đã dừng. Nên đường
+   * xuất đi lối riêng.
+   */
+  findAll: `
+    SELECT * FROM habit
+    WHERE user_id = $1 AND deleted_at IS NULL
+    ORDER BY started_on ASC
+  `,
+
+  /**
+   * Mọi lần đánh dấu, không giới hạn khoảng. Cũng chỉ dùng cho xuất file.
+   *
+   * `habit_check` **không có** cột `deleted_at`: bỏ đánh dấu là xoá hẳn hàng, vì một lần
+   * đã bỏ thì không còn gì để giữ lại. Đừng thêm `deleted_at IS NULL` vào đây.
+   */
+  allChecks: `
+    SELECT habit_id, date FROM habit_check
+    WHERE user_id = $1
+    ORDER BY date ASC
+  `,
+
   countActive: `
     SELECT COUNT(*)::INTEGER AS n
     FROM habit

@@ -240,7 +240,13 @@ input {
   display: flex;
   align-items: center;
   gap: 13px;
-  margin-top: 9px;
+  padding: 10px 0;
+}
+
+/* Đường kẻ giữa các dòng, không phải dưới dòng cuối: khoảng trắng đã làm xong việc kết
+   thúc danh sách, thêm một vạch nữa là vạch không ngăn cách gì. */
+.list-row + .list-row {
+  border-top: 1px solid var(--line);
 }
 
 .list-icon {
@@ -444,4 +450,128 @@ input {
 .ngay b {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+
+/* ─────────────────────────────── cả dòng gom là một nút
+
+   Nút "Xem từng ngày" bé bằng một dòng chữ trong khi cả cái thẻ đều nói về một việc.
+   Ngón tay nhắm vào thẻ chứ không nhắm vào dòng chữ. */
+
+.gom-nut {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.gom-nut:active .gom-mui {
+  transform: translateY(1px);
+}
+
+.gom-mui {
+  color: var(--fg-faint);
+  font-size: 13px;
+  margin-left: 6px;
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.gom-mui.is-mo {
+  transform: rotate(90deg);
+}
+
+/* Câu về nợ: đây là nội dung chính của thẻ, không phải chú thích, nên nó to bằng một câu
+   người ta đọc chứ không bằng cỡ chữ phụ. */
+.no {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+
+.no b {
+  font-weight: 700;
+  color: var(--amber);
+}
+
+/* Hàng lùi mốc thời gian. */
+.lui {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-dim);
+  margin-top: 2px;
+}
+
+.lui > button {
+  color: var(--fg-dim);
+  font-size: 13px;
+  padding: 6px 2px;
+}
+
+.lui > button:disabled {
+  color: var(--fg-faint);
+  cursor: default;
+}
+
+/* ─────────────────────────────── sửa một mục giờ */
+
+.sua {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--screen);
+  border-radius: var(--radius-sm);
+}
+
+.sua__hang {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sua__hang input {
+  width: 84px;
+  background: var(--surface);
+  border: 1.5px solid #d7dfe9;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 16px;
+}
+
+.sua__luu {
+  margin-left: auto;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.sua__luu:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Xoá không bôi đỏ chói. Ràng buộc cứng của Mira: không có màu đỏ cho "chưa đủ", và
+   không doạ người dùng vì một mục giờ ghi nhầm. */
+.sua__moXoa,
+.sua__huy {
+  font-size: 13px;
+  color: var(--fg-dim);
+  padding: 8px 0 2px;
+}
+
+.sua__xoa {
+  background: var(--surface);
+  border: 1.5px solid var(--amber);
+  color: var(--amber);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  font-size: 14px;
 }
