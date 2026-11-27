@@ -113,7 +113,7 @@ Ngưỡng hiện đặt ở một phần ba. Con số chọn tay, không đo đ�
 ## N-230 ⚑ Chốt cho Mira, và một món nợ dữ liệu
 
 **Hiển thị: theo ngân hàng.** Giữ N bản ghi, gom lúc hiện, bấm vào xem lại từng ngày. Đã dựng
-ở `web/src/lib/gom.ts`, 16 test. Lý do không theo lịch: Mira không có lịch, không có lời mời,
+ở `web/src/lib/group.test.ts`, 16 test. Lý do không theo lịch: Mira không có lịch, không có lời mời,
 không có múi giờ chéo nhau. Lấy `RRULE` về là rước một bộ máy để giải một bài không có.
 
 **Lấy của syslog hai thứ:** giữ mốc đầu và mốc cuối trên dòng gom, và bỏ qua trường hay đổi

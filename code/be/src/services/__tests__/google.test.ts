@@ -12,12 +12,12 @@
  * test đơn vị nào thay được một lần thử thật với client ID thật.
  */
 import { describe, it, expect } from 'vitest';
-import { kiemTokenGoogle } from '../google';
+import { verifyGoogleToken } from '../google';
 import { DomainError } from '../../shared/errors';
 
 const CLIENT = '123456789-abc.apps.googleusercontent.com';
 
-async function batLoi(fn: () => Promise<unknown>): Promise<DomainError> {
+async function catchError(fn: () => Promise<unknown>): Promise<DomainError> {
   try {
     await fn();
   } catch (e) {
@@ -29,25 +29,25 @@ async function batLoi(fn: () => Promise<unknown>): Promise<DomainError> {
 
 describe('kiemTokenGoogle', () => {
   it('chưa cấu hình client ID thì trả 503, không phải nhận bừa', async () => {
-    const e = await batLoi(() => kiemTokenGoogle('', 'bat-ky-chuoi-nao'));
+    const e = await catchError(() => verifyGoogleToken('', 'bat-ky-chuoi-nao'));
     expect(e.status).toBe(503);
   });
 
   it('client ID rỗng thì ngay cả chuỗi rỗng cũng là 503, không phải 400', async () => {
     // Thứ tự kiểm có ý nghĩa: chưa bật tính năng thì nói chưa bật, đừng nói thiếu tham số.
-    const e = await batLoi(() => kiemTokenGoogle('', ''));
+    const e = await catchError(() => verifyGoogleToken('', ''));
     expect(e.status).toBe(503);
   });
 
   it('thiếu idToken thì 400', async () => {
-    expect((await batLoi(() => kiemTokenGoogle(CLIENT, ''))).status).toBe(400);
-    expect((await batLoi(() => kiemTokenGoogle(CLIENT, undefined))).status).toBe(400);
-    expect((await batLoi(() => kiemTokenGoogle(CLIENT, 12345))).status).toBe(400);
-    expect((await batLoi(() => kiemTokenGoogle(CLIENT, { idToken: 'x' }))).status).toBe(400);
+    expect((await catchError(() => verifyGoogleToken(CLIENT, ''))).status).toBe(400);
+    expect((await catchError(() => verifyGoogleToken(CLIENT, undefined))).status).toBe(400);
+    expect((await catchError(() => verifyGoogleToken(CLIENT, 12345))).status).toBe(400);
+    expect((await catchError(() => verifyGoogleToken(CLIENT, { idToken: 'x' }))).status).toBe(400);
   });
 
   it('chuỗi không phải JWT thì 401 và không nói rõ sai ở đâu', async () => {
-    const e = await batLoi(() => kiemTokenGoogle(CLIENT, 'khong-phai-jwt'));
+    const e = await catchError(() => verifyGoogleToken(CLIENT, 'khong-phai-jwt'));
     expect(e.status).toBe(401);
     expect(e.message).toBe('Token Google không hợp lệ.');
   });
@@ -74,7 +74,7 @@ describe('kiemTokenGoogle', () => {
     ].join('.');
 
     try {
-      const e = await batLoi(() => kiemTokenGoogle(CLIENT, gia));
+      const e = await catchError(() => verifyGoogleToken(CLIENT, gia));
       expect(e.status).toBe(401);
       // Không nói rõ hỏng ở đâu, kể cả khi lý do thật là không tải được khoá.
       expect(e.message).toBe('Token Google không hợp lệ.');

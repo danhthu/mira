@@ -10,28 +10,19 @@ export const MONEY_QUERIES = {
     ORDER BY month ASC
   `,
 
+  // Chỉ còn hai ô MỨC. Năm ô dòng chảy là tổng `money_entry` — xem migration 013.
   insert: `
-    INSERT INTO money (
-      id, user_id, month,
-      net_income, monthly_expense, debt_payment, debt_balance, net_worth,
-      created_at, updated_at
-    )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
+    INSERT INTO money (id, user_id, month, debt_balance, net_worth, created_at, updated_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $6)
     RETURNING *
   `,
 
-  // Repository đọc trước rồi ghi đè toàn bộ năm ô, giống TimeEntryRepository.update:
+  // Repository đọc trước rồi ghi đè cả hai ô, giống TimeEntryRepository.update:
   // đổi một round trip lấy việc không phải ghép chuỗi SQL động.
   update: `
     UPDATE money
-    SET
-      net_income      = $2,
-      monthly_expense = $3,
-      debt_payment    = $4,
-      debt_balance    = $5,
-      net_worth       = $6,
-      updated_at      = $7
-    WHERE month = $1 AND user_id = $8 AND deleted_at IS NULL
+    SET debt_balance = $2, net_worth = $3, updated_at = $4
+    WHERE month = $1 AND user_id = $5 AND deleted_at IS NULL
     RETURNING *
   `,
 } as const;

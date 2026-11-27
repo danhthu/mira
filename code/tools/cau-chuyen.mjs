@@ -59,7 +59,7 @@ const NHOM = [
  * biết gì về tuần đó, và đó là một phần của câu trả lời.
  */
 function doBatThuong(p) {
-  const nhinThay = p.tuan.map((t, w) => ({ ...t, w })).filter((t) => t.ngayGhi >= 3);
+  const nhinThay = p.tuan.map((t, w) => ({ ...t, w })).filter((t) => t.daysLogged >= 3);
   if (nhinThay.length < 6) return { mu: true, danhDau: [], tuanNhinThay: nhinThay.length };
 
   const nen = {};

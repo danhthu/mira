@@ -24,8 +24,6 @@ import {
   useSettings,
 } from '../../Common/Hooks';
 import { useCommonStyle } from '../../Common/Styles';
-import { EmotionApp } from '../../Emotion';
-import { wishRepository } from '../../Emotion/Entities';
 import { GoalApp } from '../../Goal';
 import {
   habitRepository,
@@ -50,11 +48,7 @@ export const Home = ({ route, navigation }) => {
         />
         {/**{position:'absolute',bottom:0,right:0,left:0,} <Tools style={[style.card_container,]} navigation={navigation} /> */}
         <TimeUsedSection style={[style.card_container]} />
-        <EmotionApp.Components.Card style={[style.card_container]} />
         <GoalApp.Components.Card style={[style.card_container]} />
-        <Button onPress={() => {
-          navigation.navigate('Trading');
-        }} title='Trading Monitoring'></Button>
       </ScrollView>
     </ImageBackground>
   );
@@ -65,10 +59,9 @@ const Header = () => {
   const [settings] = useSettings();
   const colors = useTheme();
   const nav = useNavigation();
-  const movitationString = useAsyncAction(
-    async () => (await wishRepository.getLast()).text,
-    [],
-  );
+  // Cau mo dau truoc day lay tu module Emotion da go bo; de trong cho den khi
+  // lop khoanh khac cua ban chot thay the.
+  const movitationString = '';
   return (
     <View style={{ paddingBottom: 30 }}>
       <View
@@ -97,11 +90,7 @@ const Header = () => {
               borderRadius: 10,
               backgroundColor: colors.hexToRGB(colors.primary, 0.08),
             }}
-            onPress={() =>
-              Router.Open(nav, 'EmotionApp', {
-                screen: 'DailyMovitationString',
-              })
-            }
+            onPress={() => Router.Open(nav, 'HabitAppModal')}
           >
             <B.Text
               style={{

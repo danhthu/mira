@@ -1,0 +1,23 @@
+{
+  "_doc": "Trần ngân sách cứng. CLI từ chối ghi chi tiêu vượt total_usd hoặc vượt budget của campaign chưa APPROVED. Sửa file này = quyết định của Founder, ghi vào memory/DECISION_LOG.md.",
+  "currency": "USD",
+  "total_usd": 100,
+  "fx_vnd_per_usd_assumed": 26000,
+  "max_single_campaign_usd": 30,
+  "max_daily_cap_usd": 5,
+  "reserve_usd": 30,
+  "phase_allocation": {
+    "_note": "Gợi ý, không phải cam kết. Phase 1-2 không chi. Phase 3 thử nghiệm nhỏ sau khi có landing + tracking.",
+    "phase1_foundation": 0,
+    "phase2_acquisition": 0,
+    "phase3_validation": 40,
+    "phase4_scaling": 30,
+    "reserve": 30
+  },
+  "stop_rules": {
+    "ctr_below": 0.01,
+    "cpi_above_usd": 1.5,
+    "cost_per_waitlist_above_usd": 1.0,
+    "min_spend_before_judging_usd": 8
+  }
+}

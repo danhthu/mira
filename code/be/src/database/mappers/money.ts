@@ -5,9 +5,6 @@ export function toMoney(row: MoneyRow): Money {
   return {
     id: row.id,
     month: row.month,
-    netIncome: row.net_income,
-    monthlyExpense: row.monthly_expense,
-    debtPayment: row.debt_payment,
     debtBalance: row.debt_balance,
     netWorth: row.net_worth,
     createdAt: row.created_at,

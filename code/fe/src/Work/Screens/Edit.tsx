@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { B } from '../../../libs/components';
 import { useTheme } from '../../../theme';
-import { ChallengerApp } from '../../Challenger';
-import { ChallengeLinkToAction } from '../../Challenger/Components/LinkTo';
 import { ColorCtrl } from '../../Common/FormControls/ColorCtrl';
 import { DescriptionCtrl } from '../../Common/FormControls/DescriptionCtrl';
 import { MantatoryCtrl } from '../../Common/FormControls/MantatoryCtrl';
@@ -31,7 +29,6 @@ export const Edit = ({ route, navigation }) => {
   }, [route.params]);
   const dataRef = useRef(data);
   const LinkToRef = useRef<GoalLinkToAction>();
-  const LinkToChallengeRef = useRef<ChallengeLinkToAction>();
   const update = (updated) => {
     setData((prevHabit) => ({ ...prevHabit, ...updated }));
   };
@@ -47,7 +44,6 @@ export const Edit = ({ route, navigation }) => {
     if (!data.name) return;
     await workRepository.addOrUpdate(data);
     await LinkToRef.current.save();
-    await LinkToChallengeRef.current.save();
     navigation.goBack();
   };
 
@@ -129,15 +125,6 @@ export const Edit = ({ route, navigation }) => {
           ref={LinkToRef}
         />
       </View>
-      <View style={style.sectionContainer}>
-        <ChallengerApp.Components.LinkTo
-          rowHeight={rowHeight}
-          table="Challenge"
-          tableId={data.id}
-          ref={LinkToChallengeRef}
-        />
-      </View>
-
       <View style={style.description}>
         <DescriptionCtrl
           value={data.description}

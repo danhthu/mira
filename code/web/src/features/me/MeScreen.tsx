@@ -1,25 +1,21 @@
+import { Link } from 'react-router-dom';
 import type { User } from '@mira/contract';
-import { store } from '../../lib/store';
-import { useAsync } from '../../lib/useAsync';
-import { today } from '../../lib/date';
-import { dongPhien } from '../../lib/phien';
-import { googleThoat } from '../../lib/google';
-import { NhapXuat } from './NhapXuat';
-import { NhacCaiDat } from './NhacCaiDat';
+import { closeSession } from '../../lib/session';
+import { googleSignOut } from '../../lib/google';
+import { ImportExport } from './ImportExport';
+import { ReminderSettings } from './ReminderSettings';
 
 /**
  * Màn Tôi. Bốn việc: trả lời những hạt muối tới hạn, đặt giờ nhắc, mang dữ liệu vào ra,
  * và thoát. Không có hồ sơ — thứ gì không cần thì không bày.
  */
-export function MeScreen({ user, onRa }: { readonly user: User; readonly onRa: () => void }) {
-  const state = useAsync(() => store.momentsDue(today()), []);
-  const due = state.data ?? [];
-
-  async function answer(id: string, value: 'same' | 'lighter' | 'gone'): Promise<void> {
-    await store.answerRevisit(id, value);
-    state.reload();
-  }
-
+export function MeScreen({
+  user,
+  onSignOut,
+}: {
+  readonly user: User;
+  readonly onSignOut: () => void;
+}) {
   return (
     <div className="screen-body">
       <div className="row" style={{ alignItems: 'flex-start' }}>
@@ -32,11 +28,11 @@ export function MeScreen({ user, onRa }: { readonly user: User; readonly onRa: (
         <button
           type="button"
           onClick={() => {
-            dongPhien();
+            closeSession();
             // Không tắt chỗ này thì Google tự đăng nhập lại ngay màn sau, và người vừa
             // bấm Thoát sẽ thấy mình vẫn đang ở trong.
-            googleThoat();
-            onRa();
+            googleSignOut();
+            onSignOut();
           }}
           style={{ fontSize: 14, color: 'var(--fg-dim)' }}
         >
@@ -44,64 +40,21 @@ export function MeScreen({ user, onRa }: { readonly user: User; readonly onRa: (
         </button>
       </div>
 
-      <div className="label" style={{ marginTop: 6 }}>
-        Hạt muối tới hạn
-      </div>
+      {/* Hạt muối tới hạn đã dời sang Hũ 26/11/2026: người ta vào đây để chỉnh cài đặt,
+          không phải để nhìn lại một ngày tệ. Xem `features/home/DueSalt.tsx`. */}
+      <Link to="/hu" className="sm">
+        Hũ kẹo, hũ muối và câu hỏi lại sau 42 ngày nằm ở tab Hũ ›
+      </Link>
 
-      {due.length === 0 ? (
-        <p className="empty">
-          Chưa có hạt nào tới hạn. Mira hỏi lại mỗi hạt muối đúng một lần, sau 42 ngày.
-        </p>
-      ) : (
-        due.map((moment) => (
-          <div className="card" key={moment.id}>
-            <div className="sm">{moment.date}</div>
-            <div style={{ fontSize: 17, marginTop: 6, fontStyle: 'italic' }}>
-              {moment.text ?? 'Một ngày nặng, không ghi chữ nào.'}
-            </div>
-            <div className="sm" style={{ marginTop: 12 }}>
-              Bây giờ nhìn lại, nó thế nào?
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
-              {(
-                [
-                  ['same', 'Vẫn nặng như hôm đó'],
-                  ['lighter', 'Nhẹ hơn rồi'],
-                  ['gone', 'Không còn thấy gì'],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => void answer(moment.id, value)}
-                  style={{
-                    textAlign: 'left',
-                    border: '1.5px solid #e2e8f0',
-                    borderRadius: 12,
-                    padding: '12px 14px',
-                    fontSize: 15,
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <p className="empty" style={{ marginTop: 10 }}>
-              Bỏ qua cũng được. Mira không đếm số lần bạn bỏ qua.
-            </p>
-          </div>
-        ))
-      )}
+      <ReminderSettings />
 
-      <NhacCaiDat />
-
-      <NhapXuat />
+      <ImportExport />
 
       <div className="card">
         <div className="label">Riêng tư</div>
         <p style={{ marginTop: 8, fontSize: 15, lineHeight: 1.5 }}>
-          Dữ liệu của bạn nằm trên máy chủ Mira, gắn với tài khoản này. Không tài khoản nào
-          khác đọc được.
+          Dữ liệu của bạn nằm trên máy chủ Mira, gắn với tài khoản này. Không tài khoản nào khác đọc
+          được.
         </p>
         <p className="empty" style={{ marginTop: 8 }}>
           Đồng hồ cát đang tắt. Mira không đếm ngược đời bạn trừ khi bạn tự bật.

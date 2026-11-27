@@ -16,9 +16,9 @@ cta: "life-rate-calculator"
 widget: "life-rate-calculator"
 ---
 
-Bốn con số. Không cần đăng ký. Kết quả hiện ngay dưới nút bấm.
+Bốn con số là đủ.
 
-*(Widget máy tính hiển thị ở đây — nhập thu nhập ròng/tháng, giờ làm việc/tuần, giờ di chuyển/tuần, giờ chuẩn bị + hồi sức/tuần.)*
+*(Widget máy tính hiển thị ở đây — nhập thu nhập ròng/tháng, giờ làm việc/tuần, giờ di chuyển/tuần, giờ chuẩn bị + hồi sức/tuần. Widget chưa được dựng: đây là chỗ giữ chỗ, chưa dùng được. Trong lúc chờ, công thức ở bài ngày 1 cho cùng kết quả.)*
 
 ## Cách đọc kết quả
 
@@ -27,18 +27,20 @@ Công cụ trả về hai con số cạnh nhau:
 - **Tỷ giá đời** — thu nhập ròng chia cho toàn bộ giờ làm thật, gồm cả di chuyển, chuẩn bị, hồi sức.
 - **Tỷ giá "trên giấy"** — cách tính cũ, lương chia đúng giờ hành chính, để bạn thấy khoảng cách giữa hai con số.
 
-Phần lớn người dùng thấy tỷ giá đời thấp hơn tỷ giá trên giấy từ 15% đến 35%, tuỳ mức độ di chuyển và giờ hồi sức.
+Trong ví dụ lương 30 triệu của hai bài trước, tỷ giá đời thấp hơn tỷ giá trên giấy khoảng 20% (115 so với 144 nghìn). Nói cho đúng, đó là một ví dụ, không phải quy luật: người di chuyển ít, hồi sức ít sẽ thấy khoảng cách nhỏ hơn.
 
 ## Một vài trường hợp đặc biệt
 
 **Thu nhập không đều mỗi tháng** (freelance, kinh doanh tự do): dùng số trung bình ba tháng gần nhất thay vì một tháng đơn lẻ, để tránh một tháng bất thường làm lệch con số.
 
-**Có nhiều nguồn thu nhập cùng lúc**: công cụ cho phép thêm nhiều dòng, mỗi dòng gắn với số giờ riêng của nguồn đó. Tỷ giá tổng tính trên tổng thu nhập chia tổng giờ, nhưng bạn cũng sẽ thấy tỷ giá của từng nguồn — nhiều người bất ngờ khi thấy việc tay trái trả cao hơn hẳn công việc chính.
+**Có nhiều nguồn thu nhập cùng lúc**: công cụ cho phép thêm nhiều dòng, mỗi dòng gắn với số giờ riêng của nguồn đó. Tỷ giá tổng tính trên tổng thu nhập chia tổng giờ, và công cụ cũng hiện tỷ giá của từng nguồn. Đôi khi việc tay trái hoá ra trả cao hơn công việc chính.
 
-**Có thu nhập thụ động** (cho thuê nhà, cổ tức): đừng nhập vào ô thu nhập chính. Khoản này không tốn giờ nào của bạn nên sẽ làm hỏng công thức. Nó thuộc về một chỉ số khác — vốn tự do — bạn sẽ gặp trong công cụ tuần sau.
+**Có thu nhập thụ động** (cho thuê nhà, cổ tức): để ngoài ô thu nhập chính. Khoản này không tốn giờ nào của bạn nên sẽ làm hỏng công thức. Nó thuộc về một chỉ số khác — vốn tự do — bạn sẽ gặp trong công cụ tuần sau.
 
 **Không đi làm** (nội trợ, sinh viên, đang nghỉ): công cụ này chưa dành cho bạn, và đó không phải điều gì cần sửa. Tỷ giá đời chỉ có nghĩa khi có một công việc đang đổi giờ lấy tiền.
 
-## Muốn nhận lại kết quả
+## Muốn giữ lại kết quả
 
-Có nút "gửi kết quả qua email" ngay dưới công cụ. Không phải để thêm bạn vào danh sách quảng cáo — kết quả gửi về sẽ kèm một dòng duy nhất Chủ nhật tuần này: tỷ giá đời của bạn so với tuần trước, nếu có gì thay đổi.
+Công cụ chưa có tính năng gửi email. Tính xong, bạn ghi con số cùng ngày tháng vào ghi chú điện thoại; tuần sau tính lại, bạn sẽ thấy nó nhích đi đâu.
+
+Nếu chỉ được chọn một trong bốn ô để đo kỹ hơn, bạn sẽ chọn ô nào?

@@ -16,7 +16,7 @@
  */
 
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
-export const googleBat = GOOGLE_CLIENT_ID !== '';
+export const googleEnabled = GOOGLE_CLIENT_ID !== '';
 
 interface GsiId {
   initialize(o: {
@@ -35,11 +35,11 @@ declare global {
   }
 }
 
-let dangTai: Promise<GsiId> | null = null;
+let loading: Promise<GsiId> | null = null;
 
-function napGsi(): Promise<GsiId> {
+function loadGsi(): Promise<GsiId> {
   if (window.google?.accounts?.id) return Promise.resolve(window.google.accounts.id);
-  dangTai ??= new Promise<GsiId>((resolve, reject) => {
+  loading ??= new Promise<GsiId>((resolve, reject) => {
     const s = document.createElement('script');
     s.src = 'https://accounts.google.com/gsi/client';
     s.async = true;
@@ -49,20 +49,20 @@ function napGsi(): Promise<GsiId> {
         : reject(new Error('Không tải được Google Sign-In.'));
     s.onerror = () => {
       // Xoá để lần bấm sau thử lại được; giữ promise hỏng thì nút chết vĩnh viễn.
-      dangTai = null;
+      loading = null;
       reject(new Error('Không tải được Google Sign-In.'));
     };
     document.head.appendChild(s);
   });
-  return dangTai;
+  return loading;
 }
 
 /** Vẽ nút "Tiếp tục với Google" vào `el`. Mỗi lần chọn tài khoản thì gọi `onToken`. */
-export async function veNutGoogle(
+export async function renderGoogleButton(
   el: HTMLElement,
   onToken: (idToken: string) => void,
 ): Promise<void> {
-  const id = await napGsi();
+  const id = await loadGsi();
   id.initialize({
     client_id: GOOGLE_CLIENT_ID,
     callback: (r) => onToken(r.credential),
@@ -85,7 +85,7 @@ export async function veNutGoogle(
 }
 
 /** Sau khi thoát thì đừng tự đăng nhập lại bằng Google. */
-export function googleThoat(): void {
+export function googleSignOut(): void {
   try {
     window.google?.accounts?.id?.disableAutoSelect();
   } catch {

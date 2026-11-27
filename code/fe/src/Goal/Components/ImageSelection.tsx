@@ -56,7 +56,7 @@ export const ImageSelection = (props:{ style?:StyleProp<ViewStyle>, value:string
     type="Link"
     onPress={selectedIndex=>{
       if(selectedIndex==0){
-        Router.Open(navigation, 'ChallengerModal', { screen: 'IconSelection', src: props.value,onGoBack:val=>props.onChanged(val) });
+        Router.Open(navigation, 'IconSelectionModal', { src: props.value, onGoBack: val => props.onChanged(val) });
       }
       if(selectedIndex==1)
       {

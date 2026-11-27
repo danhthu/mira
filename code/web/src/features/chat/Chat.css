@@ -420,3 +420,200 @@
   font-style: normal;
   color: var(--fg-dim);
 }
+
+/*
+ * Dòng báo ghi trùng.
+ *
+ * Nền hổ phách nhạt, chữ đậm màu: nó phải đập vào mắt hơn dòng "Mira đoán ô này", vì
+ * đoán sai ô chỉ là xếp nhầm chỗ, còn ghi trùng thì CỘNG SAI — hai lần "thể dục 20
+ * phút" thành 40 phút trong sổ tuần, và con số đó đi thẳng vào "giờ vàng tuần".
+ *
+ * Vẫn không dùng đỏ. Đây chưa chắc là lỗi: có người tập hai buổi thật.
+ */
+.bong__trung {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--waste-soft);
+  color: var(--waste-ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/*
+ * Mira trả lời.
+ *
+ * Khác hẳn thẻ mục đã ghi: không viền ô, không nút gỡ, chữ chạy thành đoạn. Người đọc
+ * phải nhận ra ngay đây là CÂU TRẢ LỜI chứ không phải thứ Mira vừa ghi vào sổ — nhầm
+ * hai cái đó thì họ đi tìm nút Hoàn tác cho một câu chẳng ghi gì.
+ */
+.dap {
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+.dap p {
+  margin: 0;
+}
+
+.dap p + p,
+.dap ul + p {
+  margin-top: 8px;
+}
+
+.dap ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.dap li + li {
+  margin-top: 4px;
+}
+
+/* Ví dụ câu gõ: nghiêng, để đọc ra ngay là "gõ thế này", không phải "đây là dữ liệu". */
+.dap__vd {
+  list-style: none;
+  padding-left: 0;
+  border-left: 2px solid var(--brand-soft);
+}
+
+.dap__vd li {
+  padding-left: 10px;
+  font-style: italic;
+  color: var(--fg-dim);
+}
+
+.dap__chu {
+  font-size: 13px;
+  color: var(--fg-dim);
+}
+
+.dap a {
+  color: var(--brand-ink);
+  font-weight: 600;
+}
+
+/* ── Làm quen qua chat ─────────────────────────────────────────────────────────────
+   Câu Mira hỏi người mới. Rộng hơn bóng chữ thường và có viền chàm nhạt: nó là thứ
+   duy nhất trên màn đang CHỜ một câu trả lời, nên phải nhìn ra ngay giữa các thẻ kết
+   quả. Không dùng nền hổ phách của lời nhắc — nhắc là "bạn quên", hỏi là "mình bắt đầu". */
+.bong--hoi {
+  align-self: stretch;
+  max-width: none;
+  border: 1.5px solid var(--brand-soft);
+}
+
+.hoi__buoc {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.hoi__cau {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.hoi__visao {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+}
+
+.hoi__mau {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 11px;
+}
+
+/* Câu mẫu trông như một phím: viền chàm, chữ chàm. Bấm là chữ nhảy xuống ô gõ. */
+.hoi__chip {
+  background: var(--surface);
+  border: 1.5px solid var(--brand);
+  color: var(--brand-ink);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* Hai thứ kéo người ta quay lại, đứng trên khối câu mẫu của màn trống. Chữ không nghiêng
+   và không mờ như phần hướng dẫn: đây là nội dung của người dùng, không phải lời chỉ dẫn. */
+.chat__toihan {
+  display: block;
+  margin-bottom: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border-left: 3px solid var(--salt);
+  color: var(--fg);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.chat__cu {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+/* ─────────── thẻ đã ghi bấm được: mở khay sửa / xoá (27/11/2026) ───────────
+   Nút trùm cả thẻ, mũi tên › kiểu iOS ở cột cuối. Viên ô vẫn ở cột giữa. */
+.y--mo {
+  width: 100%;
+  grid-template-columns: 1fr auto auto;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.y--mo + .y,
+.y + .y--mo {
+  border-top: 1px solid var(--line);
+}
+
+.y--mo:active {
+  background: var(--screen);
+}
+
+.y__toi {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--fg-muted);
+  padding-left: 2px;
+}
+
+.y--mo > .y__doan {
+  grid-column: 1;
+}
+
+.suaghi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suaghi__chan {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}

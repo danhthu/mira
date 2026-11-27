@@ -19,8 +19,8 @@ const personRow: PersonRow = {
 };
 
 const timeEntryRow: TimeEntryRow = {
-  nep_id: null,
-  danh_muc_id: null,
+  routine_id: null,
+  category_id: null,
   id: '0192f0c0-0000-7000-8000-000000000002',
   date: '2026-08-25',
   minutes: 90,

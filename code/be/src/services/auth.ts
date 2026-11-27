@@ -17,7 +17,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import type { AuthResponse, User } from '@mira/contract';
 import type { UserRepository, UserRec } from '../database/repositories/UserRepository';
 import { DomainError } from '../shared/errors';
-import { kiemTokenGoogle } from './google';
+import { verifyGoogleToken } from './google';
 
 export interface AuthDeps {
   readonly users: UserRepository;
@@ -39,7 +39,7 @@ function key(secret: string): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-async function phatToken(deps: AuthDeps, user: UserRec): Promise<AuthResponse> {
+async function issueToken(deps: AuthDeps, user: UserRec): Promise<AuthResponse> {
   const token = await new SignJWT({})
     .setProtectedHeader({ alg: 'HS256' })
     .setSubject(user.id)
@@ -49,7 +49,7 @@ async function phatToken(deps: AuthDeps, user: UserRec): Promise<AuthResponse> {
   return { user: toPublic(user), token, expiresIn: deps.ttlSeconds };
 }
 
-export async function dangNhap(
+export async function login(
   deps: AuthDeps,
   username: string,
   password: string,
@@ -66,7 +66,7 @@ export async function dangNhap(
   if (user === null || user.passwordHash === null || !dung) {
     throw unauthorized('Sai tên đăng nhập hoặc mật khẩu.');
   }
-  return phatToken(deps, user);
+  return issueToken(deps, user);
 }
 
 /**
@@ -76,20 +76,20 @@ export async function dangNhap(
  * Nối người quay lại bằng **email đã xác minh**, không bằng tên. Tên đăng nhập suy từ
  * phần trước @ chỉ để hiển thị cho dễ đọc, và có thể bị thêm hậu tố nếu trùng.
  */
-export async function dangNhapGoogle(deps: AuthDeps, idToken: unknown): Promise<AuthResponse> {
-  const dt = await kiemTokenGoogle(deps.googleClientId, idToken);
+export async function loginWithGoogle(deps: AuthDeps, idToken: unknown): Promise<AuthResponse> {
+  const dt = await verifyGoogleToken(deps.googleClientId, idToken);
 
-  const daCo = await deps.users.findByEmail(dt.email);
-  if (daCo !== null) return phatToken(deps, daCo);
+  const known = await deps.users.findByEmail(dt.email);
+  if (known !== null) return issueToken(deps, known);
 
-  const user = await deps.users.createFromGoogle(tenTuEmail(dt.email), dt.ten, dt.email, dt.sub);
-  return phatToken(deps, user);
+  const user = await deps.users.createFromGoogle(nameFromEmail(dt.email), dt.ten, dt.email, dt.sub);
+  return issueToken(deps, user);
 }
 
 /** "Danh.Thu+mira@gmail.com" → "danh.thu". Rỗng hoặc quá ngắn thì lấy tên chung. */
-function tenTuEmail(email: string): string {
-  const goc = email.split('@')[0] ?? '';
-  const sach = goc
+function nameFromEmail(email: string): string {
+  const original = email.split('@')[0] ?? '';
+  const sach = original
     .toLowerCase()
     .replace(/\+.*$/, '')
     .replace(/[^a-z0-9._-]/g, '')
@@ -98,7 +98,7 @@ function tenTuEmail(email: string): string {
 }
 
 /** Đọc id người dùng từ header. Ném 401 nếu thiếu, sai chữ ký, hoặc hết hạn. */
-export async function docToken(deps: AuthDeps, authorization: string | undefined): Promise<string> {
+export async function readToken(deps: AuthDeps, authorization: string | undefined): Promise<string> {
   const prefix = 'Bearer ';
   if (authorization === undefined || !authorization.startsWith(prefix)) {
     throw unauthorized('Cần đăng nhập.');

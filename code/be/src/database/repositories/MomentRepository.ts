@@ -64,14 +64,32 @@ export class MomentRepository {
     return toMoment(row);
   }
 
+  /**
+   * Sửa chữ, và đổi kẹo ↔ muối.
+   *
+   * Đổi loại thì **tính lại hẹn hỏi lại**, theo đúng luật lúc ghi mới: muối có hẹn sau
+   * 42 ngày kể từ NGÀY CỦA HẠT (không phải hôm nay), kẹo không có hẹn. Giữ nguyên
+   * `revisit_at` cũ khi đổi sang kẹo sẽ để lại một cái hẹn mồ côi, và Mira sẽ hỏi lại
+   * một ngày vui như thể nó là một ngày nặng.
+   */
   async update(userId: string, id: string, dto: UpdateMomentDto): Promise<Moment | null> {
     const current = await this.findById(userId, id);
     if (current === null) {
       return null;
     }
+    const kind = dto.kind ?? current.kind;
+    const revisitAt =
+      kind === current.kind
+        ? current.revisitAt
+        : kind === 'salt'
+          ? addDays(current.date, SALT_REVISIT_DAYS)
+          : null;
+
     const row = await this.db.queryOne<MomentRow>(MOMENT_QUERIES.update, [
       id,
       dto.text === undefined ? current.text : dto.text,
+      kind,
+      revisitAt,
       new Date().toISOString(),
       userId,
     ]);

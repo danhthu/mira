@@ -47,7 +47,7 @@ const cuoiKy = (p, f) => mean(p.tuan.slice(18, 26).map((t) => t[f]));
 /** Lặp lại bộ dò của `cau-chuyen.mjs`: chỉ nhìn thứ Mira lưu. */
 const NHOM = ['work', 'waste', 'family', 'golden'];
 function doBatThuong(p) {
-  const nhin = p.tuan.map((t, w) => ({ ...t, w })).filter((t) => t.ngayGhi >= 3);
+  const nhin = p.tuan.map((t, w) => ({ ...t, w })).filter((t) => t.daysLogged >= 3);
   if (nhin.length < 6) return { mu: true, danhDau: [], nhin: nhin.length };
   const nen = {};
   for (const k of NHOM) nen[k] = median(nhin.map((t) => t[k]));
@@ -95,7 +95,7 @@ function chay(ten, tuyChon) {
     ten,
     giu12: app.filter((p) => p.boTuan === null || p.boTuan > 12).length / N,
     giu26: conLai.length / N,
-    ngayGhi: mean(app.map((p) => p.soNgayGhi)),
+    daysLogged: mean(app.map((p) => p.soNgayGhi)),
     hat: mean(app.map((p) => p.moments.length)),
     hatMuoi: mean(app.map((p) => p.moments.filter((m) => m.muoi).length)),
     tkDangKy: mean(tk),
@@ -151,7 +151,7 @@ cần người thật.
 ${kq
   .map(
     (k) =>
-      `| **${k.ten}** | ${pcf(k.giu12)} | **${pcf(k.giu26)}** | ${n1(k.ngayGhi)} | **${n1(k.tkDangKy)}h** | ${pcf(k.khaHon)} |`,
+      `| **${k.ten}** | ${pcf(k.giu12)} | **${pcf(k.giu26)}** | ${n1(k.daysLogged)} | **${n1(k.tkDangKy)}h** | ${pcf(k.khaHon)} |`,
   )
   .join('\n')}
 
@@ -183,7 +183,7 @@ for (const k of kq) {
   console.log(
     k.ten.padEnd(38) +
       pcf(k.giu12).padStart(5) + pcf(k.giu26).padStart(7) +
-      n1(k.ngayGhi).padStart(9) + (n1(k.tkDangKy) + 'h').padStart(8) +
+      n1(k.daysLogged).padStart(9) + (n1(k.tkDangKy) + 'h').padStart(8) +
       pcf(k.khaHon).padStart(8) + n1(k.hat).padStart(7) + pcf(k.mu).padStart(6),
   );
 }

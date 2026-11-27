@@ -254,7 +254,7 @@ export function songSauThang({ seed, job, stage, city, dungApp, tuyChon = {} }) 
       tuanGhiDu = w.ghi >= 4 ? tuanGhiDu + 1 : 0;
       tuan.push({
         work: w.work, waste: w.waste, family: w.family, golden: Math.round(w.golden),
-        personal: Math.round(w.personal), ngayGhi: w.ghi, dangDung, hieuLuc, cangThang,
+        personal: Math.round(w.personal), daysLogged: w.ghi, dangDung, hieuLuc, cangThang,
       });
       w = { waste: 0, family: 0, golden: 0, work: 0, personal: 0, ghi: 0 };
     }

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { User } from '@mira/contract';
 import { store } from '../../lib/store';
-import { moPhien } from '../../lib/phien';
-import { googleBat, veNutGoogle } from '../../lib/google';
+import { openSession } from '../../lib/session';
+import { googleEnabled, renderGoogleButton } from '../../lib/google';
+import { devLogin, devLoginReady, devLoginUser } from '../../lib/devLogin';
 
 /**
  * Màn đăng nhập.
@@ -17,42 +18,42 @@ import { googleBat, veNutGoogle } from '../../lib/google';
  * Thông báo lỗi lấy nguyên văn từ máy chủ, vì chính máy chủ mới biết sai ở đâu, và nó cố
  * tình không nói rõ sai tên hay sai mật khẩu.
  */
-export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) {
+export function AuthScreen({ onSignIn }: { readonly onSignIn: (user: User) => void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [moMatKhau, setMoMatKhau] = useState(false);
   const [loi, setLoi] = useState<string | null>(null);
-  const [dangGui, setDangGui] = useState(false);
+  const [sending, setDangGui] = useState(false);
   const oNut = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!googleBat || oNut.current === null) return;
-    let conHieuLuc = true;
+    if (!googleEnabled || oNut.current === null) return;
+    let stillValid = true;
 
-    void veNutGoogle(oNut.current, (idToken) => {
-      if (!conHieuLuc) return;
+    void renderGoogleButton(oNut.current, (idToken) => {
+      if (!stillValid) return;
       setDangGui(true);
       setLoi(null);
       store
         .google({ idToken })
         .then((kq) => {
-          moPhien(kq.token);
-          onVao(kq.user);
+          openSession(kq.token);
+          onSignIn(kq.user);
         })
         .catch((cause: unknown) => {
           setLoi(cause instanceof Error ? cause.message : 'Không kết nối được máy chủ.');
         })
         .finally(() => {
-          if (conHieuLuc) setDangGui(false);
+          if (stillValid) setDangGui(false);
         });
     }).catch((cause: unknown) => {
-      if (conHieuLuc) setLoi(cause instanceof Error ? cause.message : 'Không tải được Google.');
+      if (stillValid) setLoi(cause instanceof Error ? cause.message : 'Không tải được Google.');
     });
 
     return () => {
-      conHieuLuc = false;
+      stillValid = false;
     };
-  }, [onVao]);
+  }, [onSignIn]);
 
   async function guiMatKhau(): Promise<void> {
     if (username.trim() === '' || password === '') return;
@@ -60,9 +61,9 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
     setLoi(null);
     try {
       const kq = await store.login({ username: username.trim(), password });
-      moPhien(kq.token);
+      openSession(kq.token);
       setPassword('');
-      onVao(kq.user);
+      onSignIn(kq.user);
     } catch (cause: unknown) {
       setLoi(cause instanceof Error ? cause.message : 'Không kết nối được máy chủ.');
     } finally {
@@ -90,7 +91,7 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
         </p>
       </div>
 
-      {googleBat && (
+      {googleEnabled && (
         <div ref={oNut} style={{ display: 'flex', justifyContent: 'center', minHeight: 44 }} />
       )}
 
@@ -98,6 +99,35 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
         <p className="empty" style={{ color: 'var(--amber)' }}>
           {loi}
         </p>
+      )}
+
+      {/* Đăng nhập nhanh khi đang làm. Bản thật không có nút này, và cũng không có thông
+          tin đăng nhập nào trong gói — xem `lib/devLogin.ts` để biết vì sao. */}
+      {devLoginReady && (
+        <button
+          type="button"
+          disabled={sending}
+          onClick={() => {
+            setDangGui(true);
+            setLoi(null);
+            devLogin()
+              .then(onSignIn)
+              .catch((cause: unknown) => {
+                setLoi(cause instanceof Error ? cause.message : 'Không đăng nhập nhanh được.');
+                setDangGui(false);
+              });
+          }}
+          style={{
+            border: '1.5px dashed var(--brand)',
+            color: 'var(--brand)',
+            borderRadius: 13,
+            padding: '11px 15px',
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          {sending ? 'Đang vào…' : `Vào nhanh bằng ${devLoginUser()}`}
+        </button>
       )}
 
       {!moMatKhau && (
@@ -137,7 +167,7 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
           <button
             type="button"
             onClick={() => void guiMatKhau()}
-            disabled={dangGui}
+            disabled={sending}
             style={{
               background: 'var(--navy)',
               color: '#fff',
@@ -145,17 +175,19 @@ export function AuthScreen({ onVao }: { readonly onVao: (user: User) => void }) 
               padding: '13px 15px',
               fontWeight: 600,
               fontSize: 16,
-              opacity: dangGui ? 0.6 : 1,
+              opacity: sending ? 0.6 : 1,
             }}
           >
-            {dangGui ? 'Đang gửi…' : 'Đăng nhập'}
+            {sending ? 'Đang gửi…' : 'Đăng nhập'}
           </button>
         </>
       )}
 
       <p className="empty" style={{ marginTop: 10 }}>
-        Dữ liệu của bạn nằm trên máy chủ Mira và chỉ bạn đọc được. Không ai khác thấy nhật
-        ký, giờ hay tiền của bạn.
+        Dữ liệu của bạn nằm trên máy chủ Mira. Không bán, không chia sẻ, không quảng cáo.
+      </p>
+      <p className="empty" style={{ marginTop: 4 }}>
+        <a href="/privacy">Chính sách riêng tư</a> · <a href="/terms">Điều khoản</a>
       </p>
     </div>
   );

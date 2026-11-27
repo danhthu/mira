@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-13",
+  "start": "2026-10-13",
+  "elapsed": 0,
+  "remaining": 90,
+  "target": 1000,
+  "installs": {
+    "android": 0,
+    "ios": 0,
+    "pwa": 0,
+    "total": 0,
+    "daily": 0,
+    "progress_pct": 0,
+    "remaining": 1000
+  },
+  "acquisition": {
+    "organic": 0,
+    "paid": 0,
+    "unknown": 0
+  },
+  "channels": {},
+  "waitlist": 0,
+  "storeVisitors": {
+    "android": 0,
+    "ios": 0
+  },
+  "store_conversion": {
+    "android": null,
+    "ios": null
+  },
+  "retained_d7": 0,
+  "budget": {
+    "total_usd": 100,
+    "approved_usd": 0,
+    "spent_usd": 0,
+    "remaining_usd": 100,
+    "cpi": null,
+    "campaigns": []
+  },
+  "tasks": {
+    "BACKLOG": 8,
+    "READY": 3,
+    "IN_PROGRESS": 0,
+    "BLOCKED": 2,
+    "REVIEW": 0,
+    "DONE": 13,
+    "CANCELLED": 0
+  },
+  "overdue": [],
+  "content": {
+    "IDEA": 0,
+    "RESEARCH": 0,
+    "DRAFT": 9,
+    "REVIEW": 20,
+    "APPROVED": 14,
+    "PUBLISHED": 0,
+    "MEASURED": 0,
+    "REUSED": 0,
+    "ARCHIVED": 0
+  },
+  "content_published_today": 0,
+  "experiments_running": 1,
+  "approvals": [
+    {
+      "id": 1,
+      "kind": "code_change",
+      "ref_id": "T-0019",
+      "request": "Gắn GA4 gtag + 3 event vào growth/blog BaseHead.astro và web build PWA theo growth/os/analytics/ga4-plan.md — không đụng app native",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:01:34.423Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    },
+    {
+      "id": 2,
+      "kind": "code_change",
+      "ref_id": "T-0023",
+      "request": "code/fe/App.tsx:89-91 xoá toàn bộ dữ liệu và nạp mẫu giả mỗi lần mở — chặn thử nghiệm người thật và trái cam kết local-first. Đề nghị bọc trong cờ dev hoặc gỡ.",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:02:12.970Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    },
+    {
+      "id": 3,
+      "kind": "code_change",
+      "ref_id": "T-0009",
+      "request": "growth/blog: 88 bài mirror không có draft:true và site không lọc draft → deploy bây giờ sẽ đăng công khai cả 88 bài chưa duyệt. Đề nghị: thêm draft:true cho bài chưa APPROVED + lọc draft trong getCollection (index, blog list, rss, sitemap) TRƯỚC lần deploy đầu.",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:08:00.102Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    },
+    {
+      "id": 4,
+      "kind": "code_change",
+      "ref_id": "T-0018",
+      "request": "Đổi code/fe/app.json: name/slug DailyOps → Mira, thêm android.package, đổi ios.bundleIdentifier com.wai.dailyops → <đề xuất>; Founder chốt tên và bundle id. Đề xuất: com.trady360.mira (hoặc vn.mira.app); chi tiết growth/os/aso/play-listing-2026-10-13.md",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:14:20.480Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    },
+    {
+      "id": 5,
+      "kind": "publish",
+      "ref_id": "T-0007",
+      "request": "Gửi 5 thư outreach đầu tiên (growth/os/content/outreach/) tới: Thảo Thảo (The Slow Reader), Vũ Hồng Khanh, Ngân Jones (Chuyện của Ngân), Nguyễn Anh Ngọc (NgocDenRoi), Minh Pham (Career and Life Diary). Founder gửi tay. Lưu ý: Minh Pham chưa có kênh công khai (cần xác nhận), NgocDenRoi chưa đo quy mô blog. Danh sách: growth/os/research/outreach-2026-10-13.csv",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:17:56.947Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    },
+    {
+      "id": 6,
+      "kind": "code_change",
+      "ref_id": "T-0010",
+      "request": "Thay growth/blog/src/pages/index.astro bằng growth/os/content/landing-index.astro.proposal (landing + form waitlist chưa nối ESP). Lưu ý: form chưa lưu email, không deploy công khai trước khi nối ESP.",
+      "status": "PENDING",
+      "requested_at": "2026-10-13T16:21:24.128Z",
+      "decided_at": null,
+      "decided_by": null,
+      "note": ""
+    }
+  ],
+  "forecast": {
+    "rate_7d": 0,
+    "installs_day90_linear": 0,
+    "quality": "estimated",
+    "milestone_next": {
+      "day": 14,
+      "cumulative_installs": 50,
+      "phase": "Foundation"
+    }
+  },
+  "series": []
+}

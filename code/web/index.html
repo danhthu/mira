@@ -2,9 +2,34 @@
 <html lang="vi">
   <head>
     <meta charset="utf-8" />
+    <!-- viewport-fit=cover: iPhone có tai thỏ thì nền tràn hết, còn phần an toàn do CSS lo. -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#F2F0EC" />
+
+    <!-- Khớp --screen trong tokens.css. Lệch thì lúc mở app có một nháy màu khác. -->
+    <meta name="theme-color" content="#f3f6fc" />
+    <meta name="description" content="Thời gian của bạn đi đâu, và tiền của bạn đang ở đâu." />
+
     <title>Mira</title>
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon-32.png" sizes="32x32" type="image/png" />
+
+    <!--
+      iOS ĐỌC MẤY THẺ NÀY, KHÔNG ĐỌC MANIFEST.
+
+      Safari trên iPhone vẫn lấy icon và tên từ `apple-touch-icon` và
+      `apple-mobile-web-app-title` khi người dùng bấm "Thêm vào màn hình chính". Thiếu
+      `apple-touch-icon` thì iOS tự chụp màn hình trang web làm icon — ra một ô mờ
+      không đọc được chữ gì.
+
+      `apple-mobile-web-app-capable` mới là cái làm nó chạy toàn màn hình, không còn
+      thanh địa chỉ Safari. Đây cũng là điều kiện để iOS 16.4+ cho phép thông báo đẩy:
+      trên iPhone, chỉ app ĐÃ thêm vào màn hình chính mới xin được quyền thông báo.
+    -->
+    <link rel="apple-touch-icon" href="/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Mira" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
     <div id="root"></div>

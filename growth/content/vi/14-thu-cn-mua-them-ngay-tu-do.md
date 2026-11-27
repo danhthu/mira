@@ -29,6 +29,8 @@ Không viết thư này để giục bạn tiết kiệm nhiều hơn. Chỉ đ�
 
 Nếu muốn thử, công cụ vốn tự do ở link dưới — 5 ô, hai phút, ra ngay bạn đang ở nấc nào và mua thêm được bao nhiêu ngày tháng này.
 
+Tháng này bạn mua thêm được mấy ngày, nếu đếm theo cách đó?
+
 Hẹn Chủ nhật sau — chủ đề tuần tới là thứ nối cả hai tuần đầu lại: khi tiền quy đổi ra giờ, mọi món đồ đều có hai giá.
 
 *(Máy tính vốn tự do: [link])*

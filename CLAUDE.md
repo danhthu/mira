@@ -7,6 +7,8 @@ Repo tách hai nhánh việc, mỗi nhánh có `CLAUDE.md` riêng với luật c
 
 Spec sản phẩm dùng chung cho cả hai nhánh nằm ở [`docs/`](docs/) (không thuộc riêng `code/` hay `growth/`): `00-vision.md` → `08-three-pillars.md`.
 
+**Đụng tới nhập liệu bằng chat thì đọc [`docs/12-mo-hinh-mira.md`](docs/12-mo-hinh-mira.md) TRƯỚC.** Đó là mô hình nghiệp vụ viết cho agent: bốn ô thời gian, bảy ô tiền, hũ kẹo/muối, thứ tự xử lý của bộ đọc câu, và bốn cái bẫy bỏ dấu tiếng Việt đã gây lỗi thật. Từ vựng của bộ đọc câu nằm ở `code/be/src/services/parse-rules.json` — sửa file đó chứ đừng gõ từ khoá vào mã nguồn.
+
 ## Cấu trúc thư mục
 
 ```

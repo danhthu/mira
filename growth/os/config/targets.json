@@ -1,0 +1,25 @@
+{
+  "_doc": "Mục tiêu 90 ngày. start_date = ngày Founder bấm chạy hệ thống. Cột mốc là kế hoạch, CGO phải sửa dự báo theo số thật.",
+  "start_date": "2026-10-13",
+  "days": 90,
+  "target_installs": 1000,
+  "install_definition": "Tổng người dùng mới thật = installs Android + installs iOS + pwa_installs. Trước khi app lên store, chỉ số dẫn đường là waitlist (email) và pwa_installs — KHÔNG được cộng waitlist vào installs.",
+  "milestones": [
+    { "day": 14, "cumulative_installs": 50,   "phase": "Foundation" },
+    { "day": 30, "cumulative_installs": 150,  "phase": "Acquisition" },
+    { "day": 45, "cumulative_installs": 350,  "phase": "Validation" },
+    { "day": 60, "cumulative_installs": 600,  "phase": "Scaling" },
+    { "day": 90, "cumulative_installs": 1000, "phase": "Optimization" }
+  ],
+  "leading_indicators": {
+    "waitlist_day14": 100,
+    "blog_published_day14": 14,
+    "landing_live_day": 7
+  },
+  "founder_decisions_pending": [
+    "Xác nhận định nghĩa install gồm PWA (app chưa lên store)",
+    "Chốt tên miền thật (astro.config hiện là mira.trady360.com)",
+    "Cho phép tạo tài khoản GA4 cho blog/landing (không đụng app)",
+    "Ngày dự kiến có build store (EAS) để điều chỉnh cột mốc"
+  ]
+}

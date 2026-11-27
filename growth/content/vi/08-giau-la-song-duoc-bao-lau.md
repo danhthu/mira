@@ -17,7 +17,7 @@ cta: "freedom-months-calculator"
 
 Có một câu hỏi tôi bắt đầu hỏi bạn bè thay cho câu "lương bao nhiêu": nếu mai nghỉ việc, không nhận thêm đồng nào, bạn sống được bao lâu?
 
-Phần lớn không trả lời được ngay. Không phải vì họ nghèo. Vì chưa ai hỏi câu đó theo cách này.
+Nhiều người không trả lời được ngay. Không phải vì họ nghèo. Vì chưa ai hỏi câu đó theo cách này.
 
 ## Số dư tài khoản không nói lên điều gì
 
@@ -54,9 +54,9 @@ Nhìn con số 9,5 tháng đứng một mình dễ gây hoang mang — nghe như
 | Linh hoạt | 1–5 năm | đủ để đổi nghề, nghỉ dài, thử khởi nghiệp |
 | Tự do | trên 25 năm chi phí | không cần đi làm nữa |
 
-9,5 tháng nằm ở nấc An toàn — không phải nấc thấp nhất, và còn cách nấc Linh hoạt khoảng 7 tháng tiết kiệm nữa, không phải một khoảng cách xa vời.
+9,5 tháng nằm ở nấc An toàn — không phải nấc thấp nhất, và còn cách nấc Linh hoạt (từ 12 tháng) khoảng 2,5 tháng chi phí, tức chừng 48 triệu nữa, không phải một khoảng cách xa vời.
 
-Điều quan trọng không phải bạn đang ở nấc nào hôm nay. Là bạn biết mình đang ở nấc nào, và còn bao xa tới nấc kế tiếp — thay vì chỉ có một con số trần trụi không biết nên vui hay nên lo.
+Điều quan trọng không phải bạn đang ở nấc nào hôm nay. Là bạn biết mình đang ở nấc nào, và còn bao xa tới nấc kế tiếp — thay vì chỉ có một con số trần trụi không biết vui hay lo.
 
 ## Vì sao câu hỏi "sống được bao lâu" đúng hơn câu hỏi "có bao nhiêu tiền"
 
@@ -64,4 +64,6 @@ Tiền là phương tiện. Thời gian bạn có thể sống mà không cần 
 
 Số dư tài khoản không cho bạn biết điều đó. Vốn tự do thì có.
 
-Cuối bài có công cụ tính sẵn — chỉ cần hai con số bạn đã biết: tài sản ròng và chi phí sống thật mỗi tháng.
+Công cụ tính sẵn nằm ở bài ngày 10 (đang được dựng). Tự tính bằng máy tính cầm tay cũng đủ: chỉ cần hai con số bạn đã biết, tài sản ròng và chi phí sống thật mỗi tháng.
+
+Nếu mai nghỉ việc, bạn đoán mình sống được bao nhiêu tháng?

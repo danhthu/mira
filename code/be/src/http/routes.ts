@@ -25,22 +25,33 @@ import { TIME_BUCKETS } from '../shared/constants';
 import { badRequest, notFound } from '../shared/errors';
 import { assertDate, weekSummary } from '../services/time';
 import { answerRevisit, createMoment, dueForRevisit } from '../services/moment';
-import { assertMonth, derive } from '../services/money';
-import { createGoal, endGoal, goalBudget } from '../services/goal';
-import { createHabit, habitWeek, toggleCheck } from '../services/habit';
-import { dangNhap, dangNhapGoogle } from '../services/auth';
-import { nhapBo } from '../services/nhapBo';
-import { xuatBo } from '../services/xuatBo';
-import { chayNep, dungNep, nhanLaiNgay, taoNep, tuChoiNgay } from '../services/nep';
-import { docBangLuat } from '../services/docCau';
+import { assertMonth, buildMonthWithDerived } from '../services/money';
 import {
-  catDanhMuc,
-  docDanhMuc,
-  doiTenDanhMuc,
-  taoDanhMuc,
-} from '../services/danhMuc';
-import { taoNhac, suaNhac, xoaNhac, boQuaNhac } from '../services/nhac';
-import { kiemDoLuong, xoaDem, NGUONG_DOC } from './chanDoLuong';
+  createMoneyCategory,
+  renameMoneyCategory,
+  archiveMoneyCategory,
+  readMoneyCategory,
+} from '../services/moneyCategory';
+import {
+  createMoneyEntry,
+  updateMoneyEntry,
+  deleteMoneyEntry,
+} from '../services/moneyEntry';
+import { createGoal, deleteGoal, endGoal, goalBudget, updateGoal } from '../services/goal';
+import { createHabit, habitWeek, toggleCheck } from '../services/habit';
+import { login, loginWithGoogle } from '../services/auth';
+import { importSnapshot } from '../services/importSnapshot';
+import { exportSnapshot } from '../services/exportSnapshot';
+import { runRoutines, endRoutine, unskipDay, createRoutine, skipDay } from '../services/routine';
+import { parseByRules } from '../services/parseSentence';
+import {
+  archiveCategory,
+  readCategory,
+  renameCategory,
+  createCategory,
+} from '../services/category';
+import { createReminder, updateReminder, deleteReminder, skipReminder } from '../services/reminder';
+import { checkRateLimit, resetCounter, PARSE_THRESHOLD } from './rateLimit';
 import type { Money } from '../entities/Money';
 
 // ─────────────────────────────────────────────────────── đọc tham số
@@ -85,15 +96,15 @@ const toContractEntry = (e: {
   golden: boolean;
   note: string | null;
   source: TimeEntrySource;
-  nepId: string | null;
-  danhMucId: string | null;
+  routineId: string | null;
+  categoryId: string | null;
 }): TimeEntry => ({
   id: e.id,
   date: e.date,
   minutes: e.minutes,
   bucket: e.bucket,
-  nepId: e.nepId,
-  danhMucId: e.danhMucId,
+  routineId: e.routineId,
+  categoryId: e.categoryId,
   golden: e.golden,
   note: e.note,
   source: e.source,
@@ -137,14 +148,7 @@ const toContractGoal = (g: {
   handedOverTo: g.handedOverTo,
 });
 
-const toContractMoney = (month: string, m: Money | null): MoneyMonth => ({
-  month,
-  netIncome: m?.netIncome ?? null,
-  monthlyExpense: m?.monthlyExpense ?? null,
-  debtPayment: m?.debtPayment ?? null,
-  debtBalance: m?.debtBalance ?? null,
-  netWorth: m?.netWorth ?? null,
-});
+
 
 // ─────────────────────────────────────────────────────── handlers
 
@@ -153,7 +157,7 @@ const health: PublicHandler = async (): Promise<Res> => ({ status: 200, body: { 
 /** Bản sao lưu đầy đủ. Một lần gọi, lấy tất cả, kể cả thứ đã kết thúc hoặc đã dừng. */
 const getExport: Handler = async (_req, deps, userId) => ({
   status: 200,
-  body: await xuatBo(deps.db, userId),
+  body: await exportSnapshot(deps.db, userId),
 });
 
 // ── tài khoản: ba route công khai, ngoài /health
@@ -166,9 +170,9 @@ const postGoogle: PublicHandler = async (req, deps) => {
   const body = asObject(req.body);
   // Chặn cả ở đây: kiểm chữ ký token tốn một lượt tải JWKS và một lượt mã hoá.
   const ip = req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for'] ?? '';
-  kiemDoLuong(ip, 'google');
-  const out = await dangNhapGoogle(deps.auth, body.idToken);
-  xoaDem(ip, 'google');
+  checkRateLimit(ip, 'google');
+  const out = await loginWithGoogle(deps.auth, body.idToken);
+  resetCounter(ip, 'google');
   return { status: 200, body: out };
 };
 
@@ -178,9 +182,9 @@ const postLogin: PublicHandler = async (req, deps) => {
   // Cloudflare Tunnel đặt IP thật vào cf-connecting-ip; chạy trực tiếp thì không có,
   // lúc đó vẫn đếm được theo tên đăng nhập.
   const ip = req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for'] ?? '';
-  kiemDoLuong(ip, username);
-  const out = await dangNhap(deps.auth, username, String(body.password ?? ''));
-  xoaDem(ip, username);
+  checkRateLimit(ip, username);
+  const out = await login(deps.auth, username, String(body.password ?? ''));
+  resetCounter(ip, username);
   return { status: 200, body: out };
 };
 
@@ -212,13 +216,13 @@ const postDoc: Handler = async (req, deps, userId) => {
 
   // Chặn dò khoá: mỗi lần gọi AI là tiền thật.
   const ip = req.headers['cf-connecting-ip'] ?? req.headers['x-forwarded-for'] ?? '';
-  kiemDoLuong(ip, `doc|${userId}`, NGUONG_DOC);
+  checkRateLimit(ip, `doc|${userId}`, PARSE_THRESHOLD);
 
   // Danh mục người dùng tự đặt là từ khoá tốt nhất đang có — tốt hơn danh sách gõ cứng
   // trong `docCau`. Khớp được thì câu chat ghi ra mục ĐÃ phân loại, nên màn Thời gian
   // không đầy dòng trắng và cái danh mục họ vừa làm không thành vô dụng.
-  const danhMuc = await deps.danhMuc.findActive(userId);
-  const bc = { homNay, danhMuc };
+  const categories = await deps.categories.findActive(userId);
+  const bc = { today: homNay, categories, moneyCategories: await deps.moneyCategories.findActive(userId) };
 
   // CHỈ CÓ TẦNG LUẬT. Không gọi LLM, không cần khoá API.
   //
@@ -229,7 +233,7 @@ const postDoc: Handler = async (req, deps, userId) => {
   // Founder chốt bỏ hẳn đường đó. Nghĩa là luật phải gánh hết, nên luật đã đổi: thời
   // lượng cộng tên việc là đủ ghi, ô thì đoán và nói rõ là đoán. Còn lại mới trả 'chiu',
   // và lúc đó client nói một câu tiếng người chứ không đọc tên biến môi trường.
-  const kq = docBangLuat(cau, bc);
+  const kq = parseByRules(cau, bc);
 
   // Ghi lại ĐÚNG câu mà luật không đọc nổi.
   //
@@ -239,8 +243,29 @@ const postDoc: Handler = async (req, deps, userId) => {
   //
   // Chỉ ghi câu CHỊU, không ghi câu đọc được: đây là nhật ký đời sống, không phải chỗ
   // đổ toàn bộ những gì người ta gõ vào. Và log này nằm trên máy của chính chủ.
-  if (kq.nguon === 'chiu') {
+  if (kq.source === 'unparsed') {
     console.warn(JSON.stringify({ level: 40, time: Date.now(), tag: 'doc_chiu', cau }));
+  }
+
+  // Giữ lại từng lượt: câu nguyên văn + Mira hiểu ra gì.
+  //
+  // Đây là dữ liệu để sau này huấn luyện một mô hình chạy tại chỗ — xem migration 009.
+  // Hàng quý nhất là hàng 'chiu': mỗi câu như vậy là một lỗ trong `parse-rules.json`.
+  //
+  // LỖI Ở ĐÂY KHÔNG ĐƯỢC LÀM HỎNG LỜI GỌI. Người dùng đang gõ một câu để ghi nhật ký;
+  // kho dữ liệu huấn luyện trục trặc là việc của chúng ta, không phải của họ. Thà mất
+  // một hàng huấn luyện còn hơn mất một mục nhật ký.
+  try {
+    await deps.chatLog.add(userId, cau, homNay, kq.source, kq);
+  } catch (e: unknown) {
+    console.warn(
+      JSON.stringify({
+        level: 40,
+        time: Date.now(),
+        tag: 'chat_log_hong',
+        text: e instanceof Error ? e.message : String(e),
+      }),
+    );
   }
 
   return { status: 200, body: kq };
@@ -253,81 +278,89 @@ const postDoc: Handler = async (req, deps, userId) => {
 // câu đó nghĩa là đã đoán múi giờ của người dùng, và đoán sai thì lời nhắc 21:00 nhảy
 // ra lúc 14:00. Việc so giờ nằm ở client, nơi duy nhất biết mấy giờ thật.
 
-const listNhac: Handler = async (req, deps, userId) => {
+const listReminders: Handler = async (req, deps, userId) => {
   const from = assertDate(String(req.query.from ?? ''), 'from');
   const to = assertDate(String(req.query.to ?? ''), 'to');
   const [ds, boQua] = await Promise.all([
-    deps.nhac.findAll(userId),
-    deps.nhac.boQuaTrongKhoang(userId, from, to),
+    deps.reminders.findAll(userId),
+    deps.reminders.skipsInRange(userId, from, to),
   ]);
-  return { status: 200, body: { nhac: ds, boQua } };
+  return { status: 200, body: { reminders: ds, skips: boQua } };
 };
 
-const postNhac: Handler = async (req, deps, userId) => {
+const postReminder: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  return { status: 201, body: await taoNhac(deps, userId, { gio: b.gio, days: b.days, loi: b.loi }) };
+  return { status: 201, body: await createReminder(deps, userId, { at: b.at, days: b.days, text: b.text }) };
 };
 
-const patchNhac: Handler = async (req, deps, userId) => {
+const patchReminder: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  return { status: 200, body: await suaNhac(deps, userId, req.params.id ?? '', b) };
+  return { status: 200, body: await updateReminder(deps, userId, req.params.id ?? '', b) };
 };
 
-const deleteNhac: Handler = async (req, deps, userId) => {
-  await xoaNhac(deps, userId, req.params.id ?? '');
+const deleteReminderRoute: Handler = async (req, deps, userId) => {
+  await deleteReminder(deps, userId, req.params.id ?? '');
   return { status: 204, body: undefined };
 };
 
-const postBoQuaNhac: Handler = async (req, deps, userId) => {
+const postSkipReminder: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  await boQuaNhac(deps, userId, req.params.id ?? '', assertDate(String(b.date ?? ''), 'date'));
+  await skipReminder(deps, userId, req.params.id ?? '', assertDate(String(b.date ?? ''), 'date'));
   return { status: 204, body: undefined };
 };
 
 // ── danh mục: tên việc người dùng tự đặt, nằm trong một trong bốn ô
 
-const listDanhMuc: Handler = async (_req, deps, userId) => ({
+const listCategories: Handler = async (_req, deps, userId) => ({
   status: 200,
-  body: await deps.danhMuc.findActive(userId),
+  body: await deps.categories.findActive(userId),
 });
 
-const postDanhMuc: Handler = async (req, deps, userId) => {
+const postCategory: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
   return {
     status: 201,
-    body: await taoDanhMuc(deps, userId, { name: b.name, bucket: b.bucket, golden: b.golden }),
+    body: await createCategory(deps, userId, {
+      name: b.name,
+      bucket: b.bucket,
+      golden: b.golden,
+      icon: b.icon,
+      color: b.color,
+    }),
   };
 };
 
-const patchDanhMuc: Handler = async (req, deps, userId) => {
+const patchCategory: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
   return {
     status: 200,
-    body: await doiTenDanhMuc(deps, userId, req.params.id ?? '', {
+    body: await renameCategory(deps, userId, req.params.id ?? '', {
       name: b.name,
       golden: b.golden,
+      icon: b.icon,
+      color: b.color,
     }),
   };
 };
 
 /** Cất đi, không xoá: mục giờ cũ còn trỏ về nó và lịch sử không được đổi. */
-const postDanhMucCat: Handler = async (req, deps, userId) => ({
+const postCategoryArchive: Handler = async (req, deps, userId) => ({
   status: 200,
-  body: await catDanhMuc(deps, userId, req.params.id ?? ''),
+  body: await archiveCategory(deps, userId, req.params.id ?? ''),
 });
 
 // ── nếp: khai một luật, Mira tự ghi, người dùng từ chối khi không đạt
 
-const listNep: Handler = async (_req, deps, userId) => ({
+const listRoutines: Handler = async (_req, deps, userId) => ({
   status: 200,
-  body: await deps.nep.findActive(userId),
+  body: await deps.routines.findActive(userId),
 });
 
-const postNep: Handler = async (req, deps, userId) => {
+const postRoutine: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  const dm = await docDanhMuc(deps, userId, b.danhMucId);
-  const nep = await taoNep(
-    { nep: deps.nep, timeEntries: deps.timeEntries },
+  const dm = await readCategory(deps, userId, b.categoryId);
+  const nep = await createRoutine(
+    { routines: deps.routines, timeEntries: deps.timeEntries },
     userId,
     {
       title: String(b.title ?? ''),
@@ -342,25 +375,25 @@ const postNep: Handler = async (req, deps, userId) => {
 };
 
 /** Chạy mọi nếp tới hôm nay. Gọi lại nhiều lần không sinh trùng. */
-const postChayNep: Handler = async (req, deps, userId) => {
+const postRunRoutines: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  const ra = await chayNep(
-    { nep: deps.nep, timeEntries: deps.timeEntries },
+  const ra = await runRoutines(
+    { routines: deps.routines, timeEntries: deps.timeEntries },
     userId,
     String(b.date ?? ''),
   );
   return { status: 200, body: ra };
 };
 
-const postNepEnd: Handler = async (req, deps, userId) => ({
+const postRoutineEnd: Handler = async (req, deps, userId) => ({
   status: 200,
-  body: await dungNep({ nep: deps.nep, timeEntries: deps.timeEntries }, userId, req.params.id ?? ''),
+  body: await endRoutine({ routines: deps.routines, timeEntries: deps.timeEntries }, userId, req.params.id ?? ''),
 });
 
-const postTuChoi: Handler = async (req, deps, userId) => {
+const postSkipDay: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  await tuChoiNgay(
-    { nep: deps.nep, timeEntries: deps.timeEntries },
+  await skipDay(
+    { routines: deps.routines, timeEntries: deps.timeEntries },
     userId,
     req.params.id ?? '',
     String(b.date ?? ''),
@@ -368,10 +401,10 @@ const postTuChoi: Handler = async (req, deps, userId) => {
   return { status: 204, body: undefined };
 };
 
-const postNhanLai: Handler = async (req, deps, userId) => {
+const postUnskipDay: Handler = async (req, deps, userId) => {
   const b = asObject(req.body);
-  await nhanLaiNgay(
-    { nep: deps.nep, timeEntries: deps.timeEntries },
+  await unskipDay(
+    { routines: deps.routines, timeEntries: deps.timeEntries },
     userId,
     req.params.id ?? '',
     String(b.date ?? ''),
@@ -388,7 +421,7 @@ const listTimeEntries: Handler = async (req, deps, userId) => {
 
 const createTimeEntry: Handler = async (req, deps, userId) => {
   const body = asObject(req.body);
-  const dm = await docDanhMuc(deps, userId, body.danhMucId);
+  const dm = await readCategory(deps, userId, body.categoryId);
   const entry = await deps.timeEntries.create(userId, {
     date: assertDate(String(body.date ?? ''), 'date'),
     minutes: readMinutes(body.minutes, 'minutes'),
@@ -397,7 +430,7 @@ const createTimeEntry: Handler = async (req, deps, userId) => {
     bucket: dm?.bucket ?? readBucket(body.bucket, 'bucket'),
     golden: dm === null ? body.golden === true : body.golden === undefined ? dm.golden : body.golden === true,
     note: readText(body.note, 'note'),
-    danhMucId: dm?.id ?? null,
+    categoryId: dm?.id ?? null,
   });
   return { status: 201, body: toContractEntry(entry) };
 };
@@ -405,13 +438,30 @@ const createTimeEntry: Handler = async (req, deps, userId) => {
 const patchTimeEntry: Handler = async (req, deps, userId) => {
   const body = asObject(req.body);
   const id = req.params.id ?? '';
-  const dm = body.danhMucId === undefined ? null : await docDanhMuc(deps, userId, body.danhMucId);
+  const dm = body.categoryId === undefined ? null : await readCategory(deps, userId, body.categoryId);
+
+  /**
+   * ĐỔI Ô THÌ BỎ DANH MỤC, trừ khi cùng lúc chọn danh mục mới.
+   *
+   * Một danh mục thuộc đúng MỘT ô — "Đọc" của công việc khác "Đọc" của cá nhân. Trước
+   * đây sửa riêng ô mà không gửi danh mục thì danh mục cũ ở lại, và mục giờ trỏ sang một
+   * danh mục của ô khác. Catalog gom theo `ô|danh mục`, nên kết quả là cùng một cái tên
+   * hiện dưới hai nhóm việc: "Chơi với con" nằm trong cả Gia đình lẫn Lãng phí.
+   *
+   * Lỗi này đã có thật trong dữ liệu, đúng một hàng, và chỉ lộ ra khi catalog gom lại —
+   * trước đó danh sách phẳng chỉ hiện tên danh mục nên không ai thấy gì sai.
+   *
+   * Bỏ chứ không ép ô theo danh mục: người dùng vừa nói "việc này thuộc ô khác", và
+   * giữ lại cái nhãn của ô cũ là cãi lại họ.
+   */
+  const doiO = body.bucket !== undefined && body.categoryId === undefined;
+
   const updated = await deps.timeEntries.update(userId, id, {
     minutes: body.minutes === undefined ? undefined : readMinutes(body.minutes, 'minutes'),
     bucket: dm?.bucket ?? (body.bucket === undefined ? undefined : readBucket(body.bucket, 'bucket')),
     golden: body.golden === undefined ? undefined : body.golden === true,
     note: body.note === undefined ? undefined : readText(body.note, 'note'),
-    danhMucId: body.danhMucId === undefined ? undefined : (dm?.id ?? null),
+    categoryId: doiO ? null : body.categoryId === undefined ? undefined : (dm?.id ?? null),
   });
   if (updated === null) throw notFound('Không có mục giờ với id này');
   return { status: 200, body: toContractEntry(updated) };
@@ -463,6 +513,23 @@ const listDueMoments: Handler = async (req, deps, userId) => {
  *
  * `softDelete` đã có sẵn trong repository từ trước; ở đây chỉ nối dây ra ngoài.
  */
+const patchMoment: Handler = async (req, deps, userId) => {
+  const body = asObject(req.body);
+  if (body.kind !== undefined && body.kind !== 'candy' && body.kind !== 'salt') {
+    throw badRequest('kind phải là candy hoặc salt');
+  }
+  const ra = await deps.moments.update(userId, req.params.id ?? '', {
+    text: body.text === undefined ? undefined : readText(body.text, 'text'),
+    kind: body.kind as MomentKind | undefined,
+  });
+  // Hạt muối đã trả lời câu hỏi lại thì câu UPDATE không khớp — nói đúng lý do, đừng
+  // trả về "không tìm thấy" cho một hạt đang nằm sờ sờ trên màn hình.
+  if (ra === null) {
+    throw notFound('Không sửa được hạt này. Hạt muối đã trả lời câu hỏi lại thì khoá.');
+  }
+  return { status: 200, body: toContractMoment(ra) };
+};
+
 const deleteMoment: Handler = async (req, deps, userId) => {
   const ra = await deps.moments.softDelete(userId, req.params.id ?? '');
   if (ra === null) throw notFound('Không có hạt nào như vậy.');
@@ -479,21 +546,113 @@ const postRevisit: Handler = async (req, deps, userId) => {
 
 const getMoney: Handler = async (req, deps, userId) => {
   const month = assertMonth(req.params.month ?? '');
-  const row = await deps.money.findByMonth(userId, month);
-  return { status: 200, body: { month: toContractMoney(month, row), derived: derive(row) } };
+  return { status: 200, body: await buildMonthWithDerived(deps, userId, month) };
 };
 
+/**
+ * Chỉ còn ghi được HAI Ô MỨC.
+ *
+ * Năm ô dòng chảy là tổng các khoản. Nhận chúng ở đây sẽ tạo ra hai đường ghi cho cùng
+ * một con số, và đường nào thắng thì tuỳ thứ tự gọi — đúng cái bẫy "một sự thật, hai
+ * chỗ ghi". Gửi lên thì từ chối thẳng, kèm câu chỉ đường.
+ */
 const putMoney: Handler = async (req, deps, userId) => {
   const month = assertMonth(req.params.month ?? '');
   const body = asObject(req.body);
-  const saved = await deps.money.upsert(userId, month, {
-    netIncome: readVnd(body.netIncome, 'netIncome'),
-    monthlyExpense: readVnd(body.monthlyExpense, 'monthlyExpense'),
-    debtPayment: readVnd(body.debtPayment, 'debtPayment'),
+
+  const dongChay = ['netIncome', 'monthlyExpense', 'investment', 'wastedMoney', 'debtPayment'];
+  const lam = dongChay.filter((k) => body[k] !== undefined);
+  if (lam.length > 0) {
+    throw badRequest(
+      `${lam.join(', ')} là ô tổng từ các khoản, không ghi thẳng được. Dùng POST /money-entries.`,
+    );
+  }
+
+  await deps.money.upsert(userId, month, {
     debtBalance: readVnd(body.debtBalance, 'debtBalance'),
     netWorth: readVnd(body.netWorth, 'netWorth'),
   });
-  return { status: 200, body: { month: toContractMoney(month, saved), derived: derive(saved) } };
+  return { status: 200, body: await buildMonthWithDerived(deps, userId, month) };
+};
+
+// ── danh mục tiền: khuôn y hệt danh mục thời gian
+
+const listMoneyCategories: Handler = async (_req, deps, userId) => ({
+  status: 200,
+  body: await deps.moneyCategories.findActive(userId),
+});
+
+const postMoneyCategory: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return {
+    status: 201,
+    body: await createMoneyCategory(deps, userId, {
+      name: b.name,
+      cell: b.cell,
+      icon: b.icon,
+      color: b.color,
+    }),
+  };
+};
+
+const patchMoneyCategory: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  return {
+    status: 200,
+    body: await renameMoneyCategory(deps, userId, req.params.id ?? '', {
+      name: b.name,
+      icon: b.icon,
+      color: b.color,
+    }),
+  };
+};
+
+/** Cất đi, không xoá: khoản cũ còn trỏ về nó và lịch sử không được đổi. */
+const postMoneyCategoryArchive: Handler = async (req, deps, userId) => ({
+  status: 200,
+  body: await archiveMoneyCategory(deps, userId, req.params.id ?? ''),
+});
+
+// ── khoản tiền
+
+const listMoneyEntries: Handler = async (req, deps, userId) => {
+  const from = assertDate(requireQuery(req, 'from'), 'from');
+  const to = assertDate(requireQuery(req, 'to'), 'to');
+  return { status: 200, body: await deps.moneyEntries.findByDateRange(userId, from, to) };
+};
+
+const postMoneyEntry: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  const dm = await readMoneyCategory(deps, userId, b.categoryId);
+  return {
+    status: 201,
+    body: await createMoneyEntry(
+      deps,
+      userId,
+      { date: b.date, amount: b.amount, cell: b.cell, note: b.note },
+      dm,
+    ),
+  };
+};
+
+const patchMoneyEntry: Handler = async (req, deps, userId) => {
+  const b = asObject(req.body);
+  const dm = b.categoryId === undefined ? undefined : await readMoneyCategory(deps, userId, b.categoryId);
+  return {
+    status: 200,
+    body: await updateMoneyEntry(
+      deps,
+      userId,
+      req.params.id ?? '',
+      { date: b.date, amount: b.amount, cell: b.cell, note: b.note },
+      dm,
+    ),
+  };
+};
+
+const deleteMoneyEntryRoute: Handler = async (req, deps, userId) => {
+  await deleteMoneyEntry(deps, userId, req.params.id ?? '');
+  return { status: 204, body: undefined };
 };
 
 const listGoals: Handler = async (req, deps, userId) => {
@@ -518,6 +677,21 @@ const postGoal: Handler = async (req, deps, userId) => {
     sourceBucket: body.sourceBucket === undefined ? undefined : readBucket(body.sourceBucket, 'sourceBucket'),
   });
   return { status: 201, body: toContractGoal(goal) };
+};
+
+const patchGoal: Handler = async (req, deps, userId) => {
+  const body = asObject(req.body);
+  const goal = await updateGoal(deps, userId, req.params.id ?? '', {
+    title: body.title === undefined ? undefined : String(body.title),
+    weeklyMinutes:
+      body.weeklyMinutes === undefined ? undefined : readMinutes(body.weeklyMinutes, 'weeklyMinutes'),
+  });
+  return { status: 200, body: toContractGoal(goal) };
+};
+
+const deleteGoalRoute: Handler = async (req, deps, userId) => {
+  await deleteGoal(deps, userId, req.params.id ?? '');
+  return { status: 204, body: undefined };
 };
 
 const postGoalEnd: Handler = async (req, deps, userId) => {
@@ -582,7 +756,7 @@ const postHabitEnd: Handler = async (req, deps, userId) => {
 
 /** Nhập cả bộ dữ liệu, thay toàn bộ cái đang có của người này. */
 const postImport: Handler = async (req, deps, userId) => {
-  const ketQua = await nhapBo(deps.db, userId, req.body);
+  const ketQua = await importSnapshot(deps.db, userId, req.body);
   return { status: 200, body: ketQua };
 };
 
@@ -613,37 +787,50 @@ export const routes: readonly Route[] = [
   { method: 'POST', path: '/moments', handler: postMoment },
   { method: 'GET', path: '/moments/due', handler: listDueMoments },
   { method: 'POST', path: '/moments/:id/revisit', handler: postRevisit },
+  { method: 'PATCH', path: '/moments/:id', handler: patchMoment },
   { method: 'DELETE', path: '/moments/:id', handler: deleteMoment },
-  { method: 'GET', path: '/nhac', handler: listNhac },
-  { method: 'POST', path: '/nhac', handler: postNhac },
-  { method: 'PATCH', path: '/nhac/:id', handler: patchNhac },
-  { method: 'DELETE', path: '/nhac/:id', handler: deleteNhac },
-  { method: 'POST', path: '/nhac/:id/bo-qua', handler: postBoQuaNhac },
+  { method: 'GET', path: '/reminders', handler: listReminders },
+  { method: 'POST', path: '/reminders', handler: postReminder },
+  { method: 'PATCH', path: '/reminders/:id', handler: patchReminder },
+  { method: 'DELETE', path: '/reminders/:id', handler: deleteReminderRoute },
+  { method: 'POST', path: '/reminders/:id/skip', handler: postSkipReminder },
 
   { method: 'GET', path: '/money/:month', handler: getMoney },
   { method: 'PUT', path: '/money/:month', handler: putMoney },
 
+  { method: 'GET', path: '/money-categories', handler: listMoneyCategories },
+  { method: 'POST', path: '/money-categories', handler: postMoneyCategory },
+  { method: 'PATCH', path: '/money-categories/:id', handler: patchMoneyCategory },
+  { method: 'POST', path: '/money-categories/:id/archive', handler: postMoneyCategoryArchive },
+
+  { method: 'GET', path: '/money-entries', handler: listMoneyEntries },
+  { method: 'POST', path: '/money-entries', handler: postMoneyEntry },
+  { method: 'PATCH', path: '/money-entries/:id', handler: patchMoneyEntry },
+  { method: 'DELETE', path: '/money-entries/:id', handler: deleteMoneyEntryRoute },
+
   { method: 'GET', path: '/goals', handler: listGoals },
   { method: 'POST', path: '/goals', handler: postGoal },
   { method: 'GET', path: '/goals/budget', handler: getGoalBudget },
+  { method: 'PATCH', path: '/goals/:id', handler: patchGoal },
+  { method: 'DELETE', path: '/goals/:id', handler: deleteGoalRoute },
   { method: 'POST', path: '/goals/:id/end', handler: postGoalEnd },
 
   { method: 'POST', path: '/import', handler: postImport },
   { method: 'GET', path: '/export', handler: getExport },
 
-  { method: 'POST', path: '/doc', handler: postDoc },
+  { method: 'POST', path: '/parse', handler: postDoc },
 
-  { method: 'GET', path: '/danh-muc', handler: listDanhMuc },
-  { method: 'POST', path: '/danh-muc', handler: postDanhMuc },
-  { method: 'PATCH', path: '/danh-muc/:id', handler: patchDanhMuc },
-  { method: 'POST', path: '/danh-muc/:id/cat', handler: postDanhMucCat },
+  { method: 'GET', path: '/categories', handler: listCategories },
+  { method: 'POST', path: '/categories', handler: postCategory },
+  { method: 'PATCH', path: '/categories/:id', handler: patchCategory },
+  { method: 'POST', path: '/categories/:id/archive', handler: postCategoryArchive },
 
-  { method: 'GET', path: '/nep', handler: listNep },
-  { method: 'POST', path: '/nep', handler: postNep },
-  { method: 'POST', path: '/nep/chay', handler: postChayNep },
-  { method: 'POST', path: '/nep/:id/end', handler: postNepEnd },
-  { method: 'POST', path: '/nep/:id/tu-choi', handler: postTuChoi },
-  { method: 'POST', path: '/nep/:id/nhan-lai', handler: postNhanLai },
+  { method: 'GET', path: '/routines', handler: listRoutines },
+  { method: 'POST', path: '/routines', handler: postRoutine },
+  { method: 'POST', path: '/routines/run', handler: postRunRoutines },
+  { method: 'POST', path: '/routines/:id/end', handler: postRoutineEnd },
+  { method: 'POST', path: '/routines/:id/skip', handler: postSkipDay },
+  { method: 'POST', path: '/routines/:id/unskip', handler: postUnskipDay },
 
   { method: 'GET', path: '/habits/week', handler: getHabitWeek },
   { method: 'POST', path: '/habits', handler: postHabit },

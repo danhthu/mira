@@ -20,9 +20,10 @@ export class MoneyRepository {
   }
 
   /**
-   * Ghi năm ô của một tháng. `undefined` giữ nguyên ô đang có, `null` tường minh xoá
-   * giá trị về trạng thái chưa nhập. Tháng chưa có bản ghi thì tạo mới với đúng
-   * những ô được gửi lên, phần còn lại là null.
+   * Ghi hai ô MỨC của một tháng. `undefined` giữ nguyên ô đang có, `null` tường minh xoá
+   * giá trị về trạng thái chưa nhập. Tháng chưa có bản ghi thì tạo mới.
+   *
+   * Năm ô dòng chảy không đi qua đây — ghi chúng là tạo một `money_entry`.
    */
   async upsert(userId: string, month: string, dto: UpsertMoneyDto): Promise<Money> {
     const now = new Date().toISOString();
@@ -33,9 +34,6 @@ export class MoneyRepository {
         newId(),
         userId,
         month,
-        dto.netIncome ?? null,
-        dto.monthlyExpense ?? null,
-        dto.debtPayment ?? null,
         dto.debtBalance ?? null,
         dto.netWorth ?? null,
         now,
@@ -48,9 +46,6 @@ export class MoneyRepository {
 
     const row = await this.db.queryOne<MoneyRow>(MONEY_QUERIES.update, [
       month,
-      dto.netIncome === undefined ? current.netIncome : dto.netIncome,
-      dto.monthlyExpense === undefined ? current.monthlyExpense : dto.monthlyExpense,
-      dto.debtPayment === undefined ? current.debtPayment : dto.debtPayment,
       dto.debtBalance === undefined ? current.debtBalance : dto.debtBalance,
       dto.netWorth === undefined ? current.netWorth : dto.netWorth,
       now,

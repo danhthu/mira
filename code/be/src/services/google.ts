@@ -27,7 +27,7 @@ import { DomainError } from '../shared/errors';
 
 const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 
-export interface DanhTinhGoogle {
+export interface GoogleIdentity {
   readonly email: string;
   readonly ten: string | null;
   /** `sub` của Google: id không đổi kể cả khi người dùng đổi email. */
@@ -38,7 +38,7 @@ const tuChoi = (thongDiep: string): never => {
   throw new DomainError('unauthorized', 401, thongDiep);
 };
 
-export async function kiemTokenGoogle(clientId: string, idToken: unknown): Promise<DanhTinhGoogle> {
+export async function verifyGoogleToken(clientId: string, idToken: unknown): Promise<GoogleIdentity> {
   if (clientId === '') {
     throw new DomainError(
       'unauthorized',
@@ -68,8 +68,8 @@ export async function kiemTokenGoogle(clientId: string, idToken: unknown): Promi
   }
 
   const email = typeof payload.email === 'string' ? payload.email.trim().toLowerCase() : '';
-  const daXacMinh = payload.email_verified === true || payload.email_verified === 'true';
-  if (email === '' || !daXacMinh) return tuChoi('Tài khoản Google chưa xác minh email.');
+  const verified = payload.email_verified === true || payload.email_verified === 'true';
+  if (email === '' || !verified) return tuChoi('Tài khoản Google chưa xác minh email.');
 
   const sub = typeof payload.sub === 'string' ? payload.sub : '';
   if (sub === '') return tuChoi('Token Google thiếu định danh người dùng.');

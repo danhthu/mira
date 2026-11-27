@@ -1,0 +1,457 @@
+---
+// ĐỀ XUẤT thay growth/blog/src/pages/index.astro (T-0010). Chưa áp dụng, chờ approval code_change.
+// Copy nguồn: growth/os/content/landing-copy.md
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+const TITLE = 'Một giờ đời bạn giá bao nhiêu? Tính thu nhập thật | Mira';
+const DESCRIPTION =
+  'Mira tính thu nhập thật theo giờ, sau khi trừ kẹt xe, tăng ca và kiệt sức. Đang xây dựng. Để email nhận bản dùng thử khi sẵn sàng.';
+
+// Số người đang chờ: CHỈ điền khi lấy từ ESP và là số thật. null = ẩn dòng.
+// Không điền số làm tròn, không điền để "tạo đà".
+const WAITLIST_COUNT: number | null = null;
+
+// Biến thể hero cho A/B (chạy tuần tự, xem landing-copy.md). Đổi 'A' thành 'B' để chạy tuần B.
+const HERO_VARIANT: 'A' | 'B' = 'A';
+const HERO_TITLE =
+  HERO_VARIANT === 'A'
+    ? 'Một giờ đời bạn giá bao nhiêu?'
+    : 'Bạn nghĩ mình kiếm 167.000đ một giờ. Con số thật là bao nhiêu?';
+
+const recentPosts = (await getCollection('blog'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <BaseHead title={TITLE} description={DESCRIPTION} />
+    <style>
+      .hero {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem 3.5rem;
+        text-align: center;
+      }
+      .eyebrow {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-accent);
+        background: #EBF2EB;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        margin-bottom: 1.5rem;
+      }
+      .hero-title {
+        font-family: var(--font-serif);
+        font-size: clamp(2rem, 5vw, 3.25rem);
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--color-text);
+        margin: 0 0 1.25rem;
+        letter-spacing: -0.02em;
+      }
+      .hero-sub {
+        font-size: 1.05rem;
+        color: var(--color-muted);
+        line-height: 1.75;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+      }
+
+      /* Form waitlist (dùng chung hero và cuối trang) */
+      .waitlist {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        justify-content: center;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .waitlist label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+      .waitlist input[type='email'] {
+        flex: 1 1 220px;
+        font: inherit;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--color-text);
+      }
+      .waitlist input[type='email']:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 1px;
+      }
+      .waitlist button {
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.95rem;
+        background: var(--color-accent);
+        color: #fff;
+        border: 0;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .waitlist button:hover {
+        background: var(--color-accent-light);
+      }
+      .form-note {
+        font-size: 0.8rem;
+        color: var(--color-muted);
+        margin: 0.75rem 0 0;
+      }
+      .waiting-count {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        margin: 0.5rem 0 0;
+      }
+      .form-status {
+        font-size: 0.9rem;
+        color: var(--color-accent);
+        margin: 0.75rem 0 0;
+      }
+
+      /* Ba khối */
+      .blocks {
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+        padding: 3.5rem 1.5rem;
+      }
+      .blocks-inner {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .section-label {
+        text-align: center;
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 2rem;
+      }
+      .blocks-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+      .block {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      .block-status {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--color-muted);
+        border: 1px solid var(--color-border);
+        padding: 0.1rem 0.55rem;
+        border-radius: 999px;
+        margin-bottom: 0.75rem;
+      }
+      .block-name {
+        font-family: var(--font-serif);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+      }
+      .block-desc {
+        font-size: 0.9rem;
+        color: var(--color-muted);
+        line-height: 1.65;
+        margin: 0;
+      }
+      .block-desc a {
+        color: var(--color-accent);
+      }
+
+      /* Cam kết */
+      .pledge {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 3.5rem 1.5rem;
+      }
+      .pledge h2 {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        margin: 0 0 1rem;
+      }
+      .pledge p {
+        line-height: 1.75;
+        margin: 0 0 1rem;
+      }
+      .pledge .pledge-closing {
+        font-family: var(--font-serif);
+        font-size: 1.15rem;
+        border-left: 3px solid var(--color-accent);
+        padding-left: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      /* CTA cuối */
+      .final {
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+        padding: 3.5rem 1.5rem;
+        text-align: center;
+      }
+      .final h2 {
+        font-family: var(--font-serif);
+        font-size: 1.4rem;
+        margin: 0 0 0.75rem;
+      }
+      .final p.lead {
+        color: var(--color-muted);
+        max-width: 520px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.7;
+      }
+      .final .read-more {
+        display: inline-block;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--color-accent);
+      }
+
+      /* Bài mới */
+      .recent {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 3.5rem 1.5rem 0;
+      }
+      .section-title {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .section-title a {
+        font-family: var(--font-sans);
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--color-accent);
+      }
+      .recent-list {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .recent-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        border-bottom: 1px solid var(--color-border);
+        transition: background 0.15s;
+      }
+      .recent-item:last-child {
+        border-bottom: none;
+      }
+      .recent-item:hover {
+        background: var(--color-surface);
+        text-decoration: none;
+      }
+      .recent-meta {
+        font-size: 0.78rem;
+        color: var(--color-muted);
+        white-space: nowrap;
+        padding-top: 0.2rem;
+        flex-shrink: 0;
+        min-width: 100px;
+      }
+      .recent-title {
+        font-family: var(--font-serif);
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 0 0 0.25rem;
+      }
+      .recent-item:hover .recent-title {
+        color: var(--color-accent);
+      }
+      .recent-desc {
+        font-size: 0.82rem;
+        color: var(--color-muted);
+        line-height: 1.5;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      @media (max-width: 640px) {
+        .hero { padding: 3rem 1rem 2.5rem; text-align: left; }
+        .hero-sub { margin-left: 0; max-width: 100%; }
+        .waitlist { justify-content: flex-start; }
+        .blocks { padding: 2.5rem 1rem; }
+        .blocks-grid { grid-template-columns: 1fr; gap: 1rem; }
+        .pledge { padding: 2.5rem 1rem; }
+        .final { padding: 2.5rem 1rem; }
+        .recent { padding: 2.5rem 1rem 0; }
+        .recent-item { flex-direction: column; gap: 0.25rem; }
+        .recent-meta { min-width: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <Header />
+
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <span class="eyebrow">Đang xây dựng</span>
+      <h1 class="hero-title" data-hero-variant={HERO_VARIANT}>{HERO_TITLE}</h1>
+      <p class="hero-sub">
+        Mira tính thu nhập thật của bạn theo giờ, sau khi trừ kẹt xe, tăng ca và những buổi tối nằm vật ra vì kiệt sức.
+        Rồi cho thấy mỗi khoản chi tốn bao nhiêu giờ, và bạn còn bao nhiêu giờ cho những người quan trọng.
+        Hiện chưa có bản nào để dùng. Để lại email, khi có bản dùng thử Mira báo bạn.
+      </p>
+
+      <!--
+        NỐI ESP Ở ĐÂY (chưa nối):
+        1. Đặt action/endpoint của ESP, hoặc xử lý bằng fetch trong script cuối file.
+        2. Xoá onsubmit="return false" (hiện chặn để email không rơi lên URL bằng GET).
+        3. Nhánh thành công của fetch: gtag('event','waitlist_submit',{widget:'hero',cta_name:'hero-waitlist'}).
+           Không đưa email vào bất kỳ tham số nào (ga4-plan §3.2).
+        Khi chưa nối, form này KHÔNG lưu gì: không deploy công khai trước khi nối.
+      -->
+      <form class="waitlist" method="post" data-waitlist="hero" onsubmit="return false">
+        <label for="email-hero">Email của bạn</label>
+        <input id="email-hero" name="email" type="email" required autocomplete="email" placeholder="Email của bạn" />
+        <button type="submit" data-cta="hero-waitlist" data-widget="hero" data-target="waitlist">Nhận bản dùng thử</button>
+      </form>
+      <p class="form-note">Mira chỉ dùng email này để báo khi có bản dùng thử. Không bán, không chia sẻ.</p>
+      <p class="form-status" role="status" hidden></p>
+      {WAITLIST_COUNT !== null && WAITLIST_COUNT > 0 && (
+        <p class="waiting-count">Đang xây dựng. {WAITLIST_COUNT} người đang chờ.</p>
+      )}
+    </section>
+
+    <!-- Ba khối: chưa khối nào có công cụ thử ngay -->
+    <section class="blocks" id="ba-con-so">
+      <div class="blocks-inner">
+        <h2 class="section-label">Ba con số Mira đang xây</h2>
+        <div class="blocks-grid">
+          <div class="block">
+            <span class="block-status">Đang xây</span>
+            <h3 class="block-name">Tỷ giá đời</h3>
+            <p class="block-desc">
+              Bạn nghĩ mình kiếm 167.000đ một giờ. Chia theo giờ thật, con số là 115.000đ.
+              Chênh lệch nằm ở những giờ không ai trả tiền: kẹt xe, tăng ca, buổi tối hồi sức.
+            </p>
+          </div>
+          <div class="block">
+            <span class="block-status">Đang xây</span>
+            <h3 class="block-name">Vốn tự do</h3>
+            <p class="block-desc">
+              Giàu không phải là có bao nhiêu. Là mai nghỉ việc thì sống được bao lâu.
+              Mira gọi đó là số tháng tự do: tài sản chia cho chi tiêu một tháng.
+              Cách tính bằng tay có trong <a href="/blog">blog</a>.
+            </p>
+          </div>
+          <div class="block">
+            <span class="block-status">Đang xây</span>
+            <h3 class="block-name">Giờ vàng</h3>
+            <p class="block-desc">
+              Con bạn 10 tuổi. Còn 8 năm nữa nó rời nhà. Ở nhịp hiện tại, bạn còn khoảng 2.500 giờ bên nó.
+              Đó là ước tính, không phải bản án. Nếu con số này nặng lòng, bỏ qua nó cũng được.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cam kết: không bỏ. KHÔNG thêm "dữ liệu nằm trên máy bạn" khi T-0023 chưa xong (DECISION_LOG 2026-10-13). -->
+    <section class="pledge" id="cam-ket">
+      <h2>Mira cam kết gì</h2>
+      <p>Không bán dữ liệu. Hôm nay Mira chỉ giữ một thứ bạn tự để lại: địa chỉ email.</p>
+      <p>
+        Khi có bản dùng thử, Mira sẽ không có streak và không gửi thông báo trách móc.
+        Công cụ tính trên web sẽ chạy ngay trong trình duyệt của bạn, số bạn nhập không gửi về Mira.
+      </p>
+      <p class="pledge-closing">Mira không cần bạn mở app nhiều. Mira cần bạn sống nhiều.</p>
+    </section>
+
+    <!-- CTA cuối -->
+    <section class="final" id="cho-ban-dung-thu">
+      <h2>Khi có bản dùng thử, Mira báo bạn</h2>
+      <p class="lead">Để lại email, không cần gì thêm. Bạn có thấy con số 115.000đ vừa rồi gần với con số của mình không?</p>
+      <!-- NỐI ESP Ở ĐÂY: cùng cách nối với form hero; widget:'footer', cta_name:'footer-waitlist'. -->
+      <form class="waitlist" method="post" data-waitlist="footer" onsubmit="return false">
+        <label for="email-footer">Email của bạn</label>
+        <input id="email-footer" name="email" type="email" required autocomplete="email" placeholder="Email của bạn" />
+        <button type="submit" data-cta="footer-waitlist" data-widget="footer" data-target="waitlist">Nhận bản dùng thử</button>
+      </form>
+      <p class="form-note">Mira chỉ dùng email này để báo khi có bản dùng thử. Không bán, không chia sẻ.</p>
+      <p class="form-status" role="status" hidden></p>
+      {WAITLIST_COUNT !== null && WAITLIST_COUNT > 0 && (
+        <p class="waiting-count">Đang xây dựng. {WAITLIST_COUNT} người đang chờ.</p>
+      )}
+      <a class="read-more" href="/blog">Đọc cách tính trong blog</a>
+    </section>
+
+    <!-- Bài mới nhất -->
+    <section class="recent">
+      <h2 class="section-title">
+        Bài viết mới nhất
+        <a href="/blog">Xem tất cả</a>
+      </h2>
+      <div class="recent-list">
+        {recentPosts.map((post) => (
+          <a href={`/blog/${post.id}/`} class="recent-item">
+            <span class="recent-meta"><FormattedDate date={post.data.date} /></span>
+            <div>
+              <h3 class="recent-title">{post.data.title}</h3>
+              {post.data.description && <p class="recent-desc">{post.data.description}</p>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <Footer />
+
+    <!--
+      Script nối ESP (chưa viết). Khung gợi ý, bật khi có endpoint:
+
+      document.querySelectorAll('form[data-waitlist]').forEach((form) => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const where = form.dataset.waitlist;               // 'hero' | 'footer'
+          const res = await fetch(ESP_ENDPOINT, { method: 'POST', body: new FormData(form) });
+          if (res.ok) {
+            if (window.gtag) gtag('event', 'waitlist_submit', { widget: where, cta_name: where + '-waitlist' });
+            // hiện thông báo trong p.form-status: "Đã ghi nhận. Khi có bản dùng thử, Mira báo bạn."
+          }
+          // Lỗi: nói thật "Chưa gửi được, bạn thử lại sau." Không báo thành công khi res.ok sai.
+        });
+      });
+
+    Phần cta_click đã do listener chung ở BaseHead (ga4-plan §3.1) đọc data-cta/data-widget/data-target.
+    -->
+  </body>
+</html>

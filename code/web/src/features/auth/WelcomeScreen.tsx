@@ -16,16 +16,31 @@ import './WelcomeScreen.css';
  * sử dụng iPhone cộng khung ngày đã khai. Nếu một ngày nào đó chúng thành số bịa thì màn
  * này nói dối ngay từ câu đầu tiên.
  */
-const SO_TRANG = 4;
+/**
+ * ─────────────────────── NỘI DUNG LẤY TỪ MOCKUP FOUNDER GỬI ───────────────────────
+ *
+ * Năm bước, mỗi bước một nhãn nhỏ + một câu lớn + một đoạn giải thích — đúng khuôn
+ * `mira_welcome_mockup.html`. Thứ tự cũng theo mockup: chào → thời gian → tiền → nếp →
+ * khép lại.
+ *
+ * **Dịch sang tiếng Việt**, theo quyết định đã chốt: mã tiếng Anh, chú thích và chữ trên
+ * màn hình tiếng Việt. Giọng giữ nguyên của mockup — điềm đạm, không hô khẩu hiệu.
+ *
+ * **KHÔNG lấy phần hình của mockup.** Hình trong đó là nhãn bịa cho đẹp ("Needs · 34%",
+ * "Focus / Personal / Rest"). Màn này đã có luật riêng ghi ngay dưới đây: số trên thẻ là
+ * số thật. Dán nhãn bịa vào là màn chào nói dối ngay từ câu đầu. Nên lấy chữ của mockup,
+ * giữ thẻ của Mira.
+ */
+const PAGE_COUNT = 5;
 
-export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
+export function WelcomeScreen({ onSignIn }: { readonly onSignIn: () => void }) {
   const [idx, setIdx] = useState(0);
   const ray = useRef<HTMLDivElement>(null);
   /** Trang đang cuộn tới, hoặc null khi đang đứng yên. Xem `khiCuon` để biết tại sao cần. */
   const dich = useRef<number | null>(null);
 
   const den = (i: number) => {
-    const k = Math.max(0, Math.min(SO_TRANG - 1, i));
+    const k = Math.max(0, Math.min(PAGE_COUNT - 1, i));
     setIdx(k);
     const el = ray.current;
     if (el === null) return;
@@ -61,7 +76,7 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
     if (k !== idx) setIdx(k);
   };
 
-  const cuoi = idx === SO_TRANG - 1;
+  const last = idx === PAGE_COUNT - 1;
 
   return (
     <div className="wel">
@@ -70,8 +85,8 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
         <button
           type="button"
           className="wel__skip"
-          style={{ visibility: cuoi ? 'hidden' : 'visible' }}
-          onClick={onVao}
+          style={{ visibility: last ? 'hidden' : 'visible' }}
+          onClick={onSignIn}
         >
           Bỏ qua
         </button>
@@ -79,8 +94,17 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
 
       <div className="wel__track" ref={ray} onScroll={khiCuon}>
         <Trang
-          h="Một ngày của bạn đi đâu hết"
-          p="Giờ thật, chia theo bốn ô, cộng lại đúng số giờ bạn thức trong tuần."
+          k="CHÀO MỪNG ĐẾN MIRA"
+          h="Rõ hơn một chút. Sống có chủ ý hơn một chút."
+          p="Ngày của bạn đầy những lựa chọn. Mira giúp bạn nhìn ra điều gì đáng — rồi chừa thêm chỗ cho nó."
+        >
+          <Dau />
+        </Trang>
+
+        <Trang
+          k="THỜI GIAN, NHÌN CHO RÕ"
+          h="Nhìn xem thời gian thật sự đi đâu."
+          p="Để ý nhịp ngày của bạn. Hiểu cái gì đang lấy mất sự chú ý, và cái gì đáng được nhiều hơn."
         >
           <div className="wel__card">
             <div className="wel__row">
@@ -88,26 +112,10 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
               <span className="wel__tag">119h giờ tỉnh</span>
             </div>
             <div className="wel__bars">
-              <Bar ten="Công việc" pct={59} mau="var(--navy)" so="70h" />
-              <Bar ten="Lãng phí" pct={30} mau="var(--candy)" so="35h 42m" />
-              <Bar ten="Gia đình" pct={8} mau="var(--green)" so="9h 48m" />
-              <Bar ten="Cá nhân" pct={3} mau="var(--purple)" so="3h 30m" />
-            </div>
-          </div>
-        </Trang>
-
-        <Trang
-          h="Giờ vàng, không phải giờ ở cùng nhà"
-          p="Ngồi cùng phòng mà mỗi người một màn hình thì không tính. Mira chỉ đếm lúc bạn thật sự có mặt."
-        >
-          <div className="wel__card">
-            <span className="wel__k">TRONG GIỜ GIA ĐÌNH</span>
-            <div className="wel__meter">
-              <span style={{ width: '85%' }} />
-            </div>
-            <div className="wel__row">
-              <b>Giờ vàng 8h 42m</b>
-              <span className="wel__muted">Còn lại 1h 30m</span>
+              <Bar ten="Công việc" pct={59} color="var(--navy)" so="70h" />
+              <Bar ten="Lãng phí" pct={30} color="var(--candy)" so="35h 42m" />
+              <Bar ten="Gia đình" pct={8} color="var(--green)" so="9h 48m" />
+              <Bar ten="Cá nhân" pct={3} color="var(--purple)" so="3h 30m" />
             </div>
           </div>
           <div className="wel__dark">
@@ -118,8 +126,21 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
         </Trang>
 
         <Trang
-          h="Viên kẹo và hạt muối"
-          p="Ghi một dòng về hôm nay. Ngày nặng thì 42 ngày sau Mira hỏi lại đúng một lần, xem nó đã nhẹ đi chưa."
+          k="TIỀN, CHO CÓ NGHĨA"
+          h="Làm cho đồng tiền có nghĩa hơn."
+          p="Nhìn chi tiêu với một góc rộng hơn. Nối những lựa chọn thường ngày với cuộc sống bạn muốn dựng."
+        >
+          <div className="wel__card wel__feats">
+            <Muc a="Vốn tự do" b="Bạn sống được bao nhiêu tháng nếu dừng lại hôm nay" />
+            <Muc a="Mục tiêu có nguyên liệu" b="Muốn 4h mỗi tuần thì phải cắt 4h từ đâu đó" />
+            <Muc a="Thói quen đếm theo tuần" b="Không có chuỗi ngày để làm bạn sợ đứt" />
+          </div>
+        </Trang>
+
+        <Trang
+          k="NẾP NHỎ, THẤY ĐƯỢC NHIỀU"
+          h="Hiểu những nếp lặp đi lặp lại."
+          p="Nhận ra thói quen và nếp đang nặn nên ngày của bạn. Một quan sát nhỏ cũng đủ đổi một điều lớn."
         >
           <div className="wel__card wel__list">
             <Hat loai="candy" chu="Con tự đọc hết một trang sách" ngay="Hôm nay" />
@@ -138,14 +159,11 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
         </Trang>
 
         <Trang
-          h="Tiền và mục tiêu, cùng một chỗ"
-          p="Vốn tự do tính theo tháng: tài sản ròng chia chi phí một tháng. Mục tiêu thì lấy giờ từ ô lãng phí, không lấy từ hư không."
+          k="MỘT ĐỜI CÓ CHỦ Ý HƠN"
+          h="Chừa chỗ cho điều đáng."
+          p="Bắt đầu bằng một cái nhìn rõ hơn về thời gian, tiền và ngày thường. Đi theo nhịp của bạn — mỗi lần một bước nhỏ."
         >
-          <div className="wel__card wel__feats">
-            <Muc a="Vốn tự do" b="Bạn sống được bao nhiêu tháng nếu dừng lại hôm nay" />
-            <Muc a="Mục tiêu có nguyên liệu" b="Muốn 4h mỗi tuần thì phải cắt 4h từ đâu đó" />
-            <Muc a="Thói quen đếm theo tuần" b="Không có chuỗi ngày để làm bạn sợ đứt" />
-          </div>
+          <Dau khep />
           <div className="wel__pills">
             <span>Không quảng cáo</span>
             <span>Dữ liệu chỉ bạn đọc</span>
@@ -154,7 +172,7 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
       </div>
 
       <div className="wel__dots" role="tablist">
-        {Array.from({ length: SO_TRANG }, (_, k) => (
+        {Array.from({ length: PAGE_COUNT }, (_, k) => (
           <button
             key={k}
             type="button"
@@ -168,53 +186,89 @@ export function WelcomeScreen({ onVao }: { readonly onVao: () => void }) {
       </div>
 
       <div className="wel__cta">
-        <button type="button" className="wel__go" onClick={() => (cuoi ? onVao() : den(idx + 1))}>
-          {cuoi ? 'Bắt đầu' : 'Tiếp'}
+        <button
+          type="button"
+          className="wel__go"
+          onClick={() => (last ? onSignIn() : den(idx + 1))}
+        >
+          {last ? 'Bắt đầu' : 'Tiếp'}
         </button>
-        <button type="button" className="wel__link" onClick={onVao}>
+        <button type="button" className="wel__link" onClick={onSignIn}>
           Đã có tài khoản? <b>Đăng nhập</b>
         </button>
+        <p
+          style={{ fontSize: 12.5, color: 'var(--fg-dim)', textAlign: 'center', margin: '6px 0 0' }}
+        >
+          <a href="/privacy">Chính sách riêng tư</a> · <a href="/terms">Điều khoản</a>
+        </p>
       </div>
     </div>
   );
 }
 
+/**
+ * Một bước.
+ *
+ * Thứ tự **chữ trước, hình sau** — theo mockup, và đổi so với bản cũ (hình trước, chữ
+ * sau). Người ta đọc lời hứa rồi mới nhìn bằng chứng; nhìn bằng chứng trước thì chưa biết
+ * đang nhìn cái gì.
+ */
 function Trang({
+  k,
   h,
   p,
   children,
 }: {
+  readonly k: string;
   readonly h: string;
   readonly p: string;
   readonly children: React.ReactNode;
 }) {
   return (
     <section className="wel__slide">
+      <div className="wel__kicker">{k}</div>
+      <h1 className="wel__h">{h}</h1>
+      <p className="wel__p">{p}</p>
       <div className="wel__art" aria-hidden>
         {children}
       </div>
-      <h1 className="wel__h">{h}</h1>
-      <p className="wel__p">{p}</p>
     </section>
+  );
+}
+
+/**
+ * Dấu của Mira: mấy vòng đồng tâm, chữ `m` ở giữa.
+ *
+ * Bước đầu và bước cuối không có số nào để khoe, nên chúng mang dấu thay vì một cái thẻ.
+ * Đây là chỗ duy nhất trong màn này không phải dữ liệu — và nó cũng không giả vờ là dữ
+ * liệu, nên không phạm luật "số trên thẻ là số thật".
+ */
+function Dau({ khep = false }: { readonly khep?: boolean }) {
+  return (
+    <div className={khep ? 'wel__dau wel__dau--khep' : 'wel__dau'}>
+      <i />
+      <i />
+      <span>m</span>
+    </div>
   );
 }
 
 function Bar({
   ten,
   pct,
-  mau,
+  color,
   so,
 }: {
   readonly ten: string;
   readonly pct: number;
-  readonly mau: string;
+  readonly color: string;
   readonly so: string;
 }) {
   return (
     <div className="wel__bline">
       <span className="wel__bname">{ten}</span>
       <span className="wel__btrack">
-        <span style={{ width: `${pct}%`, background: mau }} />
+        <span style={{ width: `${pct}%`, background: color }} />
       </span>
       <span className="wel__bnum">{so}</span>
     </div>

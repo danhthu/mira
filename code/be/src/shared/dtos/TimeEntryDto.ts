@@ -7,12 +7,12 @@ export interface CreateTimeEntryDto {
   golden?: boolean;
   note?: string | null;
   source?: TimeEntrySource;
-  nepId?: string | null;
-  danhMucId?: string | null;
+  routineId?: string | null;
+  categoryId?: string | null;
 }
 
 export interface UpdateTimeEntryDto {
-  danhMucId?: string | null;
+  categoryId?: string | null;
   minutes?: number;
   bucket?: TimeBucket;
   golden?: boolean;

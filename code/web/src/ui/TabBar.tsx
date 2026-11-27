@@ -1,22 +1,29 @@
 import { NavLink } from 'react-router-dom';
+import { Icon, type IconName } from './Icon';
 
 /**
- * Năm tab, theo concept cải tiến sau khi chạy 300 persona.
+ * Năm tab.
  *
  * Tab đầu đổi từ "Nhà" thành **Nhật ký**: cái tên cũ nói về một nơi, tên mới nói về việc
  * phải làm ở đó. Và việc đó giờ nằm trên cùng màn hình chứ không ở đáy.
  *
- * "Tôi" rời khỏi thanh tab, nhường chỗ cho **Sáu tháng**. Màn Tôi mỗi tháng mở một lần,
- * còn Sáu tháng là chỗ trả lời câu hỏi người ta cài Mira để hỏi. Vào Tôi qua tên ở góc
- * màn Nhật ký.
+ * **Sáu tháng bỏ khỏi thanh tab 26/11/2026.** Nó hứa một thứ chưa có: chuyện sáu tháng
+ * cần sáu tuần dữ liệu mới kể được, nên phần lớn thời gian bấm vào chỉ thấy biểu đồ mấy
+ * tuần — thứ màn Thời gian đã nói rồi. Một tab mở ra là thấy "chưa đủ dữ liệu" làm người
+ * ta thôi tin cả app. "Tôi" lấy lại chỗ đó.
+ *
+ * **Hũ lấy chỗ của Tôi 26/11/2026.** Hũ là nơi nằm của hạt cũ nổi lên và câu hỏi lại sau
+ * 42 ngày — hai thứ kéo người ta quay lại — mà trước đó chỉ vào được qua một đường link
+ * trong câu trả lời của chat. Tôi là màn cài đặt, mở vài tuần một lần: nó dời lên góc
+ * phải của Nhật ký và của Hũ.
  */
-const TABS = [
-  { to: '/', icon: '📓', label: 'Nhật ký' },
-  { to: '/thoi-gian', icon: '⏱️', label: 'Thời gian' },
-  { to: '/sau-thang', icon: '📖', label: 'Sáu tháng' },
-  { to: '/tai-chinh', icon: '💰', label: 'Tài chính' },
-  { to: '/muc-tieu', icon: '🎯', label: 'Mục tiêu' },
-] as const;
+const TABS: readonly { to: string; icon: IconName; label: string }[] = [
+  { to: '/', icon: 'journal', label: 'Nhật ký' },
+  { to: '/thoi-gian', icon: 'clock', label: 'Thời gian' },
+  { to: '/tai-chinh', icon: 'wallet', label: 'Tài chính' },
+  { to: '/muc-tieu', icon: 'target', label: 'Mục tiêu' },
+  { to: '/hu', icon: 'jar', label: 'Hũ' },
+];
 
 export function TabBar() {
   return (
@@ -26,7 +33,7 @@ export function TabBar() {
         insetInline: 0,
         bottom: 0,
         height: 'var(--tab-height)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingBottom: 'var(--inset-bottom)',
         background: 'rgba(255,255,255,0.94)',
         backdropFilter: 'blur(10px)',
         borderTop: '1px solid var(--line)',
@@ -52,15 +59,11 @@ export function TabBar() {
         >
           {({ isActive }) => (
             <>
-              <span
-                style={{
-                  fontSize: 19,
-                  display: 'block',
-                  marginBottom: 4,
-                  opacity: isActive ? 1 : 0.45,
-                }}
-              >
-                {tab.icon}
+              {/* Icon nhuộm theo màu chữ của tab nhờ currentColor, nên tab đang chọn
+                  sáng màu thương hiệu còn bốn tab kia xám. Emoji không làm được việc đó:
+                  nó giữ màu của phông, nên cái đang chọn trông y hệt cái không chọn. */}
+              <span style={{ display: 'flex', justifyContent: 'center', marginBottom: 5 }}>
+                <Icon name={tab.icon} size={21} strokeWidth={isActive ? 1.95 : 1.6} />
               </span>
               {tab.label}
             </>

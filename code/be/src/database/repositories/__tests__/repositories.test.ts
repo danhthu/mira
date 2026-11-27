@@ -158,3 +158,135 @@ describe('MomentRepository.create', () => {
     expect(moment.text).toBeNull();
   });
 });
+
+describe('MomentRepository.update', () => {
+  // Thứ tự tham số của câu UPDATE: [id, text, kind, revisit_at, updated_at, user_id].
+  const I_KIND = 2;
+  const I_HEN = 3;
+
+  it('⚑ đổi kẹo → muối thì ĐẶT hẹn hỏi lại, tính từ ngày của hạt', async () => {
+    // Không phải tính từ hôm nay. Hạt thuộc về ngày 25/8; 42 ngày sau là 6/10. Lấy mốc
+    // từ hôm nay thì một hạt ghi cho tháng trước sẽ bị hỏi lại muộn đúng bằng số ngày
+    // người dùng ghi chậm.
+    const db = new FakeDatabase([
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'candy',
+        text: 'Ngay vui',
+        revisit_at: null,
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'salt',
+        text: 'Ngay vui',
+        revisit_at: '2026-10-06',
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+    ]);
+    const repo = new MomentRepository(db);
+
+    const ra = await repo.update('u-1', 'moment-9', { kind: 'salt' });
+
+    expect(db.calls[1]?.params[I_KIND]).toBe('salt');
+    expect(db.calls[1]?.params[I_HEN]).toBe('2026-10-06');
+    expect(ra?.revisitAt).toBe('2026-10-06');
+  });
+
+  it('⚑ đổi muối → kẹo thì BỎ hẹn hỏi lại', async () => {
+    // Giữ nguyên hẹn cũ sẽ để lại một cái hẹn mồ côi, và Mira sẽ hỏi lại một ngày vui
+    // như thể nó là một ngày nặng.
+    const db = new FakeDatabase([
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'salt',
+        text: 'Ngay nang',
+        revisit_at: '2026-10-06',
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'candy',
+        text: 'Ngay nang',
+        revisit_at: null,
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+    ]);
+    const repo = new MomentRepository(db);
+
+    const ra = await repo.update('u-1', 'moment-9', { kind: 'candy' });
+
+    expect(db.calls[1]?.params[I_KIND]).toBe('candy');
+    expect(db.calls[1]?.params[I_HEN]).toBeNull();
+    expect(ra?.revisitAt).toBeNull();
+  });
+
+  it('sửa mỗi chữ thì giữ nguyên hẹn đã hứa', async () => {
+    const db = new FakeDatabase([
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'salt',
+        text: 'Ngay nang',
+        revisit_at: '2026-10-06',
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+      [
+      {
+        id: 'moment-9',
+        date: '2026-08-25',
+        kind: 'salt',
+        text: 'Ngay nang lam',
+        revisit_at: '2026-10-06',
+        revisit_answer: null,
+        created_at: '2026-08-25T10:00:00.000Z',
+        updated_at: '2026-08-25T10:00:00.000Z',
+        deleted_at: null,
+      },
+      ],
+    ]);
+    const repo = new MomentRepository(db);
+
+    await repo.update('u-1', 'moment-9', { text: 'Ngay nang lam' });
+
+    expect(db.calls[1]?.params[1]).toBe('Ngay nang lam');
+    expect(db.calls[1]?.params[I_HEN]).toBe('2026-10-06');
+  });
+
+  it('hạt không tồn tại thì trả null, không gọi UPDATE', async () => {
+    const db = new FakeDatabase([[]]);
+    const repo = new MomentRepository(db);
+
+    expect(await repo.update('u-1', 'khong-co', { text: 'x' })).toBeNull();
+    expect(db.calls).toHaveLength(1);
+  });
+});

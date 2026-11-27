@@ -6,7 +6,6 @@ import { B } from '../../../libs/components';
 import { Router } from '../../../Router';
 import { useTheme } from '../../../theme';
 import { FONT_SIZE, FONTSIZE, TBL_ROW_HEIGHT } from '../../../theme/Constraints';
-import { Challenge } from '../../Challenger/Entities';
 import { useStateData } from '../../Common/Hooks';
 import { Goal } from '../../Goal/Entities';
 import { useText } from '../Text';
@@ -17,7 +16,7 @@ export const LinkTo = () => {
   const [data, setData, dataRef] = useStateData([]);
   const nav = useNavigation();
   const { showActionSheetWithOptions } = useActionSheet();
-  const onSelection = (type: 'Challenge' | 'Goal') => (item: Challenge | Goal) => { };
+  const onSelection = (_type: 'Goal') => (_item: Goal) => { };
   const onPlusPress = useCallback(() => {
     showActionSheetWithOptions(
       {
@@ -36,7 +35,7 @@ export const LinkTo = () => {
       },
       (selectedIndex: number) => {
         if (selectedIndex == 1) {
-          const callback = onSelection('Challenge');
+          const callback = onSelection('Goal');
           Router.Open(nav, 'GoalApp', {
             screen: 'WorkSelection',
             data: dataRef.current.filter(d => d.item != undefined).map((d) => d.item.id),
@@ -105,7 +104,7 @@ export const LinkTo = () => {
 };
 
 const RowLinkItem = (props: {
-  item: Goal | Challenge,
+  item: Goal,
   onDel: () => void
 
 }) => {

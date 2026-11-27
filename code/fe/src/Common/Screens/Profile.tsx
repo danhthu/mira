@@ -11,7 +11,6 @@ import { AppStyle, useTheme } from '../../../theme';
 import { Card as TimeTrackerWidget } from '../../TimeTracker/Components/Card';
 import { FONTSIZE, MARGIN } from '../../../theme/Constraints';
 import { HabitTrackerModel2 as HabitTrackerModel } from '../../HabitTracker/Models/HabitTrackerModel';
-import { ChallengerTrackerModel } from '../../Challenger/Models/ChallengerTrackerModel';
 
 export const Profile = ({ navigation }) => {
   return (
@@ -19,8 +18,6 @@ export const Profile = ({ navigation }) => {
       <CaptionRow />
       <TimeSection navigation={navigation} />
       <HabitSection navigation={navigation} />
-      <ChallengeSection navigation={navigation} />
-      <StatusSection navigation={navigation} />
       <SettingSection navigation={navigation} />
       <HelpAndFeedbackSection navigation={navigation} />
     </ScrollView>
@@ -91,70 +88,6 @@ const TimeSection = (props: { navigation }) => {
   );
 };
 
-
-const ChallengeSection = (props: { navigation }) => {
-  const styles = Styles(useTheme());
-  const text = useText();
-  const OnViewAllPress = () => { Router.Open(props.navigation, 'ChallengerStat' as ROUTER_NAME); };
-  const data = ChallengerTrackerModel.useCalendarData();
-  const markedDates = {};
-  data.forEach(item => {
-    markedDates[moment(new Date(item.date)).format('YYYY-MM-DD')] = {
-      selected: true, marked: true, selectedColor:
-                item.status == 0 ? styles.status_0_text : item.status == 1 ? styles.status_1_text : styles.status_2_text,
-      selectedContainerColor:
-                item.status == 0 ? styles.status_0 : item.status == 1 ? styles.status_1 : styles.status_2,
-    };
-  });
-
-  return (
-    <View style={styles.section}>
-
-      <SessionTitle title={text.profile_screen.ChallengerStat} onView={OnViewAllPress}/>
-      <Calendar
-        style={{
-          borderWidth: 1,
-          borderColor: 'gray',
-          height: 350,
-        }}
-
-        markedDates={markedDates}
-      ></Calendar>
-    </View>
-  );
-};
-
-
-const StatusSection = (props: { navigation }) => {
-  const styles = Styles(useTheme());
-  const text = useText();
-  const OnViewAllPress = () => { Router.Open(props.navigation, 'StatusStat' as ROUTER_NAME); };
-  const data = ChallengerTrackerModel.useCalendarData();
-  const markedDates = {};
-  data.forEach(item => {
-    markedDates[moment(new Date(item.date)).format('YYYY-MM-DD')] = {
-      selected: true, marked: true, selectedColor:
-                item.status == 0 ? styles.status_0_text : item.status == 1 ? styles.status_1_text : styles.status_2_text,
-      selectedContainerColor:
-                item.status == 0 ? styles.status_0 : item.status == 1 ? styles.status_1 : styles.status_2,
-    };
-  });
-
-  return (
-    <View style={styles.section}>
-      <SessionTitle title={text.profile_screen.ViewAll} onView={OnViewAllPress}/>
-      <Calendar
-        style={{
-          borderWidth: 1,
-          borderColor: 'gray',
-          height: 350,
-        }}
-
-        markedDates={markedDates}
-      ></Calendar>
-    </View>
-  );
-};
 
 const SessionTitle=(props:{onView:()=>void,title:string})=>{
   const styles = Styles(useTheme());

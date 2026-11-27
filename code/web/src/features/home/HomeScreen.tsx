@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BUCKET_LABEL_VI, type Moment, type MomentKind } from '@mira/contract';
+import { BUCKET_LABEL_VI, type MomentKind } from '@mira/contract';
 import { store } from '../../lib/store';
 import { useAsync } from '../../lib/useAsync';
 import { addDays, labelDay, monthOf, today, weekStartOf } from '../../lib/date';
 import { minutes as fmtMinutes, months as fmtMonths, perMille, UNKNOWN } from '../../lib/format';
+import { GOLDEN_HOURS } from '../../lib/features';
 import { Grain, Jar } from '../../ui/Grain';
+import { oldGrainCaption, oldGrainRange, pickOldGrain } from '../../lib/oldGrain';
 
 /**
  * Màn Nhật ký. Thứ tự trên màn này là kết quả của mô phỏng 300 persona, không phải chọn
@@ -17,13 +19,13 @@ import { Grain, Jar } from '../../ui/Grain';
  *   2. **Hạt cũ nổi lên.** Đòn bẩy mạnh nhất, +49%.
  *   3. **Bốn thẻ trụ**, đều bấm được.
  *
- * Thẻ Thời gian hiện **giờ vàng**, không phải "tổng đã ghi". Tổng đã ghi chót cả ba bảng
- * đo: phân biệt 0,11 và chỉ đổi 3% giữa các tuần, nghĩa là nó gần như không bao giờ có
- * tin mới. Giờ vàng đứng đầu bảng đổi theo tuần với 42%.
+ * Thẻ Thời gian KHÔNG hiện "tổng đã ghi". Tổng đã ghi chót cả ba bảng đo: phân biệt
+ * 0,11 và chỉ đổi 3% giữa các tuần, nghĩa là nó gần như không bao giờ có tin mới.
+ *
+ * Chỗ đó từng là **giờ vàng**, thứ đứng đầu bảng với 42%. Founder tạm bỏ khái niệm giờ
+ * vàng ngày 25/11/2026, nên giờ là cả giờ **Gia đình** — thước đo gần nhất còn lại, và
+ * vẫn đổi theo tuần đủ để mang tin. Công tắc ở `lib/features.test.ts`.
  */
-const NGAY_HAT_CU = 90;
-const KHOANG_HAT_CU = 4;
-
 export function HomeScreen() {
   const day = today();
   const week = weekStartOf(day);
@@ -31,14 +33,14 @@ export function HomeScreen() {
 
   const state = useAsync(async () => {
     const monthStart = `${month}-01`;
-    const xua = addDays(day, -NGAY_HAT_CU);
+    const [cuTu, cuDen] = oldGrainRange(day);
     const [summary, moments, money, habits, budget, hatCu] = await Promise.all([
       store.weekSummary(week),
       store.listMoments(monthStart, addDays(monthStart, 40)),
       store.getMoney(month),
       store.habitWeek(week),
       store.goalBudget(week),
-      store.listMoments(addDays(xua, -KHOANG_HAT_CU), addDays(xua, KHOANG_HAT_CU)),
+      store.listMoments(cuTu, cuDen),
     ]);
     return { summary, moments, money, habits, budget, hatCu };
   }, [week, month, day]);
@@ -60,6 +62,32 @@ export function HomeScreen() {
 
   const summary = state.data?.summary ?? null;
   const family = summary?.slices.find((s) => s.bucket === 'family') ?? null;
+
+  /**
+   * Con số lớn trên thẻ Thời gian.
+   *
+   * Giờ vàng đang tắt, nên nó là cả giờ Gia đình. Bật lại thì quay về phần vàng — một
+   * chỗ đổi, không phải rải `GIO_VANG` khắp phần vẽ.
+   */
+  const gioChinh = GOLDEN_HOURS ? (summary?.goldenMinutes ?? null) : (family?.minutes ?? null);
+
+  /**
+   * Phần trăm của thanh dưới con số.
+   *
+   * Khi còn giờ vàng thì thanh đo "bao nhiêu phần giờ Gia đình là thật sự có mặt". Bỏ
+   * giờ vàng thì phép chia ấy thành `family / family` = 100% mãi mãi — một thanh luôn
+   * đầy không nói gì cả. Nên đổi mẫu số sang **tổng giờ đã ghi trong tuần**: Gia đình
+   * chiếm bao nhiêu phần tuần của bạn.
+   */
+  const thanhPhanTram = (() => {
+    if (GOLDEN_HOURS) {
+      if (family === null || family.minutes === 0) return 0;
+      return Math.min(100, ((summary?.goldenMinutes ?? 0) * 100) / family.minutes);
+    }
+    const total = summary?.loggedMinutes ?? 0;
+    if (total === 0 || family === null) return 0;
+    return Math.min(100, (family.minutes * 100) / total);
+  })();
   const moments = state.data?.moments ?? [];
   const candies = moments.filter((m) => m.kind === 'candy').length;
   const salts = moments.length - candies;
@@ -73,7 +101,7 @@ export function HomeScreen() {
     summary?.previous?.slices.find((s) => s.bucket === 'family')?.minutes ?? null;
   const diff = family !== null && previousFamily !== null ? family.minutes - previousFamily : null;
 
-  const hatCu = chonHatCu(state.data?.hatCu ?? []);
+  const hatCu = pickOldGrain(state.data?.hatCu ?? []);
 
   return (
     <div className="screen-body">
@@ -157,7 +185,7 @@ export function HomeScreen() {
 
       {hatCu !== null && (
         <div className="cu">
-          <div className="cu__k">{nhanHatCu(hatCu.date, day)}</div>
+          <div className="cu__k">{oldGrainCaption(hatCu.date, day)}</div>
           <p className="cu__t">“{hatCu.text}”</p>
           <Link to="/hu" className="sm" style={{ display: 'inline-block', marginTop: 10 }}>
             Mở hũ
@@ -180,21 +208,20 @@ export function HomeScreen() {
           <div className="label">
             Thời gian <span className="goc">›</span>
           </div>
-          {/* Giờ vàng chứ không phải "tổng đã ghi". Tổng đã ghi chót cả ba bảng đo:
-              phân biệt 0,11 và chỉ đổi 3% giữa các tuần, nên nó gần như không bao giờ
-              mang tin mới. Giờ vàng đứng đầu bảng đổi theo tuần với 42%. */}
+          {/* KHÔNG phải "tổng đã ghi". Tổng đã ghi chót cả ba bảng đo: phân biệt 0,11
+              và chỉ đổi 3% giữa các tuần, nên nó gần như không bao giờ mang tin mới.
+              Trước đây chỗ này là giờ vàng — Founder tạm bỏ khái niệm đó ngày
+              25/11/2026, nên giờ là cả giờ Gia đình, thước đo gần nhất còn lại. */}
           <div className="big" style={{ color: 'var(--green)', marginTop: 8 }}>
-            {summary === null || summary.goldenMinutes === 0
-              ? UNKNOWN
-              : fmtMinutes(summary.goldenMinutes)}
+            {gioChinh === null || gioChinh === 0 ? UNKNOWN : fmtMinutes(gioChinh)}
           </div>
           <div className="sm" style={{ marginTop: 4 }}>
-            Giờ vàng tuần này
+            {GOLDEN_HOURS ? 'Giờ vàng tuần này' : 'Gia đình tuần này'}
           </div>
           <div className="bar">
             <i
               style={{
-                width: `${family === null || family.minutes === 0 ? 0 : Math.min(100, ((summary?.goldenMinutes ?? 0) * 100) / family.minutes)}%`,
+                width: `${thanhPhanTram}%`,
                 background: 'var(--green)',
               }}
             />
@@ -260,35 +287,9 @@ export function HomeScreen() {
       </div>
 
       <p className="empty">
-        Vàng ấm là ngày vui, xanh nguội là ngày nặng. Mỗi hạt muối Mira hỏi lại đúng một lần,
-        sau 42 ngày.
+        Vàng ấm là ngày vui, xanh nguội là ngày nặng. Mỗi hạt muối Mira hỏi lại đúng một lần, sau 42
+        ngày.
       </p>
     </div>
   );
-}
-
-/**
- * Hạt cũ nổi lên: đòn bẩy mạnh nhất trong mô phỏng 300 persona, giữ chân tuần 26 từ 27%
- * lên 44%.
- *
- * Nó cũng là đường vòng quanh một xung đột. "Nhắc khi trượt" cho giữ chân cao hơn nữa
- * (53%), nhưng bản chốt tính năng đã hứa *không nhắc, không hỏi vì sao bạn bỏ một tuần*.
- * Thẻ này nhắc mà không trách: nó không nói bạn bỏ mấy ngày, nó chỉ đưa lại một dòng bạn
- * từng viết.
- *
- * Hạt không có chữ thì bỏ qua: một ô trống đưa lại chẳng gợi được gì.
- */
-function chonHatCu(hat: readonly Moment[]): Moment | null {
-  const coChu = hat.filter((m) => m.text !== null && m.text.trim() !== '');
-  if (coChu.length === 0) return null;
-  // Kẹo trước: mở app ra mà bị dúi vào mặt một ngày tệ thì lần sau bớt muốn mở.
-  return coChu.find((m) => m.kind === 'candy') ?? coChu[0] ?? null;
-}
-
-function nhanHatCu(ngayCu: string, homNay: string): string {
-  const cach = Math.round(
-    (Date.parse(`${homNay}T00:00:00Z`) - Date.parse(`${ngayCu}T00:00:00Z`)) / 86_400_000,
-  );
-  const thang = Math.round(cach / 30);
-  return `${labelDay(ngayCu)}, ${thang} tháng trước, bạn viết`;
 }

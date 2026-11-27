@@ -1,5 +1,5 @@
 import type { GoalBudget } from '@mira/contract';
-import type { CreateGoalDto, EndGoalDto } from '../shared/dtos/GoalDto';
+import type { CreateGoalDto, EndGoalDto, UpdateGoalDto } from '../shared/dtos/GoalDto';
 import type { Goal } from '../entities/Goal';
 import type { GoalRepository } from '../database/repositories/GoalRepository';
 import type { TimeEntryRepository } from '../database/repositories/TimeEntryRepository';
@@ -35,6 +35,60 @@ export async function createGoal(deps: GoalDeps, userId: string, dto: CreateGoal
   }
 
   return deps.goals.create(userId, { ...dto, title: dto.title.trim() });
+}
+
+/**
+ * Sửa tên và số giờ mỗi tuần.
+ *
+ * Không đụng tới `tier` và `sourceBucket`. Đổi tầng là đổi trần đang áp cho mục tiêu —
+ * kéo một mục tiêu từ tầng quý sang tầng dài hạn có thể làm tầng dài hạn vượt trần, và
+ * cái trần là thứ chữa bệnh đặt quá nhiều (N-204, N-206). Muốn đổi tầng thì kết thúc
+ * cái cũ và tạo cái mới: đi qua đúng cửa kiểm trần.
+ *
+ * Chỉ sửa được mục tiêu ĐANG CHẠY — câu UPDATE trong repository có `ended_on IS NULL`.
+ * Sửa một mục tiêu đã kết thúc là sửa lại lịch sử.
+ */
+export async function updateGoal(
+  deps: GoalDeps,
+  userId: string,
+  id: string,
+  dto: UpdateGoalDto,
+): Promise<Goal> {
+  if (dto.title !== undefined && dto.title.trim() === '') {
+    throw badRequest('Mục tiêu phải có tên');
+  }
+  if (
+    dto.weeklyMinutes !== undefined &&
+    (!Number.isInteger(dto.weeklyMinutes) || dto.weeklyMinutes <= 0)
+  ) {
+    throw badRequest('weeklyMinutes phải là số phút nguyên dương');
+  }
+
+  const updated = await deps.goals.update(userId, id, {
+    ...dto,
+    title: dto.title?.trim(),
+  });
+  if (updated === null) {
+    throw notFound('Không có mục tiêu đang chạy với id này');
+  }
+  return updated;
+}
+
+/**
+ * Xoá hẳn một mục tiêu. **Khác "kết thúc"**, và hai thứ này phải cùng tồn tại:
+ *
+ *   Kết thúc = tôi đã theo đuổi nó, giờ thôi. Nó ở lại trong lịch sử, và có bước hai
+ *              hỏi số giờ vừa giải phóng chuyển sang đâu.
+ *   Xoá      = tôi gõ nhầm, nó chưa từng là mục tiêu của tôi.
+ *
+ * Gộp hai thứ này làm một thì một mục tiêu gõ nhầm sẽ nằm vĩnh viễn trong lịch sử như
+ * một thứ "đã bỏ cuộc" — app tự dựng cho người dùng một thất bại không có thật.
+ */
+export async function deleteGoal(deps: GoalDeps, userId: string, id: string): Promise<void> {
+  const xoa = await deps.goals.softDelete(userId, id);
+  if (xoa === null) {
+    throw notFound('Không có mục tiêu với id này');
+  }
 }
 
 /**

@@ -6,15 +6,15 @@
  * mình là ai.
  */
 import { createClient, MiraApiError } from '@mira/api-client';
-import { layToken } from './phien';
+import { getToken } from './session';
 
 /** Mặc định trỏ về máy chủ phát triển; bản phát hành đặt VITE_API_BASE_URL khi build. */
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8787';
 
-export const store = createClient({ baseUrl, token: layToken });
+export const store = createClient({ baseUrl, token: getToken });
 
 export { MiraApiError };
 
 /** Lỗi 401 nghĩa là phiên hết hạn — màn nào bắt được thì đá người dùng về đăng nhập. */
-export const laHetPhien = (error: unknown): boolean =>
+export const isSessionExpired = (error: unknown): boolean =>
   error instanceof MiraApiError && error.status === 401;

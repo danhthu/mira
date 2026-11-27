@@ -12,8 +12,8 @@ import type { TimeBucket } from '../../shared/types/enums';
 import { weekSummary } from '../time';
 
 /** Giả lập repository thay vì cả CSDL: service chỉ cần ba phép đọc này. */
-function fakeRepo(theoTuan: Record<string, { bucket: TimeBucket; minutes: number }[]>) {
-  const lay = (from: string) => theoTuan[from] ?? [];
+function fakeRepo(byWeek: Record<string, { bucket: TimeBucket; minutes: number }[]>) {
+  const lay = (from: string) => byWeek[from] ?? [];
   return {
     async sumByBucket(_userId: string, from: string) {
       return lay(from);
@@ -23,13 +23,13 @@ function fakeRepo(theoTuan: Record<string, { bucket: TimeBucket; minutes: number
     },
     async countDays(_userId: string, from: string) {
       // Mỗi tuần khai sẵn số ngày qua khoá `ngay:<from>`; không khai thì suy ra 0 hoặc 7.
-      const n = soNgay[from];
+      const n = dayCount[from];
       return n ?? (lay(from).length > 0 ? 7 : 0);
     },
   } as never;
 }
 
-let soNgay: Record<string, number> = {};
+let dayCount: Record<string, number> = {};
 
 const TUAN_NAY = '2026-11-23';
 const TUAN_TRUOC = '2026-11-16';
@@ -37,7 +37,7 @@ const deps = (repo: never) => ({ timeEntries: repo, wakingMinutesPerWeek: 17 * 6
 
 describe('weekSummary — phép so hai tuần', () => {
   it('không so khi tuần này ghi ít ngày hơn tuần trước', async () => {
-    soNgay = { [TUAN_NAY]: 3, [TUAN_TRUOC]: 7 };
+    dayCount = { [TUAN_NAY]: 3, [TUAN_TRUOC]: 7 };
     const repo = fakeRepo({
       [TUAN_NAY]: [{ bucket: 'waste', minutes: 558 }],
       [TUAN_TRUOC]: [{ bucket: 'waste', minutes: 2140 }],
@@ -50,7 +50,7 @@ describe('weekSummary — phép so hai tuần', () => {
   });
 
   it('có so khi hai tuần ghi bằng số ngày', async () => {
-    soNgay = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 7 };
+    dayCount = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 7 };
     const repo = fakeRepo({
       [TUAN_NAY]: [{ bucket: 'waste', minutes: 1300 }],
       [TUAN_TRUOC]: [{ bucket: 'waste', minutes: 2140 }],
@@ -64,7 +64,7 @@ describe('weekSummary — phép so hai tuần', () => {
   });
 
   it('có so khi tuần này ghi nhiều ngày hơn — người dùng ghi đều hơn lên', async () => {
-    soNgay = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 4 };
+    dayCount = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 4 };
     const repo = fakeRepo({
       [TUAN_NAY]: [{ bucket: 'family', minutes: 700 }],
       [TUAN_TRUOC]: [{ bucket: 'family', minutes: 300 }],
@@ -76,7 +76,7 @@ describe('weekSummary — phép so hai tuần', () => {
   });
 
   it('không so khi tuần trước trống, dù tuần này đủ ngày', async () => {
-    soNgay = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 0 };
+    dayCount = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 0 };
     const repo = fakeRepo({ [TUAN_NAY]: [{ bucket: 'work', minutes: 4200 }] });
 
     const kq = await weekSummary(deps(repo), 'u1', TUAN_NAY);
@@ -85,7 +85,7 @@ describe('weekSummary — phép so hai tuần', () => {
   });
 
   it('tỉ lệ tính trên giờ tỉnh truyền vào, không trên 16h đóng cứng', async () => {
-    soNgay = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 0 };
+    dayCount = { [TUAN_NAY]: 7, [TUAN_TRUOC]: 0 };
     // 70h làm việc trong tuần tỉnh 119h → 588‰, không phải 625‰ của mẫu số 112h.
     const repo = fakeRepo({ [TUAN_NAY]: [{ bucket: 'work', minutes: 70 * 60 }] });
 
@@ -96,7 +96,7 @@ describe('weekSummary — phép so hai tuần', () => {
   });
 
   it('luôn trả đủ bốn lát để donut không đổi thứ tự màu', async () => {
-    soNgay = { [TUAN_NAY]: 1, [TUAN_TRUOC]: 0 };
+    dayCount = { [TUAN_NAY]: 1, [TUAN_TRUOC]: 0 };
     const repo = fakeRepo({ [TUAN_NAY]: [{ bucket: 'waste', minutes: 60 }] });
 
     const kq = await weekSummary(deps(repo), 'u1', TUAN_NAY);

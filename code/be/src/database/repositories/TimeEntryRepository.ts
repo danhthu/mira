@@ -71,8 +71,8 @@ export class TimeEntryRepository {
       dto.golden ?? false,
       dto.note ?? null,
       dto.source ?? DEFAULT_TIME_ENTRY_SOURCE,
-      dto.nepId ?? null,
-      dto.danhMucId ?? null,
+      dto.routineId ?? null,
+      dto.categoryId ?? null,
       now,
       now,
     ]);
@@ -96,7 +96,7 @@ export class TimeEntryRepository {
       dto.bucket ?? current.bucket,
       dto.golden ?? current.golden,
       dto.note === undefined ? current.note : dto.note,
-      dto.danhMucId === undefined ? current.danhMucId : dto.danhMucId,
+      dto.categoryId === undefined ? current.categoryId : dto.categoryId,
       new Date().toISOString(),
       userId,
     ]);

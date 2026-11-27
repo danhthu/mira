@@ -15,9 +15,9 @@ cta: "freedom-months-calculator"
 widget: "freedom-months-calculator"
 ---
 
-Đây là tài sản quan trọng nhất trên blog này — công cụ nhiều người quay lại dùng mỗi tháng, không chỉ một lần.
+Đây là công cụ được thiết kế để quay lại dùng mỗi tháng, không chỉ một lần.
 
-*(Widget máy tính hiển thị ở đây — 5 ô nhập, mỗi tháng cập nhật lại một lần.)*
+*(Widget máy tính hiển thị ở đây — 5 ô nhập, mỗi tháng cập nhật lại một lần. Widget chưa được dựng: đây là chỗ giữ chỗ, chưa dùng được. Trong lúc chờ, công thức bên dưới tính được bằng máy tính cầm tay.)*
 
 ## Năm ô, không hơn
 
@@ -43,12 +43,14 @@ Kết quả trả về không chỉ một con số. Bạn sẽ thấy:
 
 - **Bạn giàu mấy tháng** — vốn tự do, đặt trong bốn nấc, kèm khoảng cách tới nấc kế tiếp.
 - **Tháng này bạn mua thêm bao nhiêu ngày tự do** — con số này quan trọng hơn con số vốn tự do tuyệt đối, vì nó luôn khả thi kể cả khi bạn mới bắt đầu.
-- **Bốc hơi** — phần thu nhập bạn không giải thích được đã đi đâu. Nhiều người ngạc nhiên với con số này hơn cả con số vốn tự do.
+- **Bốc hơi** — phần thu nhập bạn không giải thích được đã đi đâu.
 
 ## Nếu tài sản ròng đang âm
 
-Không hiện số âm. Công cụ sẽ hiện khoảng cách bạn cần tiết kiệm để về mốc 0 — "cách vạch tự do X tháng tiết kiệm" — thay vì một con số âm không nói lên được nên làm gì tiếp theo.
+Không hiện số âm. Công cụ sẽ hiện khoảng cách bạn cần tiết kiệm để về mốc 0 — "cách vạch tự do X tháng tiết kiệm" — thay vì một con số âm không chỉ ra được bước tiếp theo.
 
 ## Nếu bạn đang có nợ hoặc đầu tư
 
 Công cụ không quản lý từng khoản vay hay từng mã cổ phiếu. Nợ chỉ cần một con số: trả bao nhiêu mỗi tháng, còn nợ bao nhiêu. Đầu tư chỉ là một dòng trong tài sản ròng — công cụ này không theo dõi lãi lỗ, không gợi ý mua bán gì. Đây không phải app đầu tư.
+
+Trong năm ô này, ô nào bạn chưa biết con số chính xác?

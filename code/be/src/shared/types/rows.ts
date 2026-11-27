@@ -20,8 +20,8 @@ export interface TimeEntryRow {
   golden: boolean;
   note: string | null;
   source: string;
-  nep_id: string | null;
-  danh_muc_id: string | null;
+  routine_id: string | null;
+  category_id: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -54,9 +54,6 @@ export interface WorkLoadRow {
 export interface MoneyRow {
   id: string;
   month: string;
-  net_income: number | null;
-  monthly_expense: number | null;
-  debt_payment: number | null;
   debt_balance: number | null;
   net_worth: number | null;
   created_at: string;

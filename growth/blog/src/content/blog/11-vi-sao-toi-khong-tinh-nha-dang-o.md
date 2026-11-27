@@ -7,7 +7,7 @@ date: "2026-08-27"
 type: "story"
 week: 2
 day: 11
-description: "Trên giấy tờ tôi có hơn 3 tỷ. Vốn tự do thật của tôi lúc đó chưa đầy 2 tháng. Câu chuyện về căn nhà tôi từng tính nhầm."
+description: "Trên giấy tờ tôi có hơn 3 tỷ. Vốn tự do thật của tôi lúc đó chưa đầy 4 tháng. Câu chuyện về căn nhà tôi từng tính nhầm."
 tags: ["von-tu-do", "cau-chuyen"]
 image: "/blog/images/vi-sao-toi-khong-tinh-nha-dang-o.png"
 image_prompt: "Warm interior photo of a modest Vietnamese apartment living room, evening light through a window, a person sitting at a small table with paperwork, cozy but not staged, documentary photography style, deep green and gold color grade, no visible faces up close, no text"
@@ -18,7 +18,7 @@ Có một giai đoạn tôi tự tin nói mình "có hơn 3 tỷ tài sản" —
 
 Rồi có một tháng công ty cắt giảm nhân sự, tôi nằm trong danh sách. Lúc đó câu hỏi không còn là "tôi có bao nhiêu tài sản" nữa. Là "tôi sống được bao lâu nếu không có lương".
 
-Và câu trả lời làm tôi sững lại: gần như không đáng kể. Vì căn nhà 3 tỷ đó, tôi đang ở. Bán nó thì lấy gì để ở, và bán một căn nhà không phải chuyện làm trong một tuần.
+Và câu trả lời làm tôi sững lại: ngắn đến mức khó tin so với con số 3 tỷ tôi vẫn nhắc. Vì căn nhà 3 tỷ đó, tôi đang ở. Bán nó thì lấy gì để ở, và bán một căn nhà không phải chuyện làm trong một tuần.
 
 ## Tài sản trên giấy khác tài sản dùng được
 
@@ -39,3 +39,5 @@ Vốn tự do chỉ tính những gì thật sự rút ra dùng được mà kh�
 Tôi không bán nhà, không đổi gì lớn. Tôi chỉ đổi cách tôi tự trả lời câu "tôi có bao nhiêu tài sản". Không còn cộng cả căn nhà vào cho con số nhìn to hơn.
 
 4 tháng khi đó nghe không dễ chịu. Nhưng nó là con số thật, và biết con số thật — dù nhỏ — vẫn tốt hơn tin vào một con số to mà không dùng được lúc cần.
+
+Con số tài sản bạn vẫn kể với mọi người, có phần nào là thứ bạn đang ở hoặc đang đi mỗi ngày?

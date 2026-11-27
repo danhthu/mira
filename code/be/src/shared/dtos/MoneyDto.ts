@@ -1,11 +1,10 @@
 /**
- * Năm ô của một tháng. `undefined` nghĩa là giữ nguyên ô đang có, `null` tường minh
- * nghĩa là xoá giá trị về trạng thái chưa nhập (dấu hỏi xám trên giao diện).
+ * Hai ô mức của một tháng. `undefined` giữ nguyên ô đang có, `null` tường minh xoá giá
+ * trị về trạng thái chưa nhập (dấu hỏi xám trên giao diện).
+ *
+ * Năm ô dòng chảy không có mặt ở đây: ghi chúng là tạo một `money_entry`.
  */
 export interface UpsertMoneyDto {
-  netIncome?: number | null;
-  monthlyExpense?: number | null;
-  debtPayment?: number | null;
   debtBalance?: number | null;
   netWorth?: number | null;
 }

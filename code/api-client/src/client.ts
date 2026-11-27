@@ -2,13 +2,13 @@ import type {
   ApiError,
   AuthResponse,
   GoogleCredentials,
-  DanhMuc,
-  DanhMucCreate,
-  KetQuaDoc,
-  Nep,
-  Nhac,
-  NepCreate,
-  NgayCuaNep,
+  Category,
+  CategoryCreate,
+  ParseResult,
+  Routine,
+  Reminder,
+  RoutineCreate,
+  RoutineDay,
   Credentials,
   User,
   Goal,
@@ -16,14 +16,23 @@ import type {
   GoalCreate,
   GoalEnd,
   GoalTier,
+  GoalUpdate,
   Habit,
   HabitCreate,
   HabitWeek,
   Moment,
   MomentCreate,
+  MomentUpdate,
   MoneyDerived,
   MoneyMonth,
   MoneyMonthUpdate,
+  CategoryColor,
+  CategoryIcon,
+  MoneyCategory,
+  MoneyCategoryCreate,
+  MoneyEntry,
+  MoneyEntryCreate,
+  MoneyEntryUpdate,
   SaltAnswer,
   TimeEntry,
   TimeEntryCreate,
@@ -115,7 +124,7 @@ export function createClient(options: ClientOptions) {
 
     /** Nhập cả bộ, thay toàn bộ dữ liệu đang có của tài khoản này. */
     importAll: (snapshot: unknown) =>
-      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number; nep: number; danhMuc: number }>(
+      call<{ gio: number; hat: number; thang: number; mucTieu: number; thoiQuen: number; lanDanhDau: number; nep: number; categories: number }>(
         'POST',
         '/import',
         snapshot,
@@ -139,47 +148,53 @@ export function createClient(options: ClientOptions) {
      * `ngay` là hôm nay **theo đồng hồ người dùng**, bắt buộc gửi: "hôm qua" là hôm qua
      * của người đang gõ, không phải của múi giờ máy chủ.
      */
-    doc: (cau: string, ngay: string) => call<KetQuaDoc>('POST', '/doc', { cau, ngay }),
+    doc: (cau: string, ngay: string) => call<ParseResult>('POST', '/parse', { cau, ngay }),
 
     // ───────────────────────────────────────── danh mục
-    listDanhMuc: () => call<DanhMuc[]>('GET', '/danh-muc'),
-    createDanhMuc: (dm: DanhMucCreate) => call<DanhMuc>('POST', '/danh-muc', dm),
-    renameDanhMuc: (id: string, body: { name: string; golden?: boolean }) =>
-      call<DanhMuc>('PATCH', `/danh-muc/${id}`, body),
+    listCategories: () => call<Category[]>('GET', '/categories'),
+    createCategory: (dm: CategoryCreate) => call<Category>('POST', '/categories', dm),
+    renameCategory: (
+      id: string,
+      body: { name: string; golden?: boolean; icon?: CategoryIcon | null; color?: CategoryColor | null },
+    ) =>
+      call<Category>('PATCH', `/categories/${id}`, body),
     /** Cất đi, không xoá: mục giờ cũ còn trỏ về nó. */
-    catDanhMuc: (id: string) => call<DanhMuc>('POST', `/danh-muc/${id}/cat`),
+    archiveCategory: (id: string) => call<Category>('POST', `/categories/${id}/archive`),
 
     // ───────────────────────────────────────── nhắc
     //
     // `from`/`to` là khoảng ngày cần biết đã bỏ qua những hôm nào. Thực tế client chỉ
     // cần đúng hôm nay, nhưng để khoảng thì màn thiết lập hiện được lịch sử mà không
     // phải thêm route.
-    listNhac: (from: string, to: string) =>
-      call<{ nhac: Nhac[]; boQua: { nhacId: string; date: string }[] }>(
+    listReminders: (from: string, to: string) =>
+      call<{ reminders: Reminder[]; skips: { reminderId: string; date: string }[] }>(
         'GET',
-        `/nhac${query({ from, to })}`,
+        `/reminders${query({ from, to })}`,
       ),
-    createNhac: (nhac: { gio: string; days: string; loi?: string | null }) =>
-      call<Nhac>('POST', '/nhac', nhac),
-    updateNhac: (id: string, patch: { gio?: string; days?: string; loi?: string | null; bat?: boolean }) =>
-      call<Nhac>('PATCH', `/nhac/${id}`, patch),
-    deleteNhac: (id: string) => call<void>('DELETE', `/nhac/${id}`),
-    /** Bỏ qua ĐÚNG MỘT NGÀY. Tắt hẳn là `updateNhac(id, { bat: false })`. */
-    boQuaNhac: (id: string, date: string) => call<void>('POST', `/nhac/${id}/bo-qua`, { date }),
+    createReminder: (reminder: { at: string; days: string; text?: string | null }) =>
+      call<Reminder>('POST', '/reminders', reminder),
+    updateReminder: (id: string, patch: { at?: string; days?: string; text?: string | null; enabled?: boolean }) =>
+      call<Reminder>('PATCH', `/reminders/${id}`, patch),
+    deleteReminder: (id: string) => call<void>('DELETE', `/reminders/${id}`),
+    /** Bỏ qua ĐÚNG MỘT NGÀY. Tắt hẳn là `updateReminder(id, { enabled: false })`. */
+    skipReminder: (id: string, date: string) => call<void>('POST', `/reminders/${id}/skip`, { date }),
 
     // ───────────────────────────────────────── nếp
-    listNep: () => call<Nep[]>('GET', '/nep'),
-    createNep: (nep: NepCreate) => call<Nep>('POST', '/nep', nep),
+    listRoutines: () => call<Routine[]>('GET', '/routines'),
+    createRoutine: (nep: RoutineCreate) => call<Routine>('POST', '/routines', nep),
     /** Chạy mọi nếp tới ngày này. Gọi lại nhiều lần không sinh trùng. */
-    chayNep: (date: string) => call<NgayCuaNep[]>('POST', '/nep/chay', { date }),
-    endNep: (id: string) => call<Nep>('POST', `/nep/${id}/end`),
-    tuChoiNep: (id: string, date: string) => call<void>('POST', `/nep/${id}/tu-choi`, { date }),
-    nhanLaiNep: (id: string, date: string) => call<void>('POST', `/nep/${id}/nhan-lai`, { date }),
+    runRoutines: (date: string) => call<RoutineDay[]>('POST', '/routines/run', { date }),
+    endRoutine: (id: string) => call<Routine>('POST', `/routines/${id}/end`),
+    skipRoutineDay: (id: string, date: string) => call<void>('POST', `/routines/${id}/skip`, { date }),
+    unskipRoutineDay: (id: string, date: string) => call<void>('POST', `/nep/${id}/label-lai`, { date }),
 
     // ───────────────────────────────────────── hũ
     listMoments: (from: string, to: string) =>
       call<Moment[]>('GET', `/moments${query({ from, to })}`),
     createMoment: (moment: MomentCreate) => call<Moment>('POST', '/moments', moment),
+    /** Sửa chữ, hoặc đổi kẹo ↔ muối. Hạt muối đã trả lời câu hỏi lại thì máy chủ từ chối. */
+    updateMoment: (id: string, patch: MomentUpdate) =>
+      call<Moment>('PATCH', `/moments/${id}`, patch),
     /** Xoá mềm. Cần cho nút Hoàn tác của màn chat, vì chat ghi tự động. */
     deleteMoment: (id: string) => call<void>('DELETE', `/moments/${id}`),
     momentsDue: (on: string) => call<Moment[]>('GET', `/moments/due${query({ on })}`),
@@ -188,8 +203,30 @@ export function createClient(options: ClientOptions) {
 
     // ───────────────────────────────────────── tài chính
     getMoney: (month: string) => call<MoneyResponse>('GET', `/money/${month}`),
+    /** CHỈ hai ô mức. Năm ô dòng chảy là tổng các khoản — máy chủ từ chối nếu gửi lên. */
     saveMoney: (month: string, patch: MoneyMonthUpdate) =>
       call<MoneyResponse>('PUT', `/money/${month}`, patch),
+
+    // ───────────────────────────────────────── danh mục tiền
+    listMoneyCategories: () => call<MoneyCategory[]>('GET', '/money-categories'),
+    createMoneyCategory: (dm: MoneyCategoryCreate) =>
+      call<MoneyCategory>('POST', '/money-categories', dm),
+    renameMoneyCategory: (
+      id: string,
+      body: { name: string; icon?: CategoryIcon | null; color?: CategoryColor | null },
+    ) =>
+      call<MoneyCategory>('PATCH', `/money-categories/${id}`, body),
+    /** Cất đi, không xoá: khoản cũ còn trỏ về nó. */
+    archiveMoneyCategory: (id: string) =>
+      call<MoneyCategory>('POST', `/money-categories/${id}/archive`),
+
+    // ───────────────────────────────────────── khoản tiền
+    listMoneyEntries: (from: string, to: string) =>
+      call<MoneyEntry[]>('GET', `/money-entries${query({ from, to })}`),
+    createMoneyEntry: (e: MoneyEntryCreate) => call<MoneyEntry>('POST', '/money-entries', e),
+    updateMoneyEntry: (id: string, patch: MoneyEntryUpdate) =>
+      call<MoneyEntry>('PATCH', `/money-entries/${id}`, patch),
+    deleteMoneyEntry: (id: string) => call<void>('DELETE', `/money-entries/${id}`),
 
     // ───────────────────────────────────────── mục tiêu
     listGoals: (tier?: GoalTier, includeEnded = false) =>
@@ -198,6 +235,10 @@ export function createClient(options: ClientOptions) {
         `/goals${query({ tier, includeEnded: includeEnded ? 'true' : undefined })}`,
       ),
     createGoal: (goal: GoalCreate) => call<Goal>('POST', '/goals', goal),
+    /** Sửa tên và số giờ. Chỉ mục tiêu đang chạy; đã kết thúc là lịch sử. */
+    updateGoal: (id: string, patch: GoalUpdate) => call<Goal>('PATCH', `/goals/${id}`, patch),
+    /** Xoá hẳn — "tôi gõ nhầm". Khác `endGoal` — "tôi đã theo đuổi nó, giờ thôi". */
+    deleteGoal: (id: string) => call<void>('DELETE', `/goals/${id}`),
     endGoal: (id: string, body: GoalEnd) => call<Goal>('POST', `/goals/${id}/end`, body),
     goalBudget: (weekStart: string) =>
       call<GoalBudget>('GET', `/goals/budget${query({ weekStart })}`),

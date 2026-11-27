@@ -1,0 +1,34 @@
+{
+  "_doc": "Phân loại kênh dùng thống nhất trong metrics_daily.channel, content.channel, campaigns.platform và utm_source/utm_medium. Không thêm kênh ngoài danh sách này mà không ghi DECISION_LOG.",
+  "channels": {
+    "SEO":              { "utm_source": "google",   "utm_medium": "organic",   "paid": false, "note": "Tìm kiếm tự nhiên vào blog/landing" },
+    "BLOG":             { "utm_source": "blog",     "utm_medium": "referral",  "paid": false, "note": "Click từ bài blog Mira sang store/app" },
+    "FACEBOOK_ORGANIC": { "utm_source": "facebook", "utm_medium": "social",    "paid": false, "note": "Page, nhóm, bài cá nhân" },
+    "TIKTOK":           { "utm_source": "tiktok",   "utm_medium": "social",    "paid": false },
+    "YOUTUBE":          { "utm_source": "youtube",  "utm_medium": "social",    "paid": false },
+    "REDDIT":           { "utm_source": "reddit",   "utm_medium": "social",    "paid": false, "note": "Ít người Việt — ưu tiên thấp, giữ cho cộng đồng FIRE/expat" },
+    "THREADS":          { "utm_source": "threads",  "utm_medium": "social",    "paid": false, "note": "Thêm so với mẫu — người Việt 25-35 đang dùng nhiều" },
+    "COMMUNITY":        { "utm_source": "community","utm_medium": "referral",  "paid": false, "note": "Voz, Tinhte, Webtretho, nhóm FB, Spiderum..." },
+    "PARTNERSHIP":      { "utm_source": "partner",  "utm_medium": "referral",  "paid": false },
+    "NEWSLETTER":       { "utm_source": "newsletter","utm_medium": "email",    "paid": false, "note": "Thư Chủ nhật" },
+    "META_ADS":         { "utm_source": "facebook", "utm_medium": "cpc",       "paid": true },
+    "GOOGLE_ADS":       { "utm_source": "google",   "utm_medium": "cpc",       "paid": true },
+    "DIRECT":           { "utm_source": "direct",   "utm_medium": "none",      "paid": false },
+    "UNKNOWN":          { "utm_source": "unknown",  "utm_medium": "unknown",   "paid": false, "note": "Mặc định khi không gán được nguồn — không được dùng để kể công cho kênh nào" }
+  },
+  "platforms": ["android", "ios", "pwa", "web", "all"],
+  "metrics": {
+    "store_visitors": "Lượt xem trang store (Play Console: Store listing visitors; ASC: Impressions/Product page views)",
+    "installs":       "Cài đặt lần đầu (Play: First-time installers; ASC: First-time downloads). KHÔNG tính cài lại",
+    "pwa_installs":   "Sự kiện beforeinstallprompt→appinstalled trên web build — đếm được chỉ khi có GA4 trên PWA",
+    "first_open":     "Mở app lần đầu — chỉ có khi app có analytics, V1 chưa có → không ghi, không ước",
+    "active":         "Người dùng hoạt động trong ngày (DAU)",
+    "retained_d7":    "Số người quay lại sau 7 ngày",
+    "waitlist":       "Email để lại trên landing — chỉ số dẫn đường khi chưa có store",
+    "pageviews":      "Lượt xem trang blog/landing",
+    "sessions":       "Phiên web",
+    "clicks":         "Click vào link ra store/app",
+    "impressions":    "Hiển thị (ads hoặc search)",
+    "spend_usd":      "Chi tiêu quảng cáo thật, USD"
+  }
+}

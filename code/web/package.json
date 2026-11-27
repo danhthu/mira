@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "deploy": "node deploy.mjs",
-    "kiem-mau": "node kiem-mau.mjs"
+    "check-colors": "node check-colors.mjs"
   },
   "dependencies": {
     "@mira/api-client": "*",

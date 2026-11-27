@@ -10,15 +10,12 @@ import FlashMessage from 'react-native-flash-message';
 import {
   SafeAreaProvider
 } from 'react-native-safe-area-context';
-import { ChallengerApp } from '../Challenger';
 import { RichEditorBottomModal } from '../Common/Components';
 import { useSettings } from '../Common/Hooks';
-import { EmotionApp } from '../Emotion';
 import { GoalApp } from '../Goal';
 import { HabitApp } from '../HabitTracker';
 import { Home } from '../Home/Screens/Home';
 import { TimeTrackerApp } from '../TimeTracker';
-import { TradingScreen } from '../Trading';
 import { WelcomApp } from '../Welcome';
 import { WorkApp } from '../Work';
 import { useText } from './Text';
@@ -61,12 +58,6 @@ export const MainScreen = () => {
             />
 
             <Stack.Screen
-              name="EmotionApp"
-              component={EmotionApp.Screens.Container}
-              options={{ headerShown: false }}
-            />
-
-            <Stack.Screen
               name="GoalApp"
               component={GoalApp.Screens.Container}
               options={{ headerShown: false }}
@@ -75,11 +66,6 @@ export const MainScreen = () => {
               name="GoalAppModal"
               component={GoalApp.Screens.Container}
               options={{ headerShown: false, presentation: 'modal' }}
-            />
-            <Stack.Screen
-              name="ChallengerApp"
-              component={ChallengerApp.Screens.Container}
-              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="HabitAppModal"
@@ -108,14 +94,6 @@ export const MainScreen = () => {
               options={{
                 presentation: 'modal',
                 headerShown: false,
-                headerStyle: { backgroundColor: theme.background },
-              }}
-            />
-            <Stack.Screen
-              name="Trading"
-              component={TradingScreen}
-              options={{
-                presentation: 'modal',
                 headerStyle: { backgroundColor: theme.background },
               }}
             />

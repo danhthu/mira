@@ -21,3 +21,12 @@ growth/os/analytics/imports/*.csv
 # Cả hai là trạng thái của MỘT máy, không phải của dự án.
 code/be/mira-api.pid
 code/be/mira-api.log
+
+# Dữ liệu xuất từ chat_log: nhật ký đời sống viết bằng lời của chính chủ.
+# KHÔNG BAO GIỜ commit. Xem migration 009_chat_log.sql.
+code/be/ra/
+
+# Biến môi trường riêng từng máy. `.env.development.local` giữ thông tin đăng nhập
+# nhanh khi đang làm — tuyệt đối không lên git.
+.env.local
+.env.*.local

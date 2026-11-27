@@ -18,7 +18,7 @@
  *
  * Đó là chỗ dễ sai nhất khi làm giao diện "tươi": nâng độ rực lên thì chữ tụt tương
  * phản, và màn hình đẹp trong ảnh chụp nhưng ra nắng thì không đọc nổi. Tách ba bản ra
- * thì tươi được mà vẫn đọc được. `npm run kiem-mau` canh chỗ này.
+ * thì tươi được mà vẫn đọc được. `npm run check-colors` canh chỗ này.
  *
  * Cái làm giao diện tươi lên KHÔNG phải chữ rực hơn, mà là nền nguội và những mảng màu
  * nhạt: --screen đổi từ kem ngà sang trắng hơi xanh, và các thẻ số có nền --x-soft.
@@ -59,6 +59,8 @@
   --purple: var(--personal-ink);
 
   --red: #e0414f;
+  --red-ink: #b3202e;
+  --red-soft: #fdecee;
 
   /* Hũ: vàng ấm là ngày vui, xanh nguội là ngày nặng. */
   --candy: #cf8400;
@@ -75,6 +77,18 @@
   --radius-lg: 16px;
 
   --tab-height: 84px;
+
+  /* Lề an toàn của máy, gói thành biến để KHUNG MÁY ở cuối file ghi đè được.
+   *
+   * `env()` không giả lập được. Dùng thẳng `env()` khắp nơi thì khung iPhone trên máy
+   * tính sẽ không có dải trạng thái và không có vạch Home — tức là nó không test được
+   * đúng cái nó sinh ra để test. */
+  --inset-top: env(safe-area-inset-top, 0px);
+  --inset-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Màn che sau khay khai. Navy pha loãng, không phải đen: đen làm cả màn hình xám
+     bệch, còn navy giữ nền trông vẫn là nền của app. */
+  --scrim: rgba(22, 32, 58, 0.45);
 
   color-scheme: light;
 }
@@ -127,7 +141,14 @@ input {
 
 .screen-body {
   flex: 1;
-  padding: 24px 20px calc(var(--tab-height) + 24px);
+  /* Đáy chừa chỗ cho thanh tab CỘNG nút +.
+     Nút + nổi ở góc dưới phải, và dòng cuối của một danh sách có nút Sửa/Xoá cũng nằm
+     bên phải — không chừa thì nút Xoá của dòng cuối bị nút + che mất, và cách duy nhất
+     để bấm được nó là cuộn quá đáy trang. */
+  padding: 24px 20px calc(var(--tab-height) + 92px);
+  /* Dải trạng thái của máy. Thiếu dòng này thì trên iPhone cài về màn hình chính, tiêu
+     đề màn nằm ngay dưới đồng hồ và chữ chồng lên nhau. */
+  padding-top: max(24px, var(--inset-top));
   padding-left: max(20px, env(safe-area-inset-left, 0px));
   padding-right: max(20px, env(safe-area-inset-right, 0px));
   display: flex;
@@ -280,11 +301,27 @@ input {
   font-weight: 700;
 }
 
+/* Khung của CẢ một danh sách dòng.
+ *
+ * Trước đây các dòng mục — giờ, khoản tiền, hạt trong hũ — nằm trần trên nền màn, và vì
+ * `.screen-body` có `gap: 14px` nên mỗi dòng còn bị đẩy rời hẳn ra. Mọi thứ khác trên màn
+ * (thẻ số, catalog, ô quản lý danh mục) đều đứng trong một khung trắng, nên riêng danh
+ * sách trông như rơi ra ngoài bố cục.
+ *
+ * Một khung cho cả danh sách, KHÔNG phải mỗi dòng một khung: ba mươi khoản thành ba mươi
+ * hòn đảo thì mắt không còn đọc được đó là một danh sách. Vạch mảnh giữa hai dòng đã làm
+ * xong việc ngăn cách. */
+.list {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2px 18px;
+}
+
 .list-row {
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: 10px 0;
+  padding: 12px 0;
 }
 
 /* Đường kẻ giữa các dòng, không phải dưới dòng cuối: khoảng trắng đã làm xong việc kết
@@ -344,14 +381,14 @@ input {
 
 /* ─────────────────────────────── cột bốn tuần */
 
-.cot {
+.bars {
   display: flex;
   align-items: flex-end;
   gap: 10px;
   height: 128px;
 }
 
-.cot__i {
+.bars__i {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -361,14 +398,14 @@ input {
   min-width: 0;
 }
 
-.cot__i > span:first-child {
+.bars__i > span:first-child {
   width: 100%;
   max-width: 44px;
   border-radius: 7px 7px 0 0;
   min-height: 3px;
 }
 
-.cot__i > b {
+.bars__i > b {
   font-size: 12px;
   font-weight: 600;
   color: var(--fg-dim);
@@ -376,11 +413,11 @@ input {
   white-space: nowrap;
 }
 
-.cot__i > b.is-on {
+.bars__i > b.is-on {
   color: var(--fg);
 }
 
-.cot__n {
+.bars__label {
   font-size: 11px;
   color: var(--fg-faint);
   margin-top: 2px;
@@ -464,7 +501,7 @@ input {
    Hai mươi tám dòng "Ăn tối 30m" chở đúng một bit thông tin. Gom lại còn một dòng, và
    dành chỗ vừa trống cho thứ thật sự có tin: những ngày KHÔNG theo nếp. */
 
-.lech {
+.off-pattern {
   font-size: 13px;
   line-height: 1.45;
   color: var(--fg-dim);
@@ -474,14 +511,14 @@ input {
   margin-top: 7px;
 }
 
-.mo {
+.expand-hint {
   font-size: 13px;
   color: var(--fg-dim);
   padding: 6px 0 2px;
 }
 
 /* Danh sách từng ngày khi mở ra: thưa, dễ lướt, không cạnh tranh với dòng gom ở trên. */
-.ngay {
+.day-row {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -491,7 +528,7 @@ input {
   color: var(--fg-dim);
 }
 
-.ngay b {
+.day-row b {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -502,7 +539,7 @@ input {
    Nút "Xem từng ngày" bé bằng một dòng chữ trong khi cả cái thẻ đều nói về một việc.
    Ngón tay nhắm vào thẻ chứ không nhắm vào dòng chữ. */
 
-.gom-nut {
+.group-button {
   display: block;
   width: 100%;
   text-align: left;
@@ -511,11 +548,11 @@ input {
   cursor: pointer;
 }
 
-.gom-nut:active .gom-mui {
+.group-button:active .group-arrow {
   transform: translateY(1px);
 }
 
-.gom-mui {
+.group-arrow {
   color: var(--fg-faint);
   font-size: 13px;
   margin-left: 6px;
@@ -523,19 +560,19 @@ input {
   transition: transform 0.15s ease;
 }
 
-.gom-mui.is-mo {
+.group-arrow.is-mo {
   transform: rotate(90deg);
 }
 
 /* Câu về nợ: đây là nội dung chính của thẻ, không phải chú thích, nên nó to bằng một câu
    người ta đọc chứ không bằng cỡ chữ phụ. */
-.no {
+.debt {
   font-size: 17px;
   line-height: 1.5;
   margin: 10px 0 0;
 }
 
-.no b {
+.debt b {
   font-weight: 700;
   color: var(--amber);
 }
@@ -564,20 +601,20 @@ input {
 
 /* ─────────────────────────────── sửa một mục giờ */
 
-.sua {
+.edit {
   margin-top: 10px;
   padding: 12px;
   background: var(--screen);
   border-radius: var(--radius-sm);
 }
 
-.sua__hang {
+.edit__row {
   display: flex;
   align-items: center;
   gap: 9px;
 }
 
-.sua__hang input {
+.edit__row input {
   width: 84px;
   background: var(--surface);
   border: 1.5px solid #d7dfe9;
@@ -586,7 +623,7 @@ input {
   font-size: 16px;
 }
 
-.sua__luu {
+.edit__save {
   margin-left: auto;
   background: var(--brand);
   color: #fff;
@@ -596,21 +633,21 @@ input {
   font-size: 14px;
 }
 
-.sua__luu:disabled {
+.edit__save:disabled {
   opacity: 0.4;
   cursor: default;
 }
 
 /* Xoá không bôi đỏ chói. Ràng buộc cứng của Mira: không có màu đỏ cho "chưa đủ", và
    không doạ người dùng vì một mục giờ ghi nhầm. */
-.sua__moXoa,
-.sua__huy {
+.edit__openDelete,
+.edit__cancel {
   font-size: 13px;
   color: var(--fg-dim);
   padding: 8px 0 2px;
 }
 
-.sua__xoa {
+.edit__delete {
   background: var(--surface);
   border: 1.5px solid var(--amber);
   color: var(--amber);
@@ -758,4 +795,896 @@ input {
   background: var(--brand);
   border-color: var(--brand);
   color: #fff;
+}
+
+/*
+ * Bảng năm ô tiền ở màn Tài chính.
+ *
+ * Trước đây mỗi ô là một thẻ riêng: năm thẻ, gần ba màn điện thoại, cho đúng năm con số
+ * mà người ta ngồi điền một lượt mỗi tháng. Giờ là một thẻ năm dòng — nhãn bên trái, ô
+ * nhập bên phải, nhìn hết một lượt không phải cuộn.
+ */
+.money-table {
+  padding-bottom: 6px;
+}
+
+.money-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.money-row:first-of-type {
+  margin-top: 10px;
+}
+
+.money-row label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.money-row label b {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Gợi ý nhỏ và nhạt, nhưng vẫn đạt ngưỡng tương phản — nó nói ô này nghĩa là gì. */
+.money-row label span {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--fg-dim);
+}
+
+/*
+ * Ô nhập: canh phải, vì mắt so các con số theo hàng đơn vị.
+ *
+ * `width` cố định đủ cho "1.500.000.000" — tài sản ròng là ô có con số dài nhất, và một
+ * ô co giãn theo nội dung sẽ làm cả năm dòng so le nhau.
+ */
+.money-input {
+  flex: none;
+  width: 138px;
+  text-align: right;
+  background: var(--screen);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 9px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.money-input::placeholder {
+  color: var(--fg-faint);
+}
+
+.money-input:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+/*
+ * Vòng dòng tiền ở màn Tài chính.
+ *
+ * Vòng là THU NHẬP, các lát là chỗ nó đi. Concept gốc vẽ thu nhập thành một lát ngang
+ * hàng với chi tiêu — nhưng thu nhập là cái bánh, chi tiêu là phần bị cắt. Xếp cạnh nhau
+ * thì người tiêu hết sạch nhìn giống người tiêu một nửa.
+ */
+.cf {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.cf__ring {
+  width: 130px;
+  height: 130px;
+  flex: none;
+}
+
+.cf__track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 15;
+}
+
+/* `butt` chứ không phải `round`: đầu bo tròn sẽ đè lên lát kế bên và ăn gian vài độ. */
+.cf__slice {
+  fill: none;
+  stroke-width: 15;
+  stroke-linecap: butt;
+}
+
+.cf__amount {
+  font-size: 17px;
+  font-weight: 700;
+  fill: var(--fg);
+}
+
+.cf__caption {
+  font-size: 10px;
+  fill: var(--fg-dim);
+}
+
+.cf__list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.cf__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.cf__row i {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  flex: none;
+}
+
+.cf__row span {
+  flex: 1;
+  min-width: 0;
+  color: var(--fg-dim);
+}
+
+.cf__row b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Ba con số trên thẻ Nợ: còn lại · mỗi tháng · trả xong.
+ *
+ * Trước đây là một đoạn văn. Ba con số rời đọc nhanh hơn, nhưng CHỈ khi có câu bên dưới
+ * nói rõ chúng nghĩa gì — nhất là "trả xong" chưa tính lãi.
+ */
+.debt__figures {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.debt__figures > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.debt__figures > div:last-child {
+  text-align: right;
+}
+
+.debt__figures b {
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.debt__figures .debt__monthly {
+  color: var(--waste-ink);
+}
+
+.debt__figures span {
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+/*
+ * ────────────────────────── NÚT CỘNG VÀ KHAY KHAI ──────────────────────────
+ *
+ * Màn hình là chỗ ĐỌC, khay là chỗ GHI. Trước đây mỗi màn có một thẻ nhập nằm lẫn giữa
+ * các thẻ đọc, và màn Tài chính nặng nhất: năm ô nhập đẩy mọi con số xuống dưới màn hình
+ * thứ hai. Tách ra thì người mở app để ngó không phải cuộn qua ô nhập, và người mở app
+ * để ghi chỉ cần chạm một nút.
+ */
+.fab {
+  position: fixed;
+  /* Nằm trong cột 480px của app, không dán vào rìa cửa sổ máy tính.
+     max() lo cho màn hẹp: lúc đó phép tính ra số âm và 18px thắng. */
+  right: max(18px, calc(50% - 240px + 18px));
+  bottom: calc(var(--tab-height) + var(--inset-bottom) + 14px);
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Thanh tab nằm SAU trong DOM nên nó vẽ lên trên nếu không nâng z-index. */
+  z-index: 30;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.34);
+  cursor: pointer;
+}
+
+.fab:active {
+  transform: scale(0.94);
+}
+
+.sheet__scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  /* 86%: luôn chừa một dải nền thấy được ở trên, để người dùng biết bấm ra ngoài là
+     đóng. Khay cao kín màn hình thì nhìn như một trang mới và không ai bấm ra.
+     Phần trăm chứ không phải `vh`: `.sheet__scrim` là `fixed; inset: 0` nên chiều cao
+     của nó đúng bằng khung chứa — bằng màn hình trên điện thoại, bằng KHUNG MÁY khi mở
+     trên máy tính. Để `86vh` thì khay cao hơn cả khung máy và tràn ra ngoài. */
+  max-height: 86%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: khay-len 0.18s ease-out;
+}
+
+@keyframes khay-len {
+  from {
+    transform: translateY(14px);
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation: none;
+  }
+}
+
+.sheet__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sheet__close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: var(--screen);
+  color: var(--fg-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Đáy chừa vạch Home của iPhone, cộng một quãng để nút Xong không dính rìa. */
+  padding: 14px 18px calc(22px + var(--inset-bottom));
+}
+
+.sheet__done {
+  width: 100%;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--brand);
+  color: #fff;
+  padding: 12px 15px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Trong khay thì bảng bảy ô không cần đệm và không cần vạch trên ở dòng đầu: đầu khay
+   đã có vạch riêng rồi, hai vạch sát nhau nhìn như lỗi vẽ. */
+.money-table--sheet {
+  padding-bottom: 0;
+}
+
+.money-table--sheet .money-row:first-of-type {
+  margin-top: 0;
+  border-top: none;
+  padding-top: 0;
+}
+
+/*
+ * ─────────────────── NÚT SỬA VÀ XOÁ CỦA MỘT DÒNG DANH SÁCH ───────────────────
+ *
+ * Nhạt và nhỏ, nhưng HIỆN RA. Trước đây sửa một mục giờ là chạm vào thân dòng, không
+ * có dấu hiệu nào nói rằng chạm được — nên đường ống PATCH/DELETE thông từ máy chủ tới
+ * api-client mà không ai dùng bao giờ.
+ *
+ * Vùng chạm cao 30px kể cả đệm: nhỏ hơn thì trên điện thoại bấm Sửa ra Xoá.
+ */
+/* Hàng chân của một dòng danh sách: ngày tháng bên trái, nút Sửa/Xoá bên phải.
+   Giống `.row` nhưng CHO PHÉP xuống dòng — câu hỏi xác nhận xoá rộng cả hàng, và
+   trong một hàng không xuống dòng được thì nó bóp ngày tháng thành ba dòng chữ đè
+   lên nhau. Không sửa thẳng `.row`: nó dùng ở vài chục chỗ đang đúng. */
+.row-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 5px;
+}
+
+.row-foot > .sm {
+  flex: 1;
+  min-width: 0;
+}
+
+.day-row {
+  flex-wrap: wrap;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex: none;
+}
+
+.rowActions > button {
+  font-size: 13px;
+  color: var(--fg-dim);
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: var(--screen);
+  cursor: pointer;
+}
+
+.rowActions--confirm {
+  width: 100%;
+  margin-left: 0;
+  margin-top: 6px;
+  gap: 8px;
+}
+
+.rowActions--confirm > .sm {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowActions__cancel {
+  font-size: 13px;
+  color: var(--fg-dim);
+  padding: 6px 9px;
+  cursor: pointer;
+}
+
+/* Xoá KHÔNG bôi đỏ chói. Ràng buộc cứng: đỏ chỉ dành cho chi tiêu trong donut tiền.
+   Viền hổ phách đủ để tay dừng lại một nhịp mà không doạ ai. */
+.rowActions__delete {
+  background: var(--surface);
+  border: 1.5px solid var(--amber);
+  color: var(--amber);
+  border-radius: 9px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rowActions__delete:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.rowActions__error {
+  font-size: 12px;
+  color: var(--amber);
+}
+
+/* Viên chọn cỡ nhỏ, dùng trong khung sửa nằm bên trong một dòng. */
+.pills--small button {
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+/* Ô chữ trong khung sửa: rộng cả hàng, khác ô số hẹp bên cạnh nút Lưu. */
+.edit__text {
+  width: 100%;
+  margin-top: 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 15px;
+  color: var(--fg);
+}
+
+.edit__text:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+/* Nút xoá một ô tiền: về trạng thái chưa nhập, không phải ghi số 0. */
+.money-clear {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin-left: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.money-clear:hover {
+  background: var(--screen);
+}
+
+/*
+ * ────────────────── DẢI MỨC DƯ, VÀ MỘT DÒNG CATALOG TIỀN ──────────────────
+ *
+ * Bày theo concept Founder gửi. Mức dư ra một dải riêng vì nó là con số người ta liếc
+ * mỗi tháng — trước đây nó nấp làm một dòng phụ trong thẻ Vốn tự do.
+ *
+ * Dòng catalog là tầng GIỮA của màn: vòng dòng tiền → danh mục kèm tổng → từng khoản.
+ * Cả dòng là một link nên phải bỏ gạch chân và trả màu chữ về bình thường; mặc định
+ * của thẻ a làm cả khối chữ xanh và gạch chân, nhìn như một đoạn văn bị hỏng.
+ */
+.mucdu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--family-soft);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+}
+
+.mucdu__dau {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  color: var(--fg-dim);
+}
+
+/* Thước năm nấc, KHÔNG phải biểu đồ: vẽ biểu đồ từ một con số là nói dối. */
+.mucdu__thuoc {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 22px;
+  margin-left: auto;
+}
+
+.mucdu__thuoc i {
+  width: 6px;
+  border-radius: 2px;
+  background: #c9ded4;
+}
+
+.mucdu__thuoc i.is-on {
+  background: var(--family-ink);
+}
+
+.mucdu > b {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--family-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.mucdu__chu {
+  flex-basis: 100%;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.cat-row:first-of-type {
+  margin-top: 10px;
+}
+
+.cat-row__icon {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--screen);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+
+.cat-row__giua {
+  flex: 1;
+  min-width: 0;
+}
+
+.cat-row__name {
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-row b {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Chú giải vòng dòng tiền giờ bấm được — cùng lý do bỏ gạch chân. */
+a.cf__row {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ───────────────────────────────────────────── KHUNG MÁY, CHỈ TRÊN MÀN RỘNG
+ *
+ * Mira là app điện thoại. Mở trên máy tính thì nó trải ra giữa một dải trắng mênh mông,
+ * và đúng những thứ cần soi lại không hiện ra: vạch Home che mất nút nào, dải trạng thái
+ * đè lên tiêu đề ra sao, khay khai cao tới đâu, nút + có chạm thanh tab không.
+ *
+ * Khung này dựng đúng khuôn một chiếc iPhone 14 Pro — 390×844, bo 47px, đảo động, vạch
+ * Home — và quan trọng hơn cả: nó đặt HAI LỀ AN TOÀN THẬT, nên thứ ông thấy ở đây là thứ
+ * máy thật sẽ vẽ.
+ *
+ * ─── MẸO THEN CHỐT ───
+ *
+ * `transform` trên `.screen` biến nó thành gốc toạ độ cho mọi `position: fixed` bên
+ * trong. Không có dòng đó thì thanh tab, nút + và khay khai dán vào rìa cửa sổ trình
+ * duyệt chứ không dán vào khung máy — khung trông thì giống mà test thì vô nghĩa.
+ *
+ * Dưới 900px — tức mọi điện thoại và máy tính bảng thật — khối này không chạy, app tràn
+ * viền đúng như trước. Khung chỉ là kính lúp cho người làm, không phải một lớp vỏ mới. */
+@media (min-width: 900px) {
+  body {
+    background: #11141c;
+    /* Nền ngoài khung không cuộn: khung tự cuộn phần ruột của nó. */
+    overflow: hidden;
+  }
+
+  #root {
+    display: grid;
+    place-items: center;
+  }
+
+  .screen,
+  .wel {
+    /* Lề an toàn của iPhone có đảo động. Đây là lý do cả khối này tồn tại. */
+    --inset-top: 50px;
+    --inset-bottom: 22px;
+
+    width: 390px;
+    /* Màn laptop thấp thì co lại cho vừa, đừng cắt mất đáy khung. */
+    height: min(844px, calc(100vh - 40px));
+    max-width: none;
+    min-height: 0;
+    background: var(--screen);
+    border-radius: 47px;
+    /* KHÔNG cuộn ở đây — xem khối `.screen-body` ngay dưới. */
+    overflow: hidden;
+    /* Vành máy: hai lớp viền dựng bằng box-shadow, không tốn thêm thẻ nào. */
+    box-shadow:
+      0 0 0 11px #1b1f2b,
+      0 0 0 13px #343b4e,
+      0 34px 70px rgba(0, 0, 0, 0.55);
+    transform: translate(0);
+    /* Thanh cuộn của trình duyệt cắt ngang vành máy thì hỏng cả hình. */
+    scrollbar-width: none;
+  }
+
+  /* Ruột cuộn, khung thì không — và thứ tự này là bắt buộc, không phải thẩm mỹ.
+   *
+   * Lần đầu tôi cho `.screen` vừa làm gốc toạ độ (transform) vừa làm khung cuộn. Hỏng:
+   * khi khung chứa của một `position: fixed` là một phần tử ĐANG CUỘN, phần tử fixed neo
+   * vào gốc nội dung chứ không vào khung nhìn — nên nó cuộn theo ruột. Cuộn xuống 275px
+   * là khay khai nằm ở `top: -222px`, nửa trên biến mất, nửa dưới tràn ra ngoài vành máy.
+   * Thanh tab và nút + cũng trôi y như vậy, chỉ là lúc chưa cuộn thì không thấy.
+   *
+   * Tách hai vai: khung đứng yên và cắt hình, `.screen-body` cuộn. `min-height: 0` là bắt
+   * buộc — phần tử flex mặc định không co xuống dưới chiều cao nội dung, thiếu nó thì
+   * không có gì cuộn cả. */
+  .screen {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Màn chào không có thẻ ruột riêng và cũng không có gì `fixed` bên trong, nên nó tự
+     cuộn được — không dính cái bẫy ở trên. */
+  .wel {
+    overflow-y: auto;
+  }
+
+  .screen > .screen-body {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  /* Màn Nhật ký tự đặt chiều cao 100dvh, đúng trên điện thoại thật. Trong khung máy
+     thì 100dvh là cả cửa sổ trình duyệt, cao hơn khung: dòng chat dài lên là ô gõ bị
+     đẩy xuống dưới thanh tab và biến mất. Ở đây nó phải cao bằng KHUNG. */
+  .screen > .chat {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .screen > .screen-body::-webkit-scrollbar,
+  .wel::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Đảo động và vạch Home. `fixed` nên chúng đứng yên khi ruột cuộn, và vì `.screen` đã
+     có transform nên chúng neo vào khung máy chứ không vào cửa sổ. */
+  .screen::before,
+  .screen::after {
+    content: '';
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #06070a;
+    z-index: 100;
+    /* Đảo động chỉ là hình vẽ. Không có dòng này thì nó nuốt cú chạm vào thứ nằm dưới. */
+    pointer-events: none;
+  }
+
+  .screen::before {
+    top: 11px;
+    width: 116px;
+    height: 33px;
+    border-radius: 17px;
+  }
+
+  .screen::after {
+    bottom: 8px;
+    width: 138px;
+    height: 5px;
+    border-radius: 3px;
+    opacity: 0.3;
+  }
+}
+
+/* ───────────────────────────────────── chọn màu và hình cho danh mục */
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  /* 8 ô vừa đúng một hàng ở 390px: 8×28 + 7×8 = 280px, lọt trong 302px lòng khay.
+     Để 30px và khe 9px là 303px — tràn đúng một pixel, và ô thứ tám rơi xuống dòng. */
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  /* Viền trong màu nền tách ô màu khỏi vòng chọn, nên vòng chọn không dính vào màu. */
+  box-shadow: inset 0 0 0 2px var(--surface);
+  padding: 0;
+  cursor: pointer;
+}
+
+.swatch.is-on {
+  border-color: var(--fg);
+}
+
+.iconsgrid {
+  display: grid;
+  /* 7 cột ở 390px: ô 38px, khe 8px. Bốn hàng là hết 28 hình, không phải cuộn. */
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.iconpick {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+}
+
+.iconpick.is-on {
+  border-color: currentColor;
+  background: var(--surface);
+}
+
+/* ───────────────────────────────────── đầu một ngày trong danh sách */
+
+.day-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 0 9px;
+}
+
+/* Không có vạch trên đầu ngày đầu tiên: khung `.list` đã đóng vai mép trên rồi. */
+.day-head:not(:first-child) {
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
+
+.day-head__so {
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  /* Rộng cố định để số một chữ và hai chữ vẫn thẳng cột. */
+  min-width: 30px;
+}
+
+.day-head__giua {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.day-head__thu {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.day-head__tong {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Mức dư âm: cả dải sang đỏ. Dải xanh dưới một con số âm là màu cãi lại số. */
+.mucdu.is-am {
+  background: var(--red-soft);
+}
+
+.mucdu.is-am > b {
+  color: var(--red-ink);
+}
+
+.mucdu.is-am .mucdu__thuoc i {
+  background: #f3c9cd;
+}
+
+/* ─────────── dải Lãng phí: một nút to dẫn vào từng mục (27/11/2026) ───────────
+   Hổ phách, không đỏ. Cùng bo và đệm với .mucdu để hai dải đứng cạnh nhau như một bộ. */
+.phi-band {
+  display: block;
+  margin-top: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  background: var(--waste-soft);
+  border: 1.5px solid var(--waste);
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.phi-band:active {
+  transform: scale(0.99);
+}
+
+.phi-band__dau {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--waste-ink);
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.phi-band__dau > b {
+  margin-left: auto;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.phi-band__toi {
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.phi-band__top {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+/* Mỗi mục một dòng: tên trái, số phải. Tên dài thì cắt "…", số không bao giờ xuống dòng. */
+.phi-band__dong {
+  display: flex;
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.phi-band__dong > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phi-band__dong > b {
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.phi-band__chu {
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+}
+
+/* Dòng so với kỳ trước: xanh khi bớt được, hổ phách đậm khi tăng. Vẫn không đỏ. */
+.phi-band__xu {
+  margin-top: 6px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--fg-dim);
+}
+
+.phi-band__xu--tot {
+  color: var(--green);
+}
+
+.phi-band__xu--xau {
+  color: var(--waste-ink);
+}
+
+/* Số mục tiêu trên từng nút tầng: "Quý 0/2". Nhạt hơn chữ tầng. */
+.pill-dem {
+  font-weight: 500;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
 }

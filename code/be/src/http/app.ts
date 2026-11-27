@@ -6,7 +6,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import type { AppDeps, PublicHandler } from './engine';
 import { run } from './engine';
-import { docToken } from '../services/auth';
+import { readToken } from '../services/auth';
 import { routes } from './routes';
 
 export interface AppOptions {
@@ -41,7 +41,7 @@ export function buildApp(options: AppOptions): FastifyInstance {
           route.cong_khai === true
             ? (route.handler as PublicHandler)
             : async (r, deps) => {
-                const userId = await docToken(deps.auth, r.headers.authorization);
+                const userId = await readToken(deps.auth, r.headers.authorization);
                 return (route.handler as (req: typeof r, d: typeof deps, u: string) => Promise<typeof res>)(
                   r,
                   deps,

@@ -1,0 +1,4 @@
+date,platform,channel,metric,value,source,quality,note
+2026-10-12,pwa,BLOG,pwa_installs,3,ga4_export,measured,VI DU - xoa dong nay truoc khi import; GA4 event appinstalled theo utm_source=blog
+2026-10-12,web,THREADS,pageviews,120,ga4_export,measured,VI DU - xoa dong nay truoc khi import; GA4 Explore export session_source=threads
+2026-10-12,android,UNKNOWN,installs,7,play_console_csv,measured,VI DU - xoa dong nay truoc khi import; Play Console Store performance first-time installers tong khong tach kenh

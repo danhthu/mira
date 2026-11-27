@@ -21,3 +21,14 @@ export type SaltAnswer = 'same' | 'lighter' | 'gone';
 export type GoalTier = 'long' | 'quarter' | 'rhythm';
 
 export type MediaType = 'photo' | 'audio';
+
+/**
+ * Năm ô tiền **dòng chảy**: tổng của nhiều lần trong tháng, nên tách được thành khoản lẻ.
+ * Hai ô **mức** — dư nợ, tài sản ròng — là ảnh chụp tại một thời điểm nên không nằm ở đây.
+ */
+export type MoneyFlowCell =
+  | 'netIncome'
+  | 'monthlyExpense'
+  | 'investment'
+  | 'wastedMoney'
+  | 'debtPayment';

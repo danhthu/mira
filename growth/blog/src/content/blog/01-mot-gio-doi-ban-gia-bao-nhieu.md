@@ -39,15 +39,17 @@ Thu nhập ròng là con số về túi sau thuế và bảo hiểm, tính theo 
 
 ## Một ví dụ cụ thể
 
-Một người lương 30 triệu, làm việc 8 tiếng một ngày, 6 ngày một tuần — nghe thì 48 tiếng. Nhưng cộng thêm gần 2 tiếng di chuyển mỗi ngày làm việc, nửa tiếng chuẩn bị buổi sáng, và khoảng 1 tiếng hồi sức mỗi tối vì công việc để lại dư âm — tổng giờ thật rơi vào khoảng 60 tiếng một tuần.
+Một người lương 30 triệu, làm việc 8 tiếng một ngày, 6 ngày một tuần: nghe thì 48 tiếng. Nhưng cộng thêm 9 tiếng di chuyển (khoảng một tiếng rưỡi mỗi ngày), một tiếng chuẩn bị và họp sớm, hai tiếng hồi sức rải trong tuần, tổng giờ thật rơi vào 60 tiếng một tuần. Bảng chi tiết nằm ở bài ngày 2.
 
-Tính theo công thức trên, tỷ giá đời của người này không phải 170 nghìn một giờ như cách tính lương chia 8 tiếng vẫn ngầm giả định. Nó gần với 115 nghìn.
+Ba mươi triệu ở đây chỉ là con số làm ví dụ cho dễ tính, không phải mức lương điển hình. Thu nhập bình quân của lao động quý I/2026 khoảng 9 triệu một tháng (Cục Thống kê), nên ví dụ này đứng ở nhóm thu nhập khá cao. Nếu lương của bạn khác, công thức vẫn y nguyên, chỉ con số cuối là khác.
 
-Chênh lệch đó — khoảng một phần ba — chính là phần công việc đang lấy đi mà không ai ghi vào đâu cả.
+Tính theo công thức trên, tỷ giá đời của người này không phải 144 nghìn một giờ như cách tính lương chia giờ hợp đồng vẫn ngầm giả định (30 triệu chia cho 48 tiếng một tuần). Nó gần với 115 nghìn.
+
+Chênh lệch đó, khoảng một phần năm, chính là phần công việc đang lấy đi mà không ai ghi vào đâu cả.
 
 ## Vì sao con số này quan trọng hơn con số trên bảng lương
 
-Bảng lương nói bạn kiếm được bao nhiêu. Tỷ giá đời nói công việc **thật sự tốn của bạn bao nhiêu thời gian** để tạo ra số đó. Hai người cùng lương 30 triệu — một người tỷ giá 170 nghìn, một người 115 nghìn — đang sống hai cuộc đời rất khác nhau, dù bảng lương nhìn giống hệt.
+Bảng lương nói bạn kiếm được bao nhiêu. Tỷ giá đời nói công việc **thật sự tốn của bạn bao nhiêu thời gian** để tạo ra số đó. Hai người cùng lương 30 triệu — một người tỷ giá 144 nghìn, một người 115 nghìn — đang sống hai cuộc đời rất khác nhau, dù bảng lương nhìn giống hệt.
 
 Con số này cũng đổi cách bạn nhìn những quyết định nhỏ. Một cuộc họp không cần thiết kéo dài một tiếng không còn là "mất một tiếng". Nó là mất đúng bằng tỷ giá đời của bạn, cộng thêm phần hồi sức sau đó nếu cuộc họp đó khiến bạn mệt hơn bình thường.
 
@@ -66,6 +68,8 @@ Nếu thu nhập không đều — freelance, nhận việc theo tháng — lấ
 
 Có một ngoại lệ đáng nói: nếu bạn có thu nhập thụ động — tiền cho thuê, cổ tức — phần đó không tính vào tỷ giá đời. Nó không tốn giờ nào của bạn, nên đưa vào công thức chia cho 0 giờ sẽ làm hỏng con số. Phần thu nhập thụ động thuộc về một chỉ số khác: bạn đã sở hữu bao nhiêu tự do, không phải bạn kiếm mỗi giờ bao nhiêu.
 
-Ở cuối bài này có công cụ tính sẵn — bạn nhập bốn số ở trên, tỷ giá đời hiện ra ngay, kèm cả tỷ giá nếu chỉ tính riêng "giờ trên hợp đồng" để bạn thấy chênh lệch bao nhiêu.
+Máy tính tỷ giá đời đang được dựng (bài ngày 3 mô tả cách nó sẽ hoạt động). Trong lúc chờ, bốn số ở trên và công thức là đủ để tự tính bằng máy tính cầm tay. Tính thêm một lần nữa chỉ với "giờ trên hợp đồng" để thấy chênh lệch bao nhiêu.
+
+Trước khi tính, thử đoán: con số của bạn sẽ thấp hơn con số bạn vẫn nhẩm bao nhiêu phần trăm?
 
 <!-- highlight-spans: ["thấp hơn con số tôi vẫn tự nhủ" (gold/insight), "115 nghìn" (red/wrong-behavior-adjacent — the hidden lower number), "mua thêm được tự do" placeholder unused, "cái giá đang bị giấu" (gold/insight)] -->

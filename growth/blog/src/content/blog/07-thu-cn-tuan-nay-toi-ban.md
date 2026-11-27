@@ -16,17 +16,19 @@ newsletter: true
 
 Chào,
 
-Đây là lá thư Chủ nhật đầu tiên, nên xin phép nói trước một điều: thư này sẽ không có tiêu đề in hoa, không có "5 mẹo", không có gì cần bạn phải làm ngay. Nó chỉ là một câu hỏi, gửi vào cuối mỗi tuần, để bạn mang theo sang tuần kế tiếp nếu muốn.
+Đây là lá thư Chủ nhật đầu tiên, nên xin phép nói trước một điều: thư này sẽ không có tiêu đề in hoa, không có "5 mẹo", không có gì cần bạn làm ngay. Nó chỉ là một câu hỏi, gửi vào cuối mỗi tuần, để bạn mang theo sang tuần kế tiếp nếu muốn.
 
 Tuần này câu hỏi là câu đã mở đầu cả tuần trên blog: một giờ đời bạn giá bao nhiêu?
 
 Tôi tính lại của mình tối qua. Không phải lần đầu, nhưng lần này tính kỹ hơn — cộng cả giờ kẹt xe trên cầu, giờ trả lời tin nhắn công việc lúc ăn tối, giờ tôi nằm không làm gì sau 9 giờ vì đầu đã cạn. Con số ra thấp hơn tôi tưởng, như mọi lần.
 
-Không viết thư này để nói bạn nên đổi việc, đổi giờ, hay đổi gì cả. Chỉ để nói: con số đó đáng để biết, kể cả khi bạn không định làm gì với nó ngay.
+Không viết thư này để khuyên bạn đổi việc, đổi giờ, hay đổi gì cả. Chỉ để nói: con số đó đáng để biết, kể cả khi bạn không định làm gì với nó ngay.
 
 Nếu tuần này bạn có 5 phút, thử tính con số của riêng bạn — công cụ ở link dưới. Không cần đăng ký gì để dùng.
 
 Nếu bạn muốn, trả lời thư này với con số của bạn. Tôi đọc hết, dù không hứa trả lời được tất cả.
+
+Nếu phải đoán trước khi tính, con số của bạn là bao nhiêu?
 
 Hẹn Chủ nhật sau.
 

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Máy tính tỷ giá đời</title>
+<meta name="description" content="Nhập bốn con số, nhận tỷ giá đời thật của bạn, kèm so sánh với cách tính lương theo giờ hợp đồng.">
+<style>
+:root{--primary:#2C5F2E;--primary-light:#3D7A40;--accent:#F2C14E;--bg:#FFFDF7;--surface:#F5F1E8;--text:#1A1A1A;--muted:#6B7280;--border:#E8E4DC;--on-primary:#FFFDF7;
+--serif:'Lora',Georgia,'Times New Roman',serif;--sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+@media (prefers-color-scheme:dark){:root{--primary:#7DB680;--primary-light:#9CCB9F;--bg:#14170F;--surface:#1E2217;--text:#F0EDE4;--muted:#A3A8A0;--border:#2E3327;--on-primary:#14170F}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 var(--sans);padding:16px}
+main{max-width:680px;margin:0 auto}
+h1{font:600 1.5rem/1.25 var(--serif);margin:8px 0 8px}
+p{margin:0 0 16px}
+.lead{color:var(--muted)}
+form{display:grid;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+label{display:block;font-weight:600;font-size:.95rem}
+.hint{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
+input{width:100%;margin-top:8px;padding:12px;font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:6px}
+input:focus{outline:2px solid var(--primary-light);outline-offset:1px}
+.row{display:grid;gap:16px}
+@media (min-width:520px){.row{grid-template-columns:1fr 1fr}}
+#result{margin-top:24px;min-height:1px}
+.card{background:var(--primary);color:var(--on-primary);border-radius:8px;padding:24px}
+.big{font:600 2.5rem/1.1 var(--serif);margin:0}
+.unit{font-size:1rem;opacity:.85}
+.card p{margin:8px 0 0}
+.compare{margin-top:16px;padding:16px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+.compare b{font-weight:600}
+.note{color:var(--muted)}
+.ask{margin-top:16px;font-family:var(--serif);font-style:italic}
+button{font:inherit;font-weight:600;cursor:pointer;padding:12px 16px;border-radius:6px;border:1px solid var(--primary);background:var(--primary);color:var(--on-primary)}
+button.ghost{background:transparent;color:var(--primary)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#item{margin-top:16px;display:none}
+#item.open{display:block}
+.privacy{margin-top:24px;font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main data-widget="calculator-ty-gia">
+  <h1>Máy tính tỷ giá đời</h1>
+  <p class="lead">Thu nhập ròng chia cho toàn bộ giờ công việc thật sự lấy của bạn, gồm cả đi lại, chuẩn bị và hồi sức.</p>
+
+  <form id="f" novalidate autocomplete="off">
+    <label for="income">Thu nhập ròng mỗi tháng (đồng)
+      <span class="hint">Sau thuế và bảo hiểm. Thu nhập không đều thì lấy trung bình ba tháng gần nhất.</span>
+      <input id="income" inputmode="numeric" placeholder="30.000.000">
+    </label>
+    <label for="work">Giờ làm việc mỗi tuần
+      <span class="hint">Số giờ theo hợp đồng hoặc thực tế ở chỗ làm.</span>
+      <input id="work" inputmode="decimal" placeholder="48">
+    </label>
+    <div class="row">
+      <label for="commute">Giờ di chuyển mỗi tuần
+        <span class="hint">Cả đi và về.</span>
+        <input id="commute" inputmode="decimal" placeholder="7">
+      </label>
+      <label for="prep">Giờ chuẩn bị và hồi sức mỗi tuần
+        <span class="hint">Chuẩn bị đi làm, nghỉ lấy lại sức sau giờ làm.</span>
+        <input id="prep" inputmode="decimal" placeholder="5">
+      </label>
+    </div>
+  </form>
+
+  <div id="result" aria-live="polite"></div>
+
+  <div id="item">
+    <label for="price">Giá món đồ (đồng)
+      <input id="price" inputmode="numeric" placeholder="25.000.000">
+    </label>
+    <p id="itemOut" class="note" aria-live="polite"></p>
+  </div>
+
+  <p class="privacy">Số bạn nhập không rời máy bạn. Trang này không gửi dữ liệu đi đâu và không lưu lại gì.</p>
+</main>
+
+<script type="module">
+/*CORE*/
+
+const $ = (id) => document.getElementById(id);
+const fields = ['income', 'work', 'commute', 'prep'];
+let current = null;
+
+function read() {
+  return lifeRate({
+    netIncome: $('income').value,
+    workHoursPerWeek: $('work').value,
+    commuteHoursPerWeek: $('commute').value,
+    prepHoursPerWeek: $('prep').value,
+    recoveryHoursPerWeek: 0,
+  });
+}
+
+function render() {
+  const r = read();
+  current = r;
+  const out = $('result');
+  const anyTyped = fields.some((id) => $(id).value.trim() !== '');
+  $('item').classList.remove('open');
+  if (!anyTyped) { out.innerHTML = ''; return; }
+  if (r.status === 'need-hours') { out.innerHTML = '<p class="note">Cần nhập giờ làm việc để tính.</p>'; return; }
+  if (r.status === 'need-income') { out.innerHTML = '<p class="note">Cần nhập thu nhập ròng mỗi tháng để tính.</p>'; return; }
+
+  const rate = formatVnd(roundThousand(r.lifeRate));
+  let html = '<div class="card"><p class="big">' + rate + ' <span class="unit">một giờ</span></p>' +
+    '<p>Tính trên ' + formatHours(r.realWorkHoursPerWeek) + ' giờ thật mỗi tuần.</p></div>';
+  if (r.contractRate !== null) {
+    const paper = formatVnd(roundThousand(r.contractRate));
+    const gap = Math.round(r.gapPercent);
+    html += '<div class="compare"><p><b>Trên hợp đồng:</b> ' + paper + ' một giờ (lương chia ' + formatHours(Number($('work').value.replace(',', '.'))) + ' giờ làm việc).</p>' +
+      '<p class="note" style="margin:0">' + (gap > 0
+        ? 'Tỷ giá đời thấp hơn khoảng ' + gap + '%. Mức chênh này chỉ đúng với số bạn vừa nhập.'
+        : 'Hai con số gần như trùng nhau với số bạn vừa nhập.') + '</p></div>';
+  }
+  html += '<p class="ask">Con số này có khác với con số bạn vẫn nghĩ trong đầu không?</p>' +
+    '<p><button type="button" class="ghost" id="open-item" data-cta="life-rate-convert" data-widget="calculator-ty-gia" data-target="none">Quy đổi một món đồ</button></p>';
+  out.innerHTML = html;
+  $('open-item').addEventListener('click', () => { $('item').classList.add('open'); $('price').focus(); renderItem(); });
+}
+
+function renderItem() {
+  const o = $('itemOut');
+  const h = current && current.status === 'ok' ? itemHours($('price').value, current.lifeRate) : null;
+  o.textContent = h === null ? '' : 'Khoảng ' + formatHours(h) + ' giờ làm việc thật (giá chia tỷ giá đời).';
+}
+
+fields.forEach((id) => $(id).addEventListener('input', render));
+$('price').addEventListener('input', renderItem);
+$('f').addEventListener('submit', (e) => e.preventDefault());
+</script>
+</body>
+</html>

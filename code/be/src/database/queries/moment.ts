@@ -45,10 +45,13 @@ export const MOMENT_QUERIES = {
     RETURNING *
   `,
 
+  // `revisit_answer IS NULL` là một ràng buộc, không phải thừa: hạt muối đã được hỏi lại
+  // và đã trả lời thì nó là lịch sử — đổi chữ hay đổi loại lúc đó là sửa lại một câu
+  // người dùng đã nói về quá khứ của chính mình.
   update: `
     UPDATE moment
-    SET text = $2, updated_at = $3
-    WHERE id = $1 AND user_id = $4 AND deleted_at IS NULL
+    SET text = $2, kind = $3, revisit_at = $4, updated_at = $5
+    WHERE id = $1 AND user_id = $6 AND revisit_answer IS NULL AND deleted_at IS NULL
     RETURNING *
   `,
 

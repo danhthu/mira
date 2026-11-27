@@ -15,12 +15,12 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const OUT = resolve(dirname(fileURLToPath(import.meta.url)), '../../docs/du-lieu-mau');
-const SO_TUAN = 26;
+const WEEK_COUNT = 26;
 
 /** Thứ hai cách đây 25 tuần, để tuần cuối là tuần này. */
 const goc = new Date();
 goc.setUTCHours(0, 0, 0, 0);
-goc.setUTCDate(goc.getUTCDate() - ((goc.getUTCDay() + 6) % 7) - 7 * (SO_TUAN - 1));
+goc.setUTCDate(goc.getUTCDate() - ((goc.getUTCDay() + 6) % 7) - 7 * (WEEK_COUNT - 1));
 
 const ngay = (tuan, i) => {
   const d = new Date(goc);
@@ -43,7 +43,7 @@ const BIEN_CO = {
   21: { family: 2.2, waste: 0.4, note: 'tuần nhẹ' },
 };
 
-for (let w = 0; w < SO_TUAN; w += 1) {
+for (let w = 0; w < WEEK_COUNT; w += 1) {
   const bc = BIEN_CO[w] ?? {};
   for (let i = 0; i < 6; i += 1) {
     const rung = () => 0.88 + r() * 0.24;
@@ -74,5 +74,5 @@ for (let w = 0; w < SO_TUAN; w += 1) {
 const bo = { timeEntries, moments, money: {}, goals: [], habits: [], habitChecks: [] };
 writeFileSync(resolve(OUT, 'demo-sau-thang.json'), JSON.stringify(bo));
 
-console.log(`Đã ghi demo-sau-thang.json: ${timeEntries.length} mục giờ, ${moments.length} hạt, ${SO_TUAN} tuần.`);
+console.log(`Đã ghi demo-sau-thang.json: ${timeEntries.length} mục giờ, ${moments.length} hạt, ${WEEK_COUNT} tuần.`);
 console.log('SỐ BỊA. Nạp lại screentime.json sau khi xem xong.');

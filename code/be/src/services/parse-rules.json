@@ -1,0 +1,576 @@
+{
+  "$doc": "docs/12-mo-hinh-mira.md — đọc file đó trước khi sửa file này.",
+  "$hardRules": [
+    "MỌI từ khoá phải viết THƯỜNG và KHÔNG DẤU. Câu người dùng được bỏ dấu trước khi so khớp, nên 'thể dục' viết ở đây sẽ KHÔNG BAO GIỜ khớp — phải viết 'the duc'. Có bài kiểm tự động bắt lỗi này: src/services/__tests__/parseRules.test.test.ts.",
+    "THỨ TỰ TRONG MẢNG LÀ THỨ TỰ ƯU TIÊN. Khớp được dòng nào thì dừng ở đó. Cái cụ thể phải đứng trước cái chung: 'tam cho con' (gia đình) phải nằm trên 'tam' (cá nhân).",
+    "Từ khoá được so theo RANH GIỚI TỪ. 'hoc' không khớp vào giữa chữ 'hoc viên', nhưng khớp 'di hoc'.",
+    "Thêm từ vào danh sách ô (tuKhoaO) thì cân nhắc kỹ: đoán sai ô là bẻ cong con số cả app xoay quanh. Thêm từ vào camXuc thì thoải mái hơn: đoán sai chỉ là một hạt thừa trong hũ, gỡ một cú chạm."
+  ],
+  "version": 2,
+  "goldenHours": false,
+  "$goldenHours": "Tạm tắt theo quyết định của Founder ngày 25/11/2026. Dữ liệu `golden` trong CSDL vẫn còn nguyên, chỉ là tầng đọc câu thôi không gắn cờ nữa. Bật lại bằng cách đổi thành true — không phải viết lại gì.",
+  "defaultBucket": "personal",
+  "$defaultBucket": "Ô dùng khi câu có thời lượng và tên việc mà không từ khoá nào nhận ra. Chọn 'personal' vì đoán sai ở đây ít hại nhất: 'waste' là nói với người ta rằng việc họ vừa làm là phí, 'work' thì bẻ cong con số trung tâm.",
+  "bucketKeywords": [
+    {
+      "bucket": "work",
+      "golden": false,
+      "words": [
+        "hop",
+        "lam viec",
+        "di lam",
+        "cong ty",
+        "cong viec",
+        "deadline",
+        "du an",
+        "khach hang",
+        "email",
+        "bao cao",
+        "hop online",
+        "phong van",
+        "training",
+        "dao tao",
+        "tang ca",
+        "lam them gio",
+        "lam them"
+      ]
+    },
+    {
+      "bucket": "family",
+      "golden": true,
+      "$golden": "Đây là những việc từng được tính giờ vàng: ở cùng người nhà, không vừa làm vừa nhìn điện thoại.",
+      "words": [
+        "choi voi con",
+        "dua con",
+        "don con",
+        "voi con",
+        "voi vo",
+        "voi chong",
+        "an com cung",
+        "ca nha",
+        "gia dinh",
+        "bo me",
+        "ong ba",
+        "ke chuyen cho con",
+        "doc sach cho con",
+        "goi cho me",
+        "goi cho bo",
+        "goi dien cho me",
+        "goi ve nha"
+      ]
+    },
+    {
+      "bucket": "family",
+      "golden": false,
+      "$note": "Việc nhà và bữa ăn. 'tam cho con' phải đứng ở đây, TRƯỚC chữ 'tam' trần bên personal.",
+      "words": [
+        "an toi",
+        "an trua",
+        "an sang",
+        "nau com",
+        "nau an",
+        "nau nuong",
+        "rua bat",
+        "giat do",
+        "phoi do",
+        "don nha",
+        "don dep",
+        "nha cua",
+        "cham con",
+        "cho con",
+        "cho con an",
+        "tam cho con",
+        "day con hoc",
+        "di cho"
+      ]
+    },
+    {
+      "bucket": "waste",
+      "golden": false,
+      "words": [
+        "lang phi",
+        "dien thoai",
+        "facebook",
+        "tiktok",
+        "youtube",
+        "luot",
+        "luot web",
+        "xem phim",
+        "game",
+        "choi game",
+        "mang xa hoi",
+        "reels",
+        "short"
+      ],
+      "$note": "Có cả chính chữ \"lãng phí\". Danh sách này từng chỉ liệt kê BIỂU HIỆN — facebook, tiktok, lướt — nên \"lãng phí 30m\" rơi xuống nhánh đoán ô và vào Cá nhân."
+    },
+    {
+      "bucket": "personal",
+      "golden": false,
+      "$note": "Thể thao, chăm mình, học. 'the duc' TRẦN phải có: Founder gõ 'thể dục 30 phút' và cả câu rơi xuống tầng AI vì danh sách cũ chỉ nhận đủ cụm 'tap the duc'.",
+      "words": [
+        "ngu",
+        "gym",
+        "tap gym",
+        "the duc",
+        "tap the duc",
+        "chay bo",
+        "chay",
+        "dap xe",
+        "boi",
+        "da bong",
+        "cau long",
+        "tennis",
+        "yoga",
+        "thien",
+        "tam",
+        "di bo",
+        "doc sach",
+        "hoc",
+        "di hoc",
+        "hoc tieng anh",
+        "kham benh",
+        "cat toc"
+      ]
+    },
+    {
+      "bucket": "work",
+      "golden": false,
+      "$note": "Đi lại vì công việc. Đứng cuối vì 'di xe' chung chung, dễ nuốt câu khác.",
+      "words": [
+        "di xe",
+        "di lai",
+        "ket xe",
+        "tau xe",
+        "lai xe",
+        "di lam ve"
+      ]
+    }
+  ],
+  "moneyKeywords": [
+    {
+      "cell": "netIncome",
+      "adds": true,
+      "moneyOnly": true,
+      "$moneyOnly": "chiTien=true nghĩa là từ khoá này KHÔNG BAO GIỜ đo bằng phút, nên \"4m\" ở đây chắc chắn là 4 triệu. Nhóm nước đôi (ăn tối, cà phê, đi chợ) để false: chúng đo được cả tiền lẫn thời gian, và Mira hiện thời lượng bằng chữ \"m\" nên \"ăn tối 30m\" phải là 30 phút.",
+      "words": [
+        "thu nhap",
+        "luong",
+        "nhan luong",
+        "ve tay",
+        "thuong",
+        "me cho",
+        "bo cho",
+        "duoc cho",
+        "duoc tang",
+        "duoc bieu"
+      ]
+    },
+    {
+      "cell": "investment",
+      "adds": true,
+      "moneyOnly": true,
+      "$note": "Tiền CHUYỂN sang tài sản, không phải tiền mất. Đứng trước nhóm chi tiêu vì \"mua vàng\" phải thắng chữ \"mua\" trần ở dưới.",
+      "words": [
+        "dau tu",
+        "gui tiet kiem",
+        "tiet kiem",
+        "mua vang",
+        "mua chung khoan",
+        "chung khoan",
+        "co phieu",
+        "trai phieu",
+        "quy etf",
+        "bitcoin",
+        "crypto"
+      ]
+    },
+    {
+      "cell": "wastedMoney",
+      "adds": true,
+      "moneyOnly": false,
+      "$moneyOnly": "chiTien=false vì \"lãng phí\" đo được cả tiền lẫn thời gian: \"lãng phí 300k\" là tiền, \"lãng phí 30m\" là ba mươi phút rơi vào ô Lãng phí của màn Thời gian. Đòi đơn vị tiền rõ ràng — k, nghìn, tr, triệu, tỷ.",
+      "$note": "Tiền MẤT, do chính người dùng tự khai là không đáng. Mira không tự xếp khoản nào vào đây.",
+      "words": [
+        "lang phi",
+        "tieu hoang",
+        "vung tay",
+        "mua bua"
+      ]
+    },
+    {
+      "cell": "debtPayment",
+      "adds": true,
+      "moneyOnly": true,
+      "words": [
+        "tra no",
+        "tra gop",
+        "tra ngan hang"
+      ]
+    },
+    {
+      "cell": "debtBalance",
+      "adds": false,
+      "moneyOnly": true,
+      "words": [
+        "du no",
+        "con no",
+        "no con",
+        "khoan no",
+        "dang no",
+        "no the",
+        "no the tin dung",
+        "no ngan hang"
+      ]
+    },
+    {
+      "cell": "monthlyExpense",
+      "adds": true,
+      "moneyOnly": true,
+      "$note": "Nhóm tiêu CHỈ-TIỀN: mấy từ này không đo bằng phút được.",
+      "words": [
+        "chi tieu",
+        "tieu",
+        "chi phi",
+        "xai",
+        "mua",
+        "hoc phi",
+        "tien dien",
+        "tien nuoc",
+        "tien nha",
+        "tien hoc"
+      ]
+    },
+    {
+      "cell": "monthlyExpense",
+      "adds": true,
+      "moneyOnly": false,
+      "$note": "Nhóm tiêu NƯỚC ĐÔI: \"ăn tối 400k\" là tiền, \"ăn tối 30m\" là ba mươi phút. Đòi đơn vị rõ ràng — k, nghìn, tr, triệu, tỷ — chứ không nhận \"m\" trần.",
+      "words": [
+        "an uong",
+        "an sang",
+        "an trua",
+        "an toi",
+        "cafe",
+        "ca phe",
+        "xang",
+        "do xang",
+        "taxi",
+        "grab",
+        "ship",
+        "sieu thi",
+        "di cho",
+        "di nhau",
+        "an nhau",
+        "nhau voi ban",
+        "bia",
+        "tra sua",
+        "an vat",
+        "trua an",
+        "sang an",
+        "toi an"
+      ]
+    },
+    {
+      "cell": "netWorth",
+      "adds": false,
+      "moneyOnly": true,
+      "words": [
+        "tai san",
+        "tai san rong",
+        "tong tai san",
+        "net worth"
+      ]
+    }
+  ],
+  "cashWithdrawal": {
+    "words": [
+      "rut"
+    ],
+    "cell": "monthlyExpense",
+    "adds": true,
+    "$note": "Rút tiền mặt → cộng vào Chi tiêu tháng. Về kế toán thì rút tiền không đổi tài sản ròng, nhưng người gõ 'rút 500k' vào một cuốn nhật ký đời sống đang nói 'tôi vừa lấy 500k ra để tiêu', chứ không hỏi một câu kế toán. Founder chốt như vậy. Chữ 'rut' TRẦN là an toàn vì luật này chỉ được xét khi câu ĐÃ có số tiền — 'rút kinh nghiệm' không có số nên không chạm tới.",
+    "moneyOnly": true
+  },
+  "mood": {
+    "$note": "Xét trên CẢ CÂU, và chỉ khi không đọc được giờ hay tiền. Được phép dài, khác hẳn tuKhoaO: nhận nhầm ở đây chỉ là một hạt thừa. KHÔNG nhận chữ trần mơ hồ — bỏ dấu xong thì 'khó' với 'kho' (kho cá) giống hệt nhau, 'ổn' với 'ồn' cũng vậy.",
+    "happy": [
+      "vui",
+      "vui ve",
+      "hanh phuc",
+      "tuyet",
+      "tuyet voi",
+      "thich",
+      "cuoi",
+      "am",
+      "de chiu",
+      "nhe nhom",
+      "nhe nguoi",
+      "thoai mai",
+      "hai long",
+      "tu hao",
+      "biet on",
+      "may man",
+      "thanh cong",
+      "hoan thanh",
+      "xong viec",
+      "kha on",
+      "on ap",
+      "suon se",
+      "dc viec",
+      "duoc viec",
+      "khen",
+      "duoc khen",
+      "troi dep",
+      "dep troi"
+    ],
+    "sad": [
+      "met",
+      "met moi",
+      "buon",
+      "te",
+      "te hai",
+      "chan",
+      "chan nan",
+      "cang",
+      "cang thang",
+      "stress",
+      "ap luc",
+      "kho khan",
+      "kho chiu",
+      "vat va",
+      "nang ne",
+      "be tac",
+      "dau dau",
+      "cai nhau",
+      "tranh cai",
+      "gian",
+      "buc",
+      "buc boi",
+      "tuc",
+      "lo",
+      "lo lang",
+      "that vong",
+      "that bai",
+      "kiet suc",
+      "khoc",
+      "co don",
+      "hoang mang",
+      "roi tri",
+      "ket xe",
+      "tac duong"
+    ]
+  },
+  "reminder": {
+    "$note": "Đặt lời nhắc. Phải xét TRƯỚC nhánh giờ: trong câu đặt nhắc thì '8h' là giờ trên đồng hồ, còn trong câu ghi việc nó là thời lượng. Founder gõ 'tạo lịch nhắc 8h hàng ngày' và nhận về một mục 8 TIẾNG.",
+    "words": [
+      "nhac",
+      "lich nhac",
+      "dat nhac",
+      "tao nhac",
+      "hen gio",
+      "bao thuc"
+    ],
+    "everyDay": [
+      "hang ngay",
+      "moi ngay",
+      "ngay nao cung",
+      "tat ca cac ngay"
+    ],
+    "weekdays": [
+      "ngay thuong",
+      "cac ngay trong tuan",
+      "thu 2 den thu 6"
+    ],
+    "weekends": [
+      "cuoi tuan"
+    ],
+    "partsOfDay": {
+      "$note": "Bỏ dấu xong 'tối' thành 'toi' — trùng với đại từ 'tôi'. Nên 'nhắc tôi 8h' sẽ hiểu thành 8 giờ TỐI nếu nhận chữ 'toi' trần. Phải đòi nó đứng NGAY SAU con số, xử lý trong mã.",
+      "morning": [
+        "sang"
+      ],
+      "noon": [
+        "trua"
+      ],
+      "afternoon": [
+        "chieu"
+      ],
+      "evening": [
+        "toi",
+        "dem"
+      ]
+    }
+  },
+  "question": {
+    "$note": "Câu hỏi CHỈ được xét sau khi đã thử đọc giờ và tiền mà không ra gì. Ghi được thì ghi — 'hôm nay họp 2 tiếng' là một mục, không phải một câu hỏi. Nhưng xét TRƯỚC cảm xúc, vì 'hôm nay có vui không' là câu hỏi chứ không phải viên kẹo.",
+    "questionMarks": [
+      "the nao",
+      "nhu the nao",
+      "o dau",
+      "cho nao",
+      "bao nhieu",
+      "may gio",
+      "ra sao",
+      "sao",
+      "gi",
+      "nao",
+      "khong",
+      "chua"
+    ],
+    "$questionMarks": "Phải có ÍT NHẤT MỘT dấu hiệu hỏi thì câu mới được coi là câu hỏi. Dấu '?' cũng tính (xử lý trong mã). Không có cái nào thì rơi tiếp xuống cảm xúc — 'mệt quá' không phải câu hỏi.",
+    "topics": [
+      {
+        "code": "howToLog",
+        "$note": "Đứng đầu: 'ghi thế nào' có cả 'ghi' lẫn 'the nao', phải thắng mọi chủ đề khác.",
+        "words": [
+          "ghi the nao",
+          "ghi sao",
+          "ghi kieu gi",
+          "go the nao",
+          "go gi",
+          "go sao",
+          "dung the nao",
+          "dung sao",
+          "huong dan",
+          "giup",
+          "lam sao"
+        ]
+      },
+      {
+        "code": "whereIsIt",
+        "words": [
+          "o dau",
+          "cho nao",
+          "dau ra",
+          "tim o dau",
+          "xem o dau",
+          "sua o dau",
+          "vao dau",
+          "man nao",
+          "tab nao"
+        ]
+      },
+      {
+        "code": "jar",
+        "$note": "Trước 'homNay'/'tuanNay' vì 'hũ tuần này thế nào' phải ra hũ.",
+        "words": [
+          "hu",
+          "keo",
+          "muoi",
+          "hat keo",
+          "hat muoi",
+          "vien keo"
+        ]
+      },
+      {
+        "code": "money",
+        "words": [
+          "tien",
+          "tai chinh",
+          "luong",
+          "thu nhap",
+          "chi tieu",
+          "tai san",
+          "no",
+          "tu do"
+        ]
+      },
+      {
+        "code": "today",
+        "words": [
+          "hom nay",
+          "bua nay",
+          "hnay"
+        ]
+      },
+      {
+        "code": "thisWeek",
+        "words": [
+          "tuan nay",
+          "tuan",
+          "thang nay",
+          "thang"
+        ]
+      }
+    ]
+  },
+  "notSupported": {
+    "$note": "Việc khung chat CHƯA làm được. Phải chặn TRƯỚC mọi nhánh ghi, vì không chặn thì chúng không im lặng bỏ qua — chúng GHI SAI. Soi bằng tools/find-gaps.ts: 'sửa mục họp thành 3 tiếng' ghi thêm một mục 3 tiếng mới (giờ ngày đó có cả 2 lẫn 3 tiếng); 'tắt lời nhắc 21h' ĐẶT một lời nhắc 21h, đúng ngược điều người ta xin; 'khai nếp đi làm 8 tiếng mỗi ngày' ghi một mục 8 tiếng hôm nay chứ không khai nếp nào.",
+    "$rule": "Chỉ nhận CỤM NHIỀU CHỮ, không nhận động từ trần. 'bỏ' trần sẽ nuốt 'bỏ bữa sáng', 'tắt' trần sẽ nuốt 'tắt điện thoại 30 phút' — cả hai đều là mục đáng ghi.",
+    "items": [
+      {
+        "words": [
+          "sua muc",
+          "sua lai muc",
+          "chinh lai muc",
+          "sua cai",
+          "doi muc",
+          "doi o cua"
+        ],
+        "why": "Khung chat chỉ ghi mục mới, chưa sửa được mục đã ghi. Mở tab Thời gian, bấm Sửa ở dòng đó để đổi ô, số giờ hay ghi chú."
+      },
+      {
+        "words": [
+          "xoa muc",
+          "xoa cai",
+          "bo muc",
+          "xoa het",
+          "xoa ngay"
+        ],
+        "why": "Khung chat chỉ gỡ được thứ nó VỪA ghi, bằng nút Hoàn tác ngay dưới câu trả lời. Mục cũ thì bấm Xoá ở dòng đó bên tab Thời gian."
+      },
+      {
+        "words": [
+          "tat nhac",
+          "tat loi nhac",
+          "bat nhac",
+          "bat lai nhac",
+          "sua nhac",
+          "doi gio nhac"
+        ],
+        "why": "Khung chat đặt được lời nhắc mới, chưa bật tắt được lời nhắc đã có. Vào tab Tôi để bật, tắt hoặc xoá."
+      },
+      {
+        "words": [
+          "khai nep",
+          "tao nep",
+          "them nep"
+        ],
+        "why": "Nếp là việc lặp, máy tự điền mỗi ngày — khác hẳn một mục ghi tay. Khai nếp ở tab Thời gian."
+      },
+      {
+        "words": [
+          "tao danh muc",
+          "them danh muc",
+          "danh muc moi"
+        ],
+        "why": "Danh mục đặt ở tab Thời gian. Đặt xong thì tên đó thành từ khoá, gõ thẳng vào đây là Mira hiểu ngay."
+      },
+      {
+        "words": [
+          "dat muc tieu",
+          "them muc tieu",
+          "muc tieu moi"
+        ],
+        "why": "Mục tiêu đặt ở tab Mục tiêu, bấm dấu + ở góc dưới — nó cần chọn tầng và số giờ, nhiều hơn một câu nói được. Sửa và xoá cũng ngay ở dòng đó."
+      }
+    ]
+  },
+  "notRecorded": [
+    {
+      "words": [
+        "chuyen khoan",
+        "chuyen tien",
+        "nap tien"
+      ],
+      "why": "Chuyển tiền giữa các tài khoản của bạn không làm đổi tổng tài sản. Mira chỉ cần bảy con số mỗi tháng, không cần từng lần chuyển.",
+      "$note": "CHỈ xét khi câu có số tiền thật. Bỏ dấu xong thì \"chuyện tiền\" và \"chuyển tiền\" giống hệt nhau, nên câu \"lo lắng chuyện tiền\" — một hạt muối rõ ràng — từng bị trả lời bằng bài giảng kế toán. \"gửi tiết kiệm\" ĐÃ RỜI danh sách này 26/11/2026: nó có ô Đầu tư để vào, nên từ chối ghi là từ chối một con số app có cột để ghi."
+    }
+  ],
+  "moneyWithoutCell": {
+    "$note": "Câu CÓ số tiền rõ ràng mà không khớp ô nào. Trước đây rơi xuống \"chịu\" và người dùng nhận về \"Mira chưa hiểu câu này\" — vô ích, vì Mira hiểu rõ đây là tiền, chỉ không biết bỏ vào ô nào. Founder gõ \"vốn tự có 3tr\" và dính đúng chỗ này.",
+    "$noGuessing": "CỐ TÌNH KHÔNG ĐOÁN. Đoán sai ô tiền là hỏng con số đầu màn Tài chính: tài sản ròng chia cho chi tiêu tháng ra \"vốn tự do\", nên nhét nhầm 3tr vào tài sản ròng sẽ báo \"0,2 tháng tự do\" — một câu sai và đáng sợ.",
+    "why": "Mira có bảy ô tiền: thu nhập ròng, chi tiêu tháng, đầu tư, lãng phí, trả nợ mỗi tháng, dư nợ, tài sản ròng. Câu này có số tiền nhưng chưa nói rõ ô nào. Thử “tài sản ròng 3tr”, hoặc bấm dấu + bên tab Tài chính."
+  }
+}

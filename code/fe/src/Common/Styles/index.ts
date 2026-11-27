@@ -192,7 +192,7 @@ export const useCommonStyle = () => {
         position: 'absolute',
         right: 0,
       },
-      // Alias giữ cho các màn hình gọi style.header.leftButton/rightButton (Challenger, Goal)
+      // Alias giữ cho các màn hình gọi style.header.leftButton/rightButton (Goal, Habit)
       leftButton: {
         width: ICON_TOUCH_WIDTH,
         height: HEADER_HEIGHT,

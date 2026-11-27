@@ -35,11 +35,10 @@ export const ToolsScreen = () => {
     </Row>
     <Row style={{ borderBottomWidth: 1, borderBottomColor: colors.outlineVariant, flexDirection: 'row' }}>
       <Col >
-        <AppWidget name="ChallengerApp" icon='034-challenge.png' title="Challenge" />
+        <AppWidget name="HabitAppModal" icon='034-challenge.png' title="Habit" />
       </Col>
       <Col>
-        <AppWidget name="WorkApp" icon='019-emotions.png' title="Emotion" />
-
+        <AppWidget name="WorkApp" icon='019-emotions.png' title="Work" />
       </Col>
 
     </Row>
@@ -54,7 +53,6 @@ export const ToolsScreen = () => {
 };
 
 const Caption = () => {
-  const [emotionPercentage, setEmotionPercentage] = useState(80);
   const [workPercentage, setWorkPercentage] = useState(90);
   const [habitPercentage, setHabitPercentage] = useState(80);
   const [timePercentage, setTimePercentage] = useState(80);
@@ -66,10 +64,10 @@ const Caption = () => {
     <Text style={{ marginBottom: 10, textAlign: 'center', fontStyle: 'italic', fontSize: 20 }}>{text.wish}</Text>
     <View style={style.caption.row}>
       <View style={style.caption.col}>
-        <PercentageWidget label={text.for('Happiness index')}
+        <PercentageWidget label={text.for('Habit')}
           description={text.for('H')}
           icon={'018-planning.png'}
-          percentage={emotionPercentage} />
+          percentage={habitPercentage} />
       </View>
 
       <View style={style.caption.col}>

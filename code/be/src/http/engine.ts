@@ -10,9 +10,12 @@ import { MomentRepository } from '../database/repositories/MomentRepository';
 import { GoalRepository } from '../database/repositories/GoalRepository';
 import { MoneyRepository } from '../database/repositories/MoneyRepository';
 import { HabitRepository } from '../database/repositories/HabitRepository';
-import { NepRepository } from '../database/repositories/NepRepository';
-import { NhacRepository } from '../database/repositories/NhacRepository';
-import { DanhMucRepository } from '../database/repositories/DanhMucRepository';
+import { RoutineRepository } from '../database/repositories/RoutineRepository';
+import { ReminderRepository } from '../database/repositories/ReminderRepository';
+import { MoneyCategoryRepository } from '../database/repositories/MoneyCategoryRepository';
+import { MoneyEntryRepository } from '../database/repositories/MoneyEntryRepository';
+import { CategoryRepository } from '../database/repositories/CategoryRepository';
+import { ChatLogRepository } from '../database/repositories/ChatLogRepository';
 import { UserRepository } from '../database/repositories/UserRepository';
 import type { AuthDeps } from '../services/auth';
 import { DomainError } from '../shared/errors';
@@ -48,10 +51,13 @@ export interface AppDeps {
   readonly moments: MomentRepository;
   readonly goals: GoalRepository;
   readonly money: MoneyRepository;
+  readonly moneyCategories: MoneyCategoryRepository;
+  readonly moneyEntries: MoneyEntryRepository;
   readonly habits: HabitRepository;
-  readonly nep: NepRepository;
-  readonly nhac: NhacRepository;
-  readonly danhMuc: DanhMucRepository;
+  readonly routines: RoutineRepository;
+  readonly reminders: ReminderRepository;
+  readonly categories: CategoryRepository;
+  readonly chatLog: ChatLogRepository;
   readonly auth: AuthDeps;
   readonly wakingMinutesPerWeek?: number;
 }
@@ -72,10 +78,13 @@ export function buildDeps(
     moments: new MomentRepository(db),
     goals: new GoalRepository(db),
     money: new MoneyRepository(db),
+    moneyCategories: new MoneyCategoryRepository(db),
+    moneyEntries: new MoneyEntryRepository(db),
     habits: new HabitRepository(db),
-    nep: new NepRepository(db),
-    nhac: new NhacRepository(db),
-    danhMuc: new DanhMucRepository(db),
+    routines: new RoutineRepository(db),
+    reminders: new ReminderRepository(db),
+    categories: new CategoryRepository(db),
+    chatLog: new ChatLogRepository(db),
     auth: { users, jwtSecret, ttlSeconds, googleClientId },
   };
 }

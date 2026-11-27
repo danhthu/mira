@@ -40,4 +40,6 @@ Cộng cả chiều đi, con số tăng gần gấp đôi. Một tháng, tôi m�
 
 Tôi không đổi việc. Không chuyển nhà gần hơn — chưa đủ điều kiện để làm ngay lúc đó. Điều duy nhất tôi làm là bắt đầu tính 35 phút mỗi chiều vào tổng giờ công việc lấy đi của mình, thay vì coi nó là khoảng trống không thuộc về ai.
 
-Chỉ vậy thôi. Nhưng lần sau có ai hỏi tôi làm việc mấy tiếng một ngày, tôi trả lời khác. Không phải 8. Gần 10, nếu tính luôn đoạn đường mà không công ty nào ghi vào hợp đồng.
+Chỉ vậy thôi. Nhưng lần sau có ai hỏi tôi làm việc mấy tiếng một ngày, tôi trả lời khác. Không phải 8. Hơn 9, nếu tính luôn đoạn đường mà không công ty nào ghi vào hợp đồng.
+
+Còn bạn, nếu tính luôn đoạn đường, hôm nay bạn đã làm việc mấy tiếng?

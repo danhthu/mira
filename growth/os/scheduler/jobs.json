@@ -1,0 +1,21 @@
+{
+  "_doc": "Lịch chạy. type=script: node growth/os/bin/os.mjs run <name> (xác định, không LLM). type=claude: cần Claude Code — tạo scheduled task trong app desktop (hoặc Windows Task Scheduler gọi `claude -p`) với prompt ở claude_prompt. Giờ theo Asia/Ho_Chi_Minh.",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "jobs": [
+    { "name": "collect-metrics", "when": "0 7 * * *",   "type": "script", "desc": "Nạp/kiểm số liệu hôm qua, cập nhật dashboard, nhắc số thiếu" },
+    { "name": "cgo-plan",        "when": "0 8 * * *",   "type": "claude", "desc": "CGO lập kế hoạch ngày", "claude_prompt": "Dùng skill task-orchestration cho Mira Growth OS: đọc growth/os/memory/CURRENT_STATE.md và growth/os/dashboard/README.md, chạy `node growth/os/bin/os.mjs status`, rồi tạo/ưu tiên/gán task cho hôm nay theo Priority Score. Không chi tiền, không publish." },
+    { "name": "morning-production", "when": "0 9 * * 1-6", "type": "claude", "desc": "Nghiên cứu, SEO, nội dung, creative", "claude_prompt": "Lấy task READY có priority cao nhất thuộc agent seo-content, market-intelligence, creative-studio (`node growth/os/bin/os.mjs task list --status READY`), thực hiện lần lượt bằng agent tương ứng, cập nhật task với evidence. Dừng khi hết 3 task hoặc gặp việc cần duyệt." },
+    { "name": "afternoon-distribution", "when": "0 13 * * 1-6", "type": "claude", "desc": "Phân phối cộng đồng, outreach, publish đã duyệt", "claude_prompt": "Lấy task READY thuộc social-growth, community-partnerships, aso-specialist. Chỉ publish nội dung ở trạng thái APPROVED; chỉ gửi outreach đã được Founder duyệt. Ghi audit. Cập nhật task." },
+    { "name": "verify-tasks",    "when": "0 18 * * *",  "type": "script", "desc": "Phát hiện quá hạn, dọn lock" },
+    { "name": "memory-consolidate", "when": "15 18 * * *", "type": "claude", "desc": "Gom phát hiện vào memory", "claude_prompt": "Dùng skill memory-management: đọc task DONE hôm nay, ghi LEARNINGS/DECISION_LOG nếu có phát hiện mới, chạy `node growth/os/bin/os.mjs memory state`, cập nhật phần viết tay của CURRENT_STATE.md." },
+    { "name": "daily-report",    "when": "0 20 * * *",  "type": "script", "desc": "Sinh báo cáo ngày (phần số)" },
+    { "name": "daily-report-insights", "when": "10 20 * * *", "type": "claude", "desc": "CGO điền phát hiện + 3 ưu tiên vào báo cáo ngày", "claude_prompt": "Dùng skill daily-reporting: mở growth/os/reports/daily/<hôm nay>.md, điền PHÁT HIỆN và VIỆC TIẾP THEO từ dữ liệu thật, không bịa số. Nếu có skill telegram-report-bot và Founder đã bật, gửi tóm tắt." },
+    { "name": "weekly-plan",     "when": "30 8 * * 1",  "type": "claude", "desc": "Thứ Hai: review tuần trước, backlog tuần mới", "claude_prompt": "Dùng skill weekly-growth-review chế độ 'plan': đọc báo cáo tuần gần nhất, đặt mục tiêu tuần, sinh backlog, gán agent." },
+    { "name": "midweek-review",  "when": "0 14 * * 3",  "type": "claude", "desc": "Thứ Tư: điểm giữa tuần", "claude_prompt": "Dùng skill weekly-growth-review chế độ 'midweek': so tiến độ với mục tiêu tuần, tìm nút thắt, đổi ưu tiên task." },
+    { "name": "weekly-report",   "when": "0 17 * * 5",  "type": "script", "desc": "Thứ Sáu: báo cáo tuần (phần số)" },
+    { "name": "weekly-review",   "when": "15 17 * * 5", "type": "claude", "desc": "Thứ Sáu: phân tích kênh, quyết thử nghiệm, kế hoạch tuần sau", "claude_prompt": "Dùng skill weekly-growth-review chế độ 'review': phân tích kênh, quyết định SCALE/ITERATE/STOP cho thử nghiệm đã hết hạn, viết kế hoạch tuần sau vào báo cáo tuần." },
+    { "name": "monthly-review",  "when": "0 9 1 * *",   "type": "claude", "desc": "Đầu tháng: tiến độ, ngân sách, dự báo, đề xuất tái phân bổ (cần Founder duyệt)", "claude_prompt": "Dùng skill weekly-growth-review chế độ 'monthly': tổng kết tháng vào growth/os/reports/monthly/, dự báo installs còn lại, đề xuất tái phân bổ ngân sách dưới dạng approval request." }
+  ],
+  "retry": { "max_attempts": 3, "lock_ttl_sec": 1800 },
+  "alerts": { "file": "growth/os/logs/ALERTS.md", "telegram": "qua skill telegram-report-bot nếu đã cấu hình — chưa nối" }
+}

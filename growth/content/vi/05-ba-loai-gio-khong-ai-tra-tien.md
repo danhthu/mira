@@ -15,13 +15,13 @@ image_prompt: "Split triptych illustration, three vertical panels: a crowded bus
 cta: "life-rate-calculator"
 ---
 
-Phòng nhân sự có một định nghĩa rất rõ ràng về giờ làm việc: giờ bạn có mặt, hoặc giờ bạn được giao việc cụ thể, tính từ lúc chấm công đến lúc chấm công ra. Định nghĩa đó gọn, dễ trả lương theo, và sai với phần lớn người đi làm.
+Phòng nhân sự có một định nghĩa rất rõ ràng về giờ làm việc: giờ bạn có mặt, hoặc giờ bạn được giao việc cụ thể, tính từ lúc chấm công đến lúc chấm công ra. Định nghĩa đó gọn, dễ trả lương theo, và lệch với nhiều người đi làm.
 
 Có ba loại giờ công việc lấy đi mà không nằm trong định nghĩa đó. Cả ba đều thật, đều đến từ công việc, và đều không được tính vào đâu cả.
 
 ## 1 · Giờ di chuyển
 
-Đây là loại dễ thấy nhất nhưng vẫn thường bị bỏ qua, vì mỗi người tự chọn nơi ở, nên nó bị coi là "chuyện của bạn". Nhưng nếu không có công việc đó ở địa điểm đó, đoạn đường đó không tồn tại. Với người đi làm ở các thành phố lớn, đây thường là khoản lớn nhất trong ba loại — có thể tới 15-20 tiếng một tháng.
+Đây là loại dễ thấy nhất nhưng vẫn thường bị bỏ qua, vì mỗi người tự chọn nơi ở, nên nó bị coi là "chuyện của bạn". Nhưng nếu không có công việc đó ở địa điểm đó, đoạn đường đó không tồn tại. Với người đi làm ở các thành phố lớn, đây thường là khoản lớn nhất trong ba loại. Trong các ví dụ của tuần này, nó rơi vào khoảng 28 đến gần 40 tiếng một tháng.
 
 ## 2 · Giờ chuẩn bị
 
@@ -35,10 +35,12 @@ Loại gây tranh cãi nhất — vì nghe có vẻ giống nghỉ ngơi bình t
 
 Một buổi tối bạn lướt điện thoại vì muốn giải trí, khác với một buổi tối bạn lướt điện thoại vì đầu óc đã cạn sau một ngày dài và không còn khả năng làm việc gì đòi hỏi suy nghĩ. Cả hai nhìn giống hệt nhau từ bên ngoài. Chỉ người trong cuộc biết đâu là lựa chọn, đâu là hậu quả.
 
-## Vì sao phải gọi tên ba loại này
+## Vì sao cần gọi tên ba loại này
 
 Không phải để đi đòi công ty trả thêm lương — hầu hết sẽ không trả, và đó không phải mục đích ở đây. Gọi tên chúng để chấm dứt việc tự trách mình vì "không có thời gian" cho việc khác.
 
-Nhiều người nghĩ mình lười, mình quản lý thời gian kém, khi thật ra 60% số giờ rảnh còn lại trong ngày đã bị ba loại giờ này ăn hết từ trước. Vấn đề không phải là kỷ luật cá nhân. Vấn đề là tổng giờ công việc lấy đi lớn hơn nhiều so với con số ghi trên hợp đồng.
+Nhiều người nghĩ mình lười, mình quản lý thời gian kém, khi thật ra một phần không nhỏ quỹ giờ của họ đã bị ba loại giờ này lấy đi từ trước. Trong ví dụ lương 30 triệu của bài ngày 2, 12 trên 60 giờ công việc lấy đi nằm ngoài hợp đồng. Vấn đề không phải là kỷ luật cá nhân. Vấn đề là tổng giờ công việc lấy đi lớn hơn nhiều so với con số ghi trên hợp đồng.
 
-Biết ba loại này tồn tại là bước đầu để tính đúng cái giá thật của công việc — thứ nằm ở bài trước đó, tỷ giá đời.
+Biết ba loại này tồn tại là bước đầu để tính đúng cái giá thật của công việc — thứ ta gọi là tỷ giá đời ở bài đầu tuần.
+
+Trong ba loại này, loại nào của bạn đang lớn nhất mà bạn chưa từng ghi lại?

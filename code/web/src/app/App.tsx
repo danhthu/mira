@@ -8,12 +8,12 @@ import { ChatScreen } from '../features/chat/ChatScreen';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { TimeScreen } from '../features/time/TimeScreen';
 import { BucketScreen } from '../features/time/BucketScreen';
-import { HuScreen } from '../features/home/HuScreen';
-import { SauThangScreen } from '../features/sauthang/SauThangScreen';
+import { JarScreen } from '../features/home/JarScreen';
 import { MoneyScreen } from '../features/money/MoneyScreen';
+import { MoneyCellScreen } from '../features/money/MoneyCellScreen';
 import { GoalScreen } from '../features/goal/GoalScreen';
 import { MeScreen } from '../features/me/MeScreen';
-import { coToken, dongPhien } from '../lib/phien';
+import { hasToken, closeSession } from '../lib/session';
 import { store } from '../lib/store';
 
 /**
@@ -32,27 +32,27 @@ export function App() {
   // Chưa có token thì vào màn chào trước, không phải màn đăng nhập. Thoát ra thì về
   // 'chua-vao' chứ không về 'chao': người vừa đăng xuất không cần xem lại lời giới thiệu.
   const [phien, setPhien] = useState<Phien>(() =>
-    coToken() ? { trang_thai: 'dang-hoi' } : { trang_thai: 'chao' },
+    hasToken() ? { trang_thai: 'dang-hoi' } : { trang_thai: 'chao' },
   );
 
   useEffect(() => {
     if (phien.trang_thai !== 'dang-hoi') return;
-    let conHieuLuc = true;
+    let stillValid = true;
 
     void store
       .me()
       .then((user: User) => {
-        if (conHieuLuc) setPhien({ trang_thai: 'da-vao', user });
+        if (stillValid) setPhien({ trang_thai: 'da-vao', user });
       })
       .catch(() => {
         // Token hết hạn, bị thu hồi, hoặc máy chủ không trả lời. Trường hợp nào cũng
         // không vào được, nên xoá token cho khỏi thử lại vô ích mỗi lần mở app.
-        dongPhien();
-        if (conHieuLuc) setPhien({ trang_thai: 'chua-vao' });
+        closeSession();
+        if (stillValid) setPhien({ trang_thai: 'chua-vao' });
       });
 
     return () => {
-      conHieuLuc = false;
+      stillValid = false;
     };
   }, [phien.trang_thai]);
 
@@ -67,7 +67,7 @@ export function App() {
   }
 
   if (phien.trang_thai === 'chao') {
-    return <WelcomeScreen onVao={() => setPhien({ trang_thai: 'chua-vao' })} />;
+    return <WelcomeScreen onSignIn={() => setPhien({ trang_thai: 'chua-vao' })} />;
   }
 
   // Chưa đăng nhập thì không dựng router: không màn nào trong app có nghĩa khi chưa biết
@@ -75,7 +75,7 @@ export function App() {
   if (phien.trang_thai === 'chua-vao') {
     return (
       <div className="screen">
-        <AuthScreen onVao={(user) => setPhien({ trang_thai: 'da-vao', user })} />
+        <AuthScreen onSignIn={(user) => setPhien({ trang_thai: 'da-vao', user })} />
       </div>
     );
   }
@@ -90,14 +90,14 @@ export function App() {
           <Route path="/tom-tat" element={<HomeScreen />} />
           <Route path="/thoi-gian" element={<TimeScreen />} />
           <Route path="/thoi-gian/:bucket" element={<BucketScreen />} />
-          <Route path="/hu" element={<HuScreen />} />
-          <Route path="/sau-thang" element={<SauThangScreen />} />
+          <Route path="/hu" element={<JarScreen />} />
           <Route path="/tai-chinh" element={<MoneyScreen />} />
+          <Route path="/tai-chinh/:cell" element={<MoneyCellScreen />} />
           <Route path="/muc-tieu" element={<GoalScreen />} />
           <Route
             path="/toi"
             element={
-              <MeScreen user={phien.user} onRa={() => setPhien({ trang_thai: 'chua-vao' })} />
+              <MeScreen user={phien.user} onSignOut={() => setPhien({ trang_thai: 'chua-vao' })} />
             }
           />
         </Routes>

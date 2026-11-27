@@ -2,7 +2,7 @@ import type { IDatabase } from '../../shared/interfaces/IDatabase';
 import { newId } from '../id';
 
 /** 23505 = vi phạm chỉ mục duy nhất của Postgres. Lỗi khác là lỗi thật, phải ném tiếp. */
-const laTrungKhoa = (error: unknown): boolean =>
+const isDuplicateKey = (error: unknown): boolean =>
   typeof error === 'object' && error !== null && (error as { code?: string }).code === '23505';
 
 export interface UserRec {
@@ -101,14 +101,14 @@ export class UserRepository {
         ]);
         if (row !== null) return toUser(row);
       } catch (error) {
-        if (!laTrungKhoa(error)) throw error;
+        if (!isDuplicateKey(error)) throw error;
         // Trùng email nghĩa là có người khác vừa đăng nhập cùng lúc — người gọi tra lại.
-        const daCo = await this.findByEmail(email);
-        if (daCo !== null) return daCo;
+        const known = await this.findByEmail(email);
+        if (known !== null) return known;
         // Trùng tên đăng nhập: thử tên tiếp theo.
       }
     }
-    throw new Error(`Không tạo được tên đăng nhập từ "${tenGoiY}" sau 12 lần thử.`);
+    throw new Error(`Không tạo được tên đăng nhập từ "${tenGoiY}" after 12 lần thử.`);
   }
 
   /**
@@ -126,7 +126,7 @@ export class UserRepository {
       ]);
       return row === null ? null : toUser(row);
     } catch (error) {
-      if (laTrungKhoa(error)) return null;
+      if (isDuplicateKey(error)) return null;
       throw error;
     }
   }

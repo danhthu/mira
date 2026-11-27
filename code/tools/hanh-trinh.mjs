@@ -47,7 +47,7 @@ const giuChan = MOC.map((t) => ({
   tuan: t,
   tyLe: app.filter((p) => conDung(p, t)).length / N,
   // Trong số còn dùng, trung bình ghi mấy ngày mỗi tuần.
-  ngayGhi: mean(app.filter((p) => conDung(p, t)).map((p) => p.tuan[Math.min(t, WEEKS - 1)]?.ngayGhi ?? 0)),
+  daysLogged: mean(app.filter((p) => conDung(p, t)).map((p) => p.tuan[Math.min(t, WEEKS - 1)]?.daysLogged ?? 0)),
 }));
 
 const conLai = app.filter((p) => p.boTuan === null);
@@ -152,7 +152,7 @@ for (let i = 0; i < N; i += 1) {
         [
           i, p.job.name, p.stage.name, nhan, w + 1,
           n2(h(t.work)), n2(h(t.waste)), n2(h(t.family)), n2(h(t.golden)),
-          t.ngayGhi, t.dangDung ? 1 : 0, n2(t.cangThang),
+          t.daysLogged, t.dangDung ? 1 : 0, n2(t.cangThang),
         ].join(','),
       );
     });
@@ -198,7 +198,7 @@ nhất là không cài app.
 
 | Tuần | Còn dùng | Ngày ghi / tuần (người còn dùng) |
 |---|---|---|
-${giuChan.map((g) => `| ${g.tuan} | **${pcf(g.tyLe)}** | ${n1(g.ngayGhi)} |`).join('\n')}
+${giuChan.map((g) => `| ${g.tuan} | **${pcf(g.tyLe)}** | ${n1(g.daysLogged)} |`).join('\n')}
 
 Sau 26 tuần còn **${conLai.length}/${N}** người (${pcf(conLai.length / N)}).
 Người bỏ giữa chừng bỏ ở tuần thứ **${n1(mean(daBo.map((p) => p.boTuan)))}** tính trung bình.

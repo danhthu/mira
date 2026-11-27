@@ -98,7 +98,7 @@ function do_(kb) {
     giu12: app.filter((p) => p.boTuan === null || p.boTuan > 12).length / N,
     giu26: conLai.length / N,
     coMucTieu: app.filter((p) => p.coMucTieu).length / N,
-    ngayGhi: mean(app.map((p) => p.soNgayGhi)),
+    daysLogged: mean(app.map((p) => p.soNgayGhi)),
     tkDangKy: mean(tietKiem),
     tkConLai: mean(tietKiemConLai),
     vangDangKy: mean(vangTietKiem),
@@ -130,7 +130,7 @@ giữa chừng. Mọi con số khác dễ làm đẹp hơn nó.
 ${kq
   .map(
     (k) =>
-      `| **${k.ten}** | ${pcf(k.giu12)} | ${pcf(k.giu26)} | ${pcf(k.coMucTieu)} | ${n1(k.ngayGhi)} | ` +
+      `| **${k.ten}** | ${pcf(k.giu12)} | ${pcf(k.giu26)} | ${pcf(k.coMucTieu)} | ${n1(k.daysLogged)} | ` +
       `**${n1(k.tkDangKy)}h** | ${k.key === 'hien-tai' ? '—' : `${k.tkDangKy >= goc.tkDangKy ? '+' : ''}${pcf(tang(k.tkDangKy, goc.tkDangKy))}`} |`,
   )
   .join('\n')}

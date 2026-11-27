@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  padding: 16px 20px calc(16px + env(safe-area-inset-bottom));
+  padding: 16px 20px calc(16px + var(--inset-bottom));
   gap: 12px;
   background: var(--screen);
 }
@@ -325,4 +325,75 @@
     font-size: 22px;
     margin-top: 12px;
   }
+}
+
+/* ───────────────────────────────────── nhãn nhỏ trên tiêu đề
+   Lấy từ mockup: một nhãn in hoa, giãn chữ rộng, màu thương hiệu. Nó làm hai việc —
+   nói bước này về cái gì, và cho mắt một điểm tựa trước câu tiêu đề dài. */
+.wel__kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 10px;
+}
+
+/* ───────────────────────────────────── dấu Mira, bước đầu và bước cuối */
+.wel__dau {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+
+/* Hai vòng trong, dựng bằng thẻ rỗng chứ không bằng ::before/::after: phần tử cha đã
+   dùng cả hai chỗ đó cho việc khác ở biến thể khép. */
+.wel__dau > i {
+  position: absolute;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+.wel__dau > i:nth-of-type(1) {
+  inset: 22px;
+}
+.wel__dau > i:nth-of-type(2) {
+  inset: 46px;
+}
+
+.wel__dau > span {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  font-weight: 300;
+  line-height: 1;
+  /* Chữ `m` thường nằm lệch lên trong ô vuông của nó. */
+  padding-bottom: 8px;
+  box-shadow: 0 12px 30px rgb(79 70 229 / 26%);
+}
+
+/* Bước cuối: cùng dấu, nhỏ lại, chừa chỗ cho hai viên thuốc ở dưới. */
+.wel__dau--khep {
+  width: 168px;
+  height: 168px;
+}
+.wel__dau--khep > i:nth-of-type(1) {
+  inset: 18px;
+}
+.wel__dau--khep > i:nth-of-type(2) {
+  inset: 37px;
+}
+.wel__dau--khep > span {
+  width: 78px;
+  height: 78px;
+  font-size: 33px;
 }

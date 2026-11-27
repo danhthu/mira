@@ -17,3 +17,15 @@
 # Tài nguyên có vân tay trong tên thì cache lâu được.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Service worker và manifest KHÔNG ĐƯỢC cache lâu.
+#
+# sw.js không có vân tay trong tên, nên nếu biên giữ nó một năm thì một bản service
+# worker hỏng sẽ ở lại máy người dùng đúng một năm — mà service worker hỏng thì không tự
+# xoá được. Đây chính là bẫy đã làm trắng màn hình hôm 25/11, chỉ khác là lần này nạn
+# nhân nằm trong máy người dùng chứ không nằm ở biên.
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600

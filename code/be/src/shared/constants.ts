@@ -1,4 +1,4 @@
-import type { DunbarRing, GoalTier, TimeBucket, TimeEntrySource } from './types/enums';
+import type { DunbarRing, GoalTier, TimeBucket, TimeEntrySource , MoneyFlowCell } from './types/enums';
 
 // Giá trị mặc định phải khớp DEFAULT trong migrations: repository ghi giá trị tường
 // minh cho mọi cột nên DEFAULT của DB không bao giờ được dùng tới.
@@ -32,3 +32,62 @@ export const HABIT_CAP = 5;
 
 /** Giờ tỉnh mặc định mỗi tuần: 16 giờ/ngày × 7. Người dùng sửa được. */
 export const DEFAULT_WAKING_MINUTES_PER_WEEK = 16 * 60 * 7;
+
+/** Năm ô tiền tách được thành khoản lẻ. Hai ô mức không có mặt ở đây, có chủ ý. */
+/**
+ * Màu và hình của danh mục. **Bản sao của `CATEGORY_COLORS` / `CATEGORY_ICONS` trong
+ * contract**, và phải khớp từng phần tử.
+ *
+ * Vì sao lại chép: máy chủ KHÔNG phụ thuộc `@mira/contract` lúc chạy — chỉ `import type`.
+ * Đây là chỗ thứ ba trong kho mã sống với luật đó (cùng `Intent` và `MONEY_FLOW_CELLS`),
+ * nên nó có một bài kiểm riêng đối chiếu hai danh sách: xem `__tests__/contractSync.test.ts`.
+ */
+export const CATEGORY_COLORS = [
+  'work',
+  'family',
+  'personal',
+  'waste',
+  'red',
+  'navy',
+  'candy',
+  'salt',
+] as const;
+
+export const CATEGORY_ICONS = [
+  'bowl',
+  'cart',
+  'mug',
+  'car',
+  'fuel',
+  'bolt',
+  'droplet',
+  'wifi',
+  'phone',
+  'school',
+  'book',
+  'pill',
+  'shirt',
+  'gift',
+  'plane',
+  'tool',
+  'heart',
+  'music',
+  'gamepad',
+  'laptop',
+  'piggy',
+  'home',
+  'briefcase',
+  'bank',
+  'chart',
+  'receipt',
+  'bin',
+  'coins',
+] as const;
+
+export const MONEY_FLOW_CELLS: readonly MoneyFlowCell[] = [
+  'netIncome',
+  'monthlyExpense',
+  'investment',
+  'wastedMoney',
+  'debtPayment',
+];
